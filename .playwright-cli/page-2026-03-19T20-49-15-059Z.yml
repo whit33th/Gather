@@ -1,0 +1,15 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e4]:
+      - link "Gather" [ref=e5] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e6]: Trip notebook
+  - generic [ref=e7]:
+    - main [ref=e8]
+    - contentinfo [ref=e11]:
+      - generic [ref=e12]:
+        - paragraph [ref=e13]: Gather
+        - paragraph [ref=e14]: Shared place for destinations, dates, decisions, budgets, and the group chat around the trip.
+  - button "Open Next.js Dev Tools" [ref=e20] [cursor=pointer]:
+    - img [ref=e21]
+  - alert [ref=e24]

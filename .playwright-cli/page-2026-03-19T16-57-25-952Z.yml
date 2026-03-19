@@ -1,0 +1,77 @@
+- generic [ref=e1]:
+  - generic [active]:
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - navigation [ref=e19]:
+          - button "previous" [disabled] [ref=e20]:
+            - img "previous" [ref=e21]
+          - generic [ref=e23]:
+            - generic [ref=e24]: 1/
+            - text: "2"
+          - button "next" [ref=e25] [cursor=pointer]:
+            - img "next" [ref=e26]
+        - link "Next.js 16.1.6 (stale) Turbopack" [ref=e29] [cursor=pointer]:
+          - /url: https://nextjs.org/docs/messages/version-staleness
+          - img [ref=e30]
+          - generic "There is a newer version (16.2.0) available, upgrade recommended!" [ref=e32]: Next.js 16.1.6 (stale)
+          - generic [ref=e33]: Turbopack
+      - generic [ref=e34]:
+        - dialog "Console Error" [ref=e35]:
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - generic [ref=e40]:
+                - generic [ref=e42]: Console Error
+                - generic [ref=e43]:
+                  - button "Copy Error Info" [ref=e44] [cursor=pointer]:
+                    - img [ref=e45]
+                  - link "Go to related documentation" [ref=e47] [cursor=pointer]:
+                    - /url: https://react.dev/link/rules-of-hooks
+                    - img [ref=e48]
+                  - button "Attach Node.js inspector" [ref=e50] [cursor=pointer]:
+                    - img [ref=e51]
+              - generic [ref=e59]:
+                - generic [ref=e60]:
+                  - text: "React has detected a change in the order of Hooks called by TripSettingsPage. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks:"
+                  - link "https://react.dev/link/rules-of-hooks" [ref=e61] [cursor=pointer]:
+                    - /url: https://react.dev/link/rules-of-hooks
+                  - text: Previous render Next render ------------------------------------------------------ 1. useContext useContext 2. useContext useContext 3. useMemo useMemo 4. useContext useContext 5. useMemo useMemo 6. useState useState 7. useEffect useEffect 8. useMemo useMemo 9. useState useState 10. useEffect useEffect 11. useContext useContext 12. useMemo useMemo 13. useMemo useMemo 14. useState useState 15. useState useState 16. useState useState 17. useState useState 18. useState useState 19. useState useState 20. useState useState 21. useState useState 22. useState useState 23. undefined useEffect ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                - button "Show More" [ref=e63] [cursor=pointer]
+            - generic [ref=e65]:
+              - generic [ref=e66]:
+                - paragraph [ref=e67]:
+                  - text: Call Stack
+                  - generic [ref=e68]: "19"
+                - button "Show 18 ignore-listed frame(s)" [ref=e69] [cursor=pointer]:
+                  - text: Show 18 ignore-listed frame(s)
+                  - img [ref=e70]
+              - generic [ref=e72]:
+                - generic [ref=e73]:
+                  - text: TripSettingsPage
+                  - button "Sourcemapping failed. Click to log cause of error." [ref=e74] [cursor=pointer]:
+                    - img [ref=e75]
+                - text: file:///C:/Projects/Gather/.next/dev/static/chunks/_43a29cc6._.js (313:180)
+          - generic [ref=e77]: "1"
+          - generic [ref=e78]: "2"
+        - contentinfo [ref=e79]:
+          - region "Error feedback" [ref=e80]:
+            - paragraph [ref=e81]:
+              - link "Was this helpful?" [ref=e82] [cursor=pointer]:
+                - /url: https://nextjs.org/telemetry#error-feedback
+            - button "Mark as helpful" [ref=e83] [cursor=pointer]:
+              - img [ref=e84]
+            - button "Mark as not helpful" [ref=e87] [cursor=pointer]:
+              - img [ref=e88]
+    - generic [ref=e94] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e95]:
+        - img [ref=e96]
+      - generic [ref=e99]:
+        - button "Open issues overlay" [ref=e100]:
+          - generic [ref=e101]:
+            - generic [ref=e102]: "1"
+            - generic [ref=e103]: "2"
+          - generic [ref=e104]:
+            - text: Issue
+            - generic [ref=e105]: s
+        - button "Collapse issues badge" [ref=e106]:
+          - img [ref=e107]
+  - 'heading "Application error: a client-side exception has occurred while loading localhost (see the browser console for more information)." [level=2] [ref=e111]'

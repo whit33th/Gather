@@ -1,0 +1,224 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Gather" [ref=e5] [cursor=pointer]:
+        - /url: /
+      - button "Sign out" [ref=e15]:
+        - img [ref=e16]
+        - text: Sign out
+  - generic [ref=e6]:
+    - main [ref=e7]:
+      - generic [ref=e8]:
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - link "All trips" [ref=e23] [cursor=pointer]:
+              - /url: /
+              - img [ref=e24]
+              - text: All trips
+            - link "Edit trip settings" [ref=e26] [cursor=pointer]:
+              - /url: /trip/mh72ttd0apjwqk39ceng3vaers837dd5/settings
+              - img [ref=e27]
+          - generic [ref=e31]:
+            - paragraph [ref=e32]: Trip notebook
+            - heading "Codex QA Trip" [level=1] [ref=e33]
+            - generic [ref=e34]:
+              - generic "Unknown" [ref=e37]:
+                - generic [ref=e38]: U
+              - paragraph [ref=e39]: 1 traveler
+            - generic [ref=e40]:
+              - generic [ref=e41]:
+                - img [ref=e42]
+                - text: Warszawa, Masovian Voivodeship, Poland
+              - generic [ref=e45]:
+                - img [ref=e46]
+                - text: Apr 20 - Apr 25, 2026
+            - button "Copy invite link" [ref=e49]:
+              - img [ref=e50]
+              - text: Copy invite link
+        - generic [ref=e56]:
+          - generic [ref=e58]:
+            - button "Overview" [ref=e59]:
+              - img [ref=e60]
+              - text: Overview
+            - button "Chat" [ref=e65]:
+              - img [ref=e66]
+              - text: Chat
+          - generic [ref=e68]:
+            - generic [ref=e69]:
+              - generic [ref=e71]:
+                - generic [ref=e72]:
+                  - paragraph [ref=e73]: Availability
+                  - heading "Find the overlap" [level=2] [ref=e74]
+                  - paragraph [ref=e75]: "Best day so far: Mon, Apr 20 / 0 yes / 0 maybe"
+                - generic [ref=e77]:
+                  - button "Yes" [ref=e78]:
+                    - img [ref=e79]
+                    - text: "Yes"
+                  - button "No" [ref=e81]:
+                    - img [ref=e82]
+                    - text: "No"
+                  - button "Maybe" [ref=e85]:
+                    - img [ref=e86]
+                    - text: Maybe
+              - generic [ref=e90]:
+                - generic [ref=e91]:
+                  - generic [ref=e93]:
+                    - paragraph [ref=e94]: Mon
+                    - paragraph [ref=e95]: "20"
+                    - paragraph [ref=e96]: open
+                  - generic [ref=e97]:
+                    - paragraph [ref=e98]: Tue
+                    - paragraph [ref=e99]: "21"
+                    - paragraph [ref=e100]: open
+                  - generic [ref=e101]:
+                    - paragraph [ref=e102]: Wed
+                    - paragraph [ref=e103]: "22"
+                    - paragraph [ref=e104]: open
+                  - generic [ref=e105]:
+                    - paragraph [ref=e106]: Thu
+                    - paragraph [ref=e107]: "23"
+                    - paragraph [ref=e108]: open
+                  - generic [ref=e109]:
+                    - paragraph [ref=e110]: Fri
+                    - paragraph [ref=e111]: "24"
+                    - paragraph [ref=e112]: open
+                  - generic [ref=e113]:
+                    - paragraph [ref=e114]: Sat
+                    - paragraph [ref=e115]: "25"
+                    - paragraph [ref=e116]: open
+                - generic [ref=e117]:
+                  - generic [ref=e118]:
+                    - generic "Unknown" [ref=e119]:
+                      - generic [ref=e120]: U
+                    - generic [ref=e121]:
+                      - paragraph [ref=e122]: Unknown
+                      - paragraph [ref=e123]: You
+                  - button "Unknown 2026-04-20" [ref=e124] [cursor=pointer]
+                  - button "Unknown 2026-04-21" [ref=e126] [cursor=pointer]
+                  - button "Unknown 2026-04-22" [ref=e128] [cursor=pointer]
+                  - button "Unknown 2026-04-23" [ref=e130] [cursor=pointer]
+                  - button "Unknown 2026-04-24" [ref=e132] [cursor=pointer]
+                  - button "Unknown 2026-04-25" [ref=e134] [cursor=pointer]
+            - generic [ref=e140]:
+              - generic [ref=e141]:
+                - generic [ref=e142]:
+                  - paragraph [ref=e143]: Weather
+                  - paragraph [ref=e144]: Warszawa, Masovian Voivodeship, Poland
+                - generic [ref=e146]:
+                  - paragraph [ref=e147]: 10°
+                  - paragraph [ref=e148]: Cloud cover / 9 kmh wind
+              - generic [ref=e149]:
+                - generic [ref=e150]:
+                  - paragraph [ref=e151]: Thu
+                  - paragraph [ref=e152]: 13 / 3
+                  - paragraph [ref=e153]: Cloud cover
+                - generic [ref=e154]:
+                  - paragraph [ref=e155]: Fri
+                  - paragraph [ref=e156]: 7 / 4
+                  - paragraph [ref=e157]: Drizzle
+                - generic [ref=e158]:
+                  - paragraph [ref=e159]: Sat
+                  - paragraph [ref=e160]: 9 / 2
+                  - paragraph [ref=e161]: Cloud cover
+                - generic [ref=e162]:
+                  - paragraph [ref=e163]: Sun
+                  - paragraph [ref=e164]: 14 / 1
+                  - paragraph [ref=e165]: Cloud cover
+                - generic [ref=e166]:
+                  - paragraph [ref=e167]: Mon
+                  - paragraph [ref=e168]: 15 / 2
+                  - paragraph [ref=e169]: Cloud cover
+            - generic [ref=e170]:
+              - generic [ref=e171]:
+                - paragraph [ref=e172]: Proposals
+                - heading "What the group likes" [level=2] [ref=e173]
+              - generic [ref=e174]:
+                - button "All 0" [ref=e175]:
+                  - img [ref=e177]
+                  - generic [ref=e182]:
+                    - generic [ref=e183]: All
+                    - generic [ref=e184]: "0"
+                - button "Stay 0" [ref=e185]:
+                  - img [ref=e187]
+                  - generic [ref=e190]:
+                    - generic [ref=e191]: Stay
+                    - generic [ref=e192]: "0"
+                - button "Food 0" [ref=e193]:
+                  - img [ref=e195]
+                  - generic [ref=e198]:
+                    - generic [ref=e199]: Food
+                    - generic [ref=e200]: "0"
+                - button "Activity 0" [ref=e201]:
+                  - img [ref=e203]
+                  - generic [ref=e205]:
+                    - generic [ref=e206]: Activity
+                    - generic [ref=e207]: "0"
+                - button "Favorite 0" [ref=e208]:
+                  - img [ref=e210]
+                  - generic [ref=e212]:
+                    - generic [ref=e213]: Favorite
+                    - generic [ref=e214]: "0"
+              - button "Add proposal Open a drawer and drop in a new option." [ref=e216]:
+                - img [ref=e218]
+                - generic [ref=e219]: Add proposal
+                - generic [ref=e220]: Open a drawer and drop in a new option.
+            - generic [ref=e221]:
+              - generic [ref=e223]:
+                - paragraph [ref=e224]: Budget
+                - heading "Money snapshot" [level=2] [ref=e225]
+                - generic [ref=e226]:
+                  - paragraph [ref=e227]: Total
+                  - paragraph [ref=e228]: €0
+              - button "Add expense Open the drawer and save a new cost." [ref=e231]:
+                - img [ref=e233]
+                - generic [ref=e234]: Add expense
+                - generic [ref=e235]: Open the drawer and save a new cost.
+            - generic [ref=e236]:
+              - generic [ref=e237]:
+                - paragraph [ref=e238]: Map
+                - generic [ref=e240]:
+                  - heading "Around Warszawa, Masovian Voivodeship, Poland" [level=2] [ref=e241]
+                  - paragraph [ref=e242]: The base destination is pinned and ready
+              - generic [ref=e244]:
+                - generic [ref=e245]: Loading map...
+                - button "Open map fullscreen" [ref=e247]:
+                  - img [ref=e248]
+              - generic [ref=e261]:
+                - img [ref=e263]
+                - generic [ref=e266]:
+                  - paragraph [ref=e267]: Warszawa, Masovian Voivodeship, Poland
+                  - paragraph [ref=e268]: Base
+            - generic [ref=e269]:
+              - generic [ref=e270]:
+                - paragraph [ref=e271]: Gallery
+                - heading "Notebook images" [level=2] [ref=e272]
+                - paragraph [ref=e273]: Add real photos from the trip thread. The grid stays dense and quiet.
+              - generic [ref=e275]:
+                - button "+" [ref=e278]:
+                  - generic [ref=e279]: +
+                - generic [ref=e280]: No photos yet. Start with the first tile.
+            - generic [ref=e281]:
+              - generic [ref=e282]:
+                - generic [ref=e284]:
+                  - generic [ref=e285]:
+                    - paragraph [ref=e286]: Tasks
+                    - heading "Pre-trip checklist" [level=2] [ref=e287]
+                  - paragraph [ref=e288]: 0/0
+                - button "Add task" [ref=e292]:
+                  - img [ref=e294]
+                  - generic [ref=e295]: Add task
+              - generic [ref=e297]:
+                - generic [ref=e298]:
+                  - paragraph [ref=e299]: Playlist
+                  - heading "Trip soundtrack" [level=2] [ref=e300]
+                - button "Add song Paste a Spotify or Apple Music link." [ref=e302]:
+                  - img [ref=e304]
+                  - generic [ref=e305]: Add song
+                  - generic [ref=e306]: Paste a Spotify or Apple Music link.
+    - contentinfo [ref=e10]:
+      - generic [ref=e11]:
+        - paragraph [ref=e12]: Gather
+        - paragraph [ref=e13]: Shared place for destinations, dates, decisions, budgets, and the group chat around the trip.
+  - button "Open Next.js Dev Tools" [ref=e312] [cursor=pointer]:
+    - img [ref=e313]
+  - alert [ref=e316]

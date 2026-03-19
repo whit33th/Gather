@@ -1,0 +1,46 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e7]:
+    - paragraph [ref=e8]: Shared itineraries
+    - heading "Gather" [level=1] [ref=e10]
+    - paragraph [ref=e12]: Plan trips together with a calmer rhythm, clearer decisions, and a little sense of arrival.
+  - generic [ref=e16]:
+    - generic [ref=e17]:
+      - link "Gather" [ref=e18] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e19]: Gather
+        - img [ref=e20]
+      - generic [ref=e23]:
+        - paragraph [ref=e24]: Shared travel planning
+        - heading "Plan the trip before it becomes forty messages." [level=1] [ref=e25]
+        - paragraph [ref=e26]: Gather holds the map, the dates, the ideas, the costs, and the running chat in one bright place that feels closer to a notebook than a dashboard.
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - img [ref=e29]
+          - paragraph [ref=e32]: Map and weather
+        - generic [ref=e33]:
+          - img [ref=e34]
+          - paragraph [ref=e39]: Votes and availability
+        - generic [ref=e40]:
+          - img [ref=e41]
+          - paragraph [ref=e44]: Cover images and gallery
+    - generic [ref=e45]:
+      - generic [ref=e46]:
+        - paragraph [ref=e47]: Sign in
+        - heading "Join the trip notebook." [level=2] [ref=e48]
+        - paragraph [ref=e49]: Use Google for your main account, or create a temporary anonymous session to try the full flow.
+      - generic [ref=e50]:
+        - button "Continue with Google" [ref=e51]:
+          - generic [ref=e52]:
+            - img [ref=e53]
+            - text: Continue with Google
+          - img [ref=e58]
+        - generic [ref=e63]: or
+        - button "Sign in anonymously" [ref=e65]:
+          - text: Sign in anonymously
+          - img [ref=e66]
+      - generic [ref=e69]:
+        - paragraph [ref=e70]: What you get
+        - paragraph [ref=e71]: Shared destinations, actual trip dates, proposal voting, budget tracking, chat, gallery uploads, and a calmer way to coordinate the group.
+  - button "Open Next.js Dev Tools" [ref=e77] [cursor=pointer]:
+    - img [ref=e78]
+  - alert [ref=e81]

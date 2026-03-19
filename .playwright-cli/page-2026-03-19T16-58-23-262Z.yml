@@ -1,0 +1,22 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e6]:
+    - paragraph [ref=e7]: You are invited
+    - heading "Codex QA Trip" [level=2] [ref=e8]
+    - generic [ref=e9]:
+      - generic [ref=e11]:
+        - img [ref=e13]
+        - generic [ref=e16]:
+          - paragraph [ref=e17]: Destination
+          - paragraph [ref=e18]: Warszawa, Masovian Voivodeship, Poland
+      - generic [ref=e20]:
+        - img [ref=e22]
+        - generic [ref=e24]:
+          - paragraph [ref=e25]: Travel window
+          - paragraph [ref=e26]: Apr 20 - Apr 25, 2026
+    - button "Join this trip" [ref=e27]:
+      - text: Join this trip
+      - img [ref=e28]
+    - paragraph [ref=e31]: If you are not signed in yet, we will send you through Google first and bring you straight back here.
+  - button "Open Next.js Dev Tools" [ref=e37] [cursor=pointer]:
+    - img [ref=e38]
+  - alert [ref=e41]

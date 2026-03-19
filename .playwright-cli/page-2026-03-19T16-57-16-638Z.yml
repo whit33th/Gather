@@ -1,0 +1,10 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "Gather" [ref=e5] [cursor=pointer]:
+      - /url: /
+  - generic [ref=e6]:
+    - main [ref=e7]
+    - contentinfo [ref=e10]:
+      - generic [ref=e11]:
+        - paragraph [ref=e12]: Gather
+        - paragraph [ref=e13]: Shared place for destinations, dates, decisions, budgets, and the group chat around the trip.

@@ -1,0 +1,24 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e45]:
+    - link "Gather" [ref=e84] [cursor=pointer]:
+      - /url: /
+    - generic [ref=e46]:
+      - paragraph [ref=e47]: Sign in
+      - heading "Join the trip notebook." [level=2] [ref=e48]
+      - paragraph [ref=e49]: Use Google for your main account, or create a temporary anonymous session to try the full flow.
+    - generic [ref=e50]:
+      - button "Continue with Google" [ref=e51]:
+        - generic [ref=e52]:
+          - img [ref=e53]
+          - text: Continue with Google
+        - img [ref=e58]
+      - generic [ref=e63]: or
+      - button "Sign in anonymously" [ref=e65]:
+        - text: Sign in anonymously
+        - img [ref=e66]
+    - generic [ref=e69]:
+      - paragraph [ref=e70]: What you get
+      - paragraph [ref=e71]: Shared destinations, actual trip dates, proposal voting, budget tracking, chat, gallery uploads, and a calmer way to coordinate the group.
+  - button "Open Next.js Dev Tools" [ref=e77] [cursor=pointer]:
+    - img [ref=e78]
+  - alert [ref=e81]

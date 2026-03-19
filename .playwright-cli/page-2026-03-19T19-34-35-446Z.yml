@@ -1,0 +1,64 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - link "Gather" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e6]: Trip notebook
+      - button "Sign out" [ref=e26]:
+        - img [ref=e27]
+        - text: Sign out
+  - generic [ref=e7]:
+    - main [ref=e8]:
+      - generic [ref=e9]:
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - link "All trips" [ref=e34] [cursor=pointer]:
+              - /url: /
+              - img [ref=e35]
+              - text: All trips
+            - link "Edit trip settings" [ref=e37] [cursor=pointer]:
+              - /url: /trip/mh72ttd0apjwqk39ceng3vaers837dd5/settings
+              - img [ref=e38]
+          - generic [ref=e42]:
+            - paragraph [ref=e43]: Trip notebook
+            - heading "Codex QA Trip" [level=1] [ref=e44]
+            - generic [ref=e45]:
+              - generic "Unknown" [ref=e48]:
+                - generic [ref=e49]: U
+              - paragraph [ref=e50]: 1 traveler
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - img [ref=e53]
+                - text: Warszawa, Masovian Voivodeship, Poland
+              - generic [ref=e56]:
+                - img [ref=e57]
+                - text: Apr 20 - Apr 25, 2026
+            - button "Copy invite link" [ref=e60]:
+              - img [ref=e61]
+              - text: Copy invite link
+        - generic [ref=e67]:
+          - generic [ref=e69]:
+            - button "Overview" [ref=e70]:
+              - img [ref=e71]
+              - text: Overview
+            - button "Chat" [active] [ref=e76]:
+              - img [ref=e77]
+              - text: Chat
+          - generic [ref=e345]:
+            - paragraph [ref=e347]: Chat
+            - generic [ref=e349]:
+              - img [ref=e351]
+              - paragraph [ref=e353]: No messages yet
+            - generic [ref=e355]:
+              - textbox "Write to the group" [ref=e356]
+              - button "Send" [ref=e357]:
+                - text: Send
+                - img [ref=e358]
+    - contentinfo [ref=e11]:
+      - generic [ref=e12]:
+        - paragraph [ref=e13]: Gather
+        - paragraph [ref=e14]: Shared place for destinations, dates, decisions, budgets, and the group chat around the trip.
+  - button "Open Next.js Dev Tools" [ref=e20] [cursor=pointer]:
+    - img [ref=e21]
+  - alert [ref=e24]

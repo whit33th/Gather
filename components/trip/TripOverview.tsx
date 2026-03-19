@@ -1,0 +1,2057 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useAction, useMutation, useQuery } from "convex/react";
+import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import {
+  BedDouble,
+  CalendarDays,
+  Check,
+  CheckSquare,
+  ChevronDown,
+  ChevronUp,
+  CircleSlash,
+  Clock3,
+  DollarSign,
+  Flag as FlagIcon,
+  FileText,
+  Heart,
+  Hotel,
+  Image as ImageIcon,
+  LayoutGrid,
+  MapPin,
+  Music,
+  ExternalLink,
+  Package,
+  Pencil,
+  Pin,
+  Plus,
+  Send,
+  ThumbsUp,
+  Trash2,
+  Utensils,
+  X,
+} from "lucide-react";
+import { api } from "../../convex/_generated/api";
+import { Doc, Id } from "../../convex/_generated/dataModel";
+import {
+  getProposalProvider,
+  normalizeProposalLink,
+  type ProposalLinkPreview,
+  type ProposalProvider,
+} from "../../lib/proposal-links";
+import ImageKitUpload from "../ImageKitUpload";
+import LocationSearch from "../LocationSearch";
+import TripMap from "../TripMap";
+import UserAvatar from "../UserAvatar";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "../ui/drawer";
+import WeatherCard from "./WeatherCard";
+
+type ProposalCategory = "accommodation" | "food" | "activity" | "favorite";
+type AvailabilityStatus = "yes" | "no" | "maybe";
+
+type SelectedLocation = {
+  place_name: string;
+  center: [number, number];
+};
+
+type ProposalCard = {
+  _id: string;
+  name: string;
+  link?: string;
+  imageUrl?: string;
+  locationName?: string;
+  lat?: number;
+  lng?: number;
+  category?: ProposalCategory;
+  votes: number;
+  isVotedByMe: boolean;
+  isOwnedByMe?: boolean;
+  authorName: string;
+  authorImage?: string;
+  authorUserId?: string;
+  voters: Array<{ userId?: string; name: string; image?: string }>;
+};
+
+type AvailabilityEntry = {
+  date: string;
+  status: AvailabilityStatus;
+};
+
+type AvailabilityMember = {
+  userId: string;
+  memberId: string;
+  name: string;
+  image?: string;
+  role: "owner" | "member";
+  isCurrentUser: boolean;
+  availabilities: AvailabilityEntry[];
+};
+
+type PhotoCard = {
+  _id: string;
+  url: string;
+  uploaderName: string;
+  uploaderImage?: string;
+  uploaderUserId?: string;
+  canDelete?: boolean;
+};
+
+type ExpenseCard = {
+  _id: string;
+  title: string;
+  amount: number;
+  payerName: string;
+  payerImage?: string;
+  payerUserId?: string;
+};
+
+type SongCard = {
+  _id: string;
+  url: string;
+  platform: "spotify" | "apple";
+  addedByName: string;
+  addedByImage?: string;
+  addedByUserId?: string;
+};
+
+type TaskCard = Doc<"packingItems">;
+
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "EUR",
+  maximumFractionDigits: 0,
+});
+
+const categoryMeta: Record<
+  ProposalCategory,
+  { label: string; icon: React.ReactNode; tone: string; softTone: string }
+> = {
+  accommodation: {
+    label: "Stay",
+    icon: <Hotel className="h-4 w-4" />,
+    tone: "bg-[#d9e0f7] text-[#44588c]",
+    softTone: "border-[#d9e0f7] bg-[#f3f6fd] text-[#44588c]",
+  },
+  food: {
+    label: "Food",
+    icon: <Utensils className="h-4 w-4" />,
+    tone: "bg-[#f4e1cd] text-[#8c5f2f]",
+    softTone: "border-[#f4e1cd] bg-[#fbf2e9] text-[#8c5f2f]",
+  },
+  activity: {
+    label: "Activity",
+    icon: <FlagIcon className="h-4 w-4" />,
+    tone: "bg-[#d9ebe2] text-[#446b56]",
+    softTone: "border-[#d9ebe2] bg-[#f1f7f3] text-[#446b56]",
+  },
+  favorite: {
+    label: "Favorite",
+    icon: <Heart className="h-4 w-4 fill-current" />,
+    tone: "bg-[#efdde2] text-[#85525f]",
+    softTone: "border-[#efdde2] bg-[#faf1f3] text-[#85525f]",
+  },
+};
+
+const proposalFilterMeta = [
+  {
+    id: "all" as const,
+    label: "All",
+    meta: "Everything",
+    icon: <LayoutGrid className="h-4 w-4" />,
+  },
+  {
+    id: "accommodation" as const,
+    label: categoryMeta.accommodation.label,
+    meta: "Places",
+    icon: categoryMeta.accommodation.icon,
+  },
+  {
+    id: "food" as const,
+    label: categoryMeta.food.label,
+    meta: "Dining",
+    icon: categoryMeta.food.icon,
+  },
+  {
+    id: "activity" as const,
+    label: categoryMeta.activity.label,
+    meta: "Plans",
+    icon: categoryMeta.activity.icon,
+  },
+  {
+    id: "favorite" as const,
+    label: categoryMeta.favorite.label,
+    meta: "Saved",
+    icon: categoryMeta.favorite.icon,
+  },
+];
+
+const taskCategoryMeta: Record<string, { icon: React.ReactNode; shortLabel: string }> = {
+  General: { icon: <CheckSquare className="h-3.5 w-3.5" />, shortLabel: "General" },
+  Packing: { icon: <Package className="h-3.5 w-3.5" />, shortLabel: "Packing" },
+  Booking: { icon: <CalendarDays className="h-3.5 w-3.5" />, shortLabel: "Booking" },
+  Docs: { icon: <FileText className="h-3.5 w-3.5" />, shortLabel: "Docs" },
+  Food: { icon: <Utensils className="h-3.5 w-3.5" />, shortLabel: "Food" },
+};
+
+const selectionFieldByCategory = {
+  accommodation: "selectedAccommodationId",
+  food: "selectedFoodId",
+  activity: "selectedActivityId",
+  favorite: "selectedFavoriteId",
+} as const;
+
+const availabilityTone: Record<AvailabilityStatus, string> = {
+  yes: "border-emerald-200 bg-emerald-50 text-emerald-900",
+  no: "border-rose-200 bg-rose-50 text-rose-900",
+  maybe: "border-amber-200 bg-amber-50 text-amber-900",
+};
+
+const availabilityLegend = [
+  {
+    id: "yes" as const,
+    label: "Yes",
+    icon: <Check className="h-3.5 w-3.5" />,
+    className: "border-emerald-200 bg-white text-emerald-900",
+  },
+  {
+    id: "no" as const,
+    label: "No",
+    icon: <CircleSlash className="h-3.5 w-3.5" />,
+    className: "border-rose-200 bg-white text-rose-900",
+  },
+  {
+    id: "maybe" as const,
+    label: "Maybe",
+    icon: <Clock3 className="h-3.5 w-3.5" />,
+    className: "border-amber-200 bg-white text-amber-900",
+  },
+];
+
+function getProposalRankClasses(rank: number) {
+  if (rank === 1) {
+    return {
+      card: "border-[#d6c28d] bg-[#fbf7ea] shadow-[0_16px_36px_rgba(96,76,32,0.08)]",
+      rank: "border-[#d6c28d] bg-[#f2e3b6] text-[#6b5524]",
+    };
+  }
+
+  if (rank === 2) {
+    return {
+      card: "border-[#d8dde2] bg-[#f7f8fa]",
+      rank: "border-[#d0d6dc] bg-[#e8edf2] text-[#56606b]",
+    };
+  }
+
+  if (rank === 3) {
+    return {
+      card: "border-[#e1d3c5] bg-[#fbf4ed]",
+      rank: "border-[#dfc6ae] bg-[#f0dcc8] text-[#765745]",
+    };
+  }
+
+  return {
+    card: "border-stone-900/8 bg-white",
+    rank: "border-stone-900/10 bg-[#f4f1ec] text-stone-600",
+  };
+}
+
+function getProviderLabel(provider: ProposalProvider) {
+  if (provider === "airbnb") return "Airbnb";
+  if (provider === "booking") return "Booking";
+  return "Link";
+}
+
+function ProposalProviderMark({ provider }: { provider: ProposalProvider }) {
+  if (!provider) return null;
+
+  return (
+    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[0.7rem] font-bold">
+      {provider === "airbnb" ? "A" : "B"}
+    </span>
+  );
+}
+
+function ProposalProviderBadge({
+  provider,
+  subtle = false,
+}: {
+  provider: ProposalProvider;
+  subtle?: boolean;
+}) {
+  if (!provider) return null;
+
+  const palette =
+    provider === "airbnb"
+      ? subtle
+        ? "border-[#ffd7dc] bg-[#fff3f5] text-[#d9425f]"
+        : "bg-[#fff1f4] text-[#d9425f]"
+      : subtle
+        ? "border-[#d8e4fb] bg-[#f3f7ff] text-[#255dc7]"
+        : "bg-[#eef4ff] text-[#255dc7]";
+
+  return (
+    <span
+      className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1.5 text-[0.6rem] font-semibold uppercase tracking-[0.14em] ${palette}`}
+    >
+      <ProposalProviderMark provider={provider} />
+      {getProviderLabel(provider)}
+    </span>
+  );
+}
+
+function getCategoryMeta(category?: ProposalCategory) {
+  return categoryMeta[category || "accommodation"];
+}
+
+function getSelectedProposalId(trip: Doc<"trips">, category: ProposalCategory) {
+  return trip[selectionFieldByCategory[category]];
+}
+
+function getDateRange(startDate: string, endDate: string) {
+  const start = parseISO(startDate);
+  const end = parseISO(endDate);
+  const totalDays = Math.max(differenceInCalendarDays(end, start) + 1, 1);
+  return Array.from({ length: totalDays }, (_, index) => addDays(start, index));
+}
+
+export default function TripOverview({
+  trip,
+  tripId,
+}: {
+  trip: Doc<"trips">;
+  tripId: Id<"trips">;
+}) {
+  const proposals = useQuery(api.proposals.listAccommodations, { tripId }) as
+    | ProposalCard[]
+    | undefined;
+  const photos = useQuery(api.photos.list, { tripId }) as PhotoCard[] | undefined;
+  const expenses = useQuery(api.expenses.list, { tripId }) as ExpenseCard[] | undefined;
+  const tasks = useQuery(api.tasks.list, { tripId }) as TaskCard[] | undefined;
+  const music = useQuery(api.music.list, { tripId }) as SongCard[] | undefined;
+  const availabilities = useQuery(api.availabilities.list, { tripId }) as
+    | AvailabilityMember[]
+    | undefined;
+
+  const sortedProposals = useMemo(
+    () =>
+      [...(proposals || [])].sort(
+        (left, right) => right.votes - left.votes || left.name.localeCompare(right.name)
+      ),
+    [proposals]
+  );
+  const tripDates = useMemo(
+    () => getDateRange(trip.startDate, trip.endDate),
+    [trip.endDate, trip.startDate]
+  );
+  const totalBudget = expenses?.reduce((sum, item) => sum + item.amount, 0) || 0;
+  const currentViewer = availabilities?.find((member) => member.isCurrentUser);
+  const selectedProposalIds = {
+    accommodation: getSelectedProposalId(trip, "accommodation"),
+    food: getSelectedProposalId(trip, "food"),
+    activity: getSelectedProposalId(trip, "activity"),
+    favorite: getSelectedProposalId(trip, "favorite"),
+  };
+  const markers = [
+    ...(trip.lat && trip.lng
+      ? [
+          {
+            id: "destination",
+            name: trip.destination,
+            lat: trip.lat,
+            lng: trip.lng,
+            category: "general" as const,
+          },
+        ]
+      : []),
+    ...(sortedProposals
+      .filter((proposal) => proposal.lat && proposal.lng)
+      .map((proposal) => ({
+        id: proposal._id,
+        name: proposal.name,
+        locationName: proposal.locationName,
+        lat: proposal.lat!,
+        lng: proposal.lng!,
+        category: (proposal.category || "accommodation") as ProposalCategory,
+        selected:
+          selectedProposalIds[proposal.category || "accommodation"] ===
+          (proposal._id as Id<"accommodations">),
+      })) || []),
+  ];
+
+  return (
+    <div className="space-y-8">
+      <AvailabilityStudio tripId={tripId} dates={tripDates} members={availabilities} />
+
+      <WeatherCard
+        lat={trip.lat}
+        lng={trip.lng}
+        location={trip.locationName || trip.destination}
+      />
+
+      <ProposalStudio
+        trip={trip}
+        tripId={tripId}
+        proposals={sortedProposals}
+        canManageSelections={currentViewer?.role === "owner"}
+      />
+
+      <BudgetStudio
+        tripId={tripId}
+        expenses={expenses}
+        totalBudget={totalBudget}
+      />
+
+      <MapStudio trip={trip} markers={markers} proposalCount={sortedProposals.length} />
+
+      <GalleryStudio tripId={tripId} photos={photos} />
+
+      <div className="grid items-stretch gap-8 xl:grid-cols-[minmax(0,1.1fr)_minmax(22rem,0.9fr)]">
+        <TasksStudio tripId={tripId} tasks={tasks} />
+        <PlaylistStudio tripId={tripId} songs={music} />
+      </div>
+    </div>
+  );
+}
+
+function AvailabilityStudio({
+  tripId,
+  dates,
+  members,
+}: {
+  tripId: Id<"trips">;
+  dates: Date[];
+  members: AvailabilityMember[] | undefined;
+}) {
+  const [status, setStatus] = useState<AvailabilityStatus>("yes");
+  const updateAvailability = useMutation(api.availabilities.update);
+
+  const dateSummaries = dates.map((date) => {
+    const dateKey = format(date, "yyyy-MM-dd");
+    let yes = 0;
+    let no = 0;
+    let maybe = 0;
+
+    members?.forEach((member) => {
+      const match = member.availabilities.find((entry) => entry.date === dateKey);
+      if (match?.status === "yes") yes += 1;
+      if (match?.status === "no") no += 1;
+      if (match?.status === "maybe") maybe += 1;
+    });
+
+    return { dateKey, date, yes, no, maybe };
+  });
+
+  const bestDay = [...dateSummaries].sort(
+    (left, right) => right.yes - left.yes || right.maybe - left.maybe
+  )[0];
+
+  const handleDateClick = async (date: string, isCurrentUser: boolean) => {
+    if (!isCurrentUser) return;
+
+    try {
+      await updateAvailability({ tripId, date, status });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="overflow-hidden rounded-[2.2rem] bg-white shadow-[0_18px_50px_rgba(15,15,15,0.05)]"
+    >
+      <div className="border-b border-stone-900/8 bg-[#eff0ef] px-5 py-5 sm:px-6">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <p className="section-kicker">Availability</p>
+            <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-stone-950">
+              Find the overlap
+            </h2>
+            <p className="mt-3 text-sm text-stone-500">
+              {bestDay
+                ? `Best day so far: ${format(bestDay.date, "EEE, MMM d")} / ${bestDay.yes} yes / ${bestDay.maybe} maybe`
+                : "No one has marked dates yet"}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-4 xl:items-end">
+            <div className="flex flex-wrap gap-2">
+              {availabilityLegend.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => setStatus(option.id)}
+                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.14em] transition-colors ${
+                    status === option.id
+                      ? option.className
+                      : "border-stone-900/10 bg-white text-stone-500 hover:text-stone-900"
+                  }`}
+                >
+                  {option.icon}
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto p-5 sm:p-6">
+          {members === undefined ? (
+            <Loader />
+          ) : members.length === 0 ? (
+            <EmptyState icon={<CalendarDays className="h-6 w-6" />} title="No traveler rows yet" />
+          ) : (
+            <div className="min-w-[52rem] space-y-3">
+              <div
+                className="grid gap-2"
+                style={{ gridTemplateColumns: `15rem repeat(${dates.length}, minmax(3.35rem, 1fr))` }}
+              >
+                <div />
+                {dateSummaries.map((summary) => (
+                  <div key={summary.dateKey} className="rounded-[1rem] bg-[#eff0ef] px-2 py-3 text-center">
+                    <p className="section-kicker text-[0.52rem]">{format(summary.date, "EEE")}</p>
+                    <p className="mt-1 text-base font-semibold text-stone-950">{format(summary.date, "d")}</p>
+                    <p className="mt-1 text-[0.65rem] uppercase tracking-[0.14em] text-stone-500">
+                      {summary.yes > 0 ? `${summary.yes} yes` : summary.maybe > 0 ? `${summary.maybe} maybe` : summary.no > 0 ? `${summary.no} no` : "open"}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {members.map((member) => (
+                <div
+                  key={member.memberId}
+                  className="grid gap-2"
+                  style={{ gridTemplateColumns: `15rem repeat(${dates.length}, minmax(3.35rem, 1fr))` }}
+                >
+                  <div className={`flex items-center gap-3 rounded-[1.2rem] px-4 py-3 ${member.isCurrentUser ? "bg-stone-950 text-white" : "bg-[#eff0ef] text-stone-950"}`}>
+                    <UserAvatar name={member.name} image={member.image} seed={member.userId} size={40} />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">{member.name}</p>
+                      <p className={`mt-1 text-[0.62rem] uppercase tracking-[0.16em] ${member.isCurrentUser ? "text-white/60" : "text-stone-500"}`}>
+                        {member.isCurrentUser ? "You" : member.role}
+                      </p>
+                    </div>
+                  </div>
+
+                  {dates.map((date) => {
+                    const dateKey = format(date, "yyyy-MM-dd");
+                    const current = member.availabilities.find((entry) => entry.date === dateKey);
+                    const tone = current ? availabilityTone[current.status] : "border-stone-900/8 bg-white text-stone-300";
+
+                    return (
+                      <button
+                        key={`${member.memberId}-${dateKey}`}
+                        type="button"
+                        disabled={!member.isCurrentUser}
+                        onClick={() => void handleDateClick(dateKey, member.isCurrentUser)}
+                        className={`flex h-[4.15rem] items-center justify-center rounded-[1rem] border transition-colors ${tone} ${member.isCurrentUser ? "cursor-pointer" : "cursor-default"}`}
+                        aria-label={`${member.name} ${dateKey}`}
+                      >
+                        {current?.status === "yes" ? (
+                          <Check className="h-4 w-4" />
+                        ) : current?.status === "no" ? (
+                          <CircleSlash className="h-4 w-4" />
+                        ) : current?.status === "maybe" ? (
+                          <Clock3 className="h-4 w-4" />
+                        ) : (
+                          <span className="h-2.5 w-2.5 rounded-full bg-current/40" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          )}
+      </div>
+    </motion.section>
+  );
+}
+
+function SignalsStudio({
+  trip,
+  photoCount,
+  taskCount,
+  completedTasks,
+  budget,
+  leadProposal,
+}: {
+  trip: Doc<"trips">;
+  photoCount: number;
+  taskCount: number;
+  completedTasks: number;
+  budget: number;
+  leadProposal?: ProposalCard;
+}) {
+  const stats = [
+    { label: "Budget", value: currencyFormatter.format(budget) },
+    { label: "Checklist", value: `${completedTasks}/${taskCount}` },
+    { label: "Gallery", value: `${photoCount}` },
+  ];
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="overflow-hidden rounded-[2rem] bg-[#eff0ef]"
+    >
+      <div className="p-5 sm:p-6">
+        <p className="section-kicker">Trip signal</p>
+        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-stone-950">{trip.destination}</h2>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+          {stats.map((stat) => (
+            <div key={stat.label} className="rounded-[1.3rem] bg-white px-4 py-4">
+              <p className="section-kicker text-[0.56rem]">{stat.label}</p>
+              <p className="editorial-metric mt-3 text-3xl text-stone-950">{stat.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {leadProposal ? (
+          <div className="mt-6 rounded-[1.5rem] bg-stone-950 px-5 py-5 text-white">
+            <p className="section-kicker text-white/55">Leading pick</p>
+            <p className="mt-3 text-lg font-semibold">{leadProposal.name}</p>
+            <div className="mt-4 flex items-center gap-3">
+              <UserAvatar
+                name={leadProposal.authorName}
+                image={leadProposal.authorImage}
+                seed={leadProposal.authorUserId || leadProposal.authorName}
+                size={34}
+              />
+              <div>
+                <p className="text-sm font-medium">{leadProposal.authorName}</p>
+                <p className="text-xs uppercase tracking-[0.14em] text-white/45">
+                  {getCategoryMeta(leadProposal.category).label} / {leadProposal.votes} votes
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </motion.section>
+  );
+}
+
+function ProposalStudio({
+  trip,
+  tripId,
+  proposals,
+  canManageSelections,
+}: {
+  trip: Doc<"trips">;
+  tripId: Id<"trips">;
+  proposals: ProposalCard[] | undefined;
+  canManageSelections?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [link, setLink] = useState("");
+  const [locationName, setLocationName] = useState("");
+  const [lat, setLat] = useState<number | undefined>();
+  const [lng, setLng] = useState<number | undefined>();
+  const [category, setCategory] = useState<ProposalCategory>("accommodation");
+  const [selectedCategory, setSelectedCategory] = useState<ProposalCategory | "all">("all");
+  const [editingProposalId, setEditingProposalId] = useState<Id<"accommodations"> | null>(null);
+  const [preview, setPreview] = useState<ProposalLinkPreview | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<
+    Partial<Record<ProposalCategory, boolean>>
+  >({});
+
+  const addProposal = useMutation(api.proposals.addAccommodation);
+  const updateProposal = useMutation(api.proposals.updateAccommodation);
+  const removeProposal = useMutation(api.proposals.removeAccommodation);
+  const setSelectedProposal = useMutation(api.proposals.setSelectedProposal);
+  const voteProposal = useMutation(api.proposals.voteAccommodation);
+  const getLinkPreview = useAction(api.proposals.getLinkPreview);
+  const latestPreviewRequest = useRef(0);
+  const nameRef = useRef(name);
+  const normalizedLink = normalizeProposalLink(link);
+  const detectedProvider = getProposalProvider(normalizedLink);
+  const selectedProposalsByCategory = useMemo(
+    () => ({
+      accommodation: (proposals || []).find(
+        (proposal) => proposal._id === trip.selectedAccommodationId
+      ),
+      food: (proposals || []).find((proposal) => proposal._id === trip.selectedFoodId),
+      activity: (proposals || []).find((proposal) => proposal._id === trip.selectedActivityId),
+      favorite: (proposals || []).find((proposal) => proposal._id === trip.selectedFavoriteId),
+    }),
+    [
+      proposals,
+      trip.selectedAccommodationId,
+      trip.selectedActivityId,
+      trip.selectedFavoriteId,
+      trip.selectedFoodId,
+    ]
+  );
+  const filteredProposals = useMemo(() => {
+    const categoryFiltered = (proposals || []).filter((proposal) =>
+      selectedCategory === "all"
+        ? true
+        : (proposal.category || "accommodation") === selectedCategory
+    );
+
+    if (selectedCategory === "all") {
+      return categoryFiltered;
+    }
+
+    const chosenId = selectedProposalsByCategory[selectedCategory]?._id;
+    if (!chosenId) {
+      return categoryFiltered;
+    }
+
+    return [
+      ...categoryFiltered.filter((proposal) => proposal._id === chosenId),
+      ...categoryFiltered.filter((proposal) => proposal._id !== chosenId),
+    ];
+  }, [proposals, selectedCategory, selectedProposalsByCategory]);
+  const categoryCounts = useMemo(() => {
+    const counts: Record<"all" | ProposalCategory, number> = {
+      all: proposals?.length || 0,
+      accommodation: 0,
+      food: 0,
+      activity: 0,
+      favorite: 0,
+    };
+
+    (proposals || []).forEach((proposal) => {
+      counts[proposal.category || "accommodation"] += 1;
+    });
+
+    return counts;
+  }, [proposals]);
+  const activeChosenProposal =
+    selectedCategory === "all" ? null : selectedProposalsByCategory[selectedCategory];
+  const isCollapsedList =
+    selectedCategory !== "all" &&
+    !!activeChosenProposal &&
+    filteredProposals.length > 2 &&
+    !expandedCategories[selectedCategory];
+  const visibleProposals = isCollapsedList ? filteredProposals.slice(0, 2) : filteredProposals;
+
+  useEffect(() => {
+    nameRef.current = name;
+  }, [name]);
+
+  useEffect(() => {
+    if (!normalizedLink || !detectedProvider) {
+      latestPreviewRequest.current += 1;
+      setPreview(null);
+      setPreviewLoading(false);
+      return;
+    }
+
+    const requestId = latestPreviewRequest.current + 1;
+    latestPreviewRequest.current = requestId;
+    setPreview((current) =>
+      current?.normalizedUrl === normalizedLink
+        ? current
+        : { normalizedUrl: normalizedLink, provider: detectedProvider }
+    );
+
+    const timeoutId = window.setTimeout(async () => {
+      setPreviewLoading(true);
+
+      try {
+        const result = await getLinkPreview({ url: normalizedLink });
+        if (latestPreviewRequest.current !== requestId) return;
+
+        setPreview(result);
+        if (!nameRef.current.trim() && result.title) {
+          setName(result.title);
+        }
+      } catch (error) {
+        if (latestPreviewRequest.current === requestId) {
+          setPreview({ normalizedUrl: normalizedLink, provider: detectedProvider });
+        }
+        console.error(error);
+      } finally {
+        if (latestPreviewRequest.current === requestId) {
+          setPreviewLoading(false);
+        }
+      }
+    }, 450);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [detectedProvider, getLinkPreview, normalizedLink]);
+
+  const resetForm = () => {
+    setName("");
+    setLink("");
+    setLocationName("");
+    setLat(undefined);
+    setLng(undefined);
+    setCategory("accommodation");
+    setEditingProposalId(null);
+    setPreview(null);
+    setPreviewLoading(false);
+    setOpen(false);
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!name) return;
+
+    try {
+      const payload = {
+        name,
+        link: normalizedLink || link || undefined,
+        imageUrl: preview?.imageUrl || undefined,
+        locationName: locationName || undefined,
+        lat,
+        lng,
+        category,
+      };
+
+      if (editingProposalId) {
+        await updateProposal({
+          accommodationId: editingProposalId,
+          ...payload,
+        });
+      } else {
+        await addProposal({
+          tripId,
+          ...payload,
+        });
+      }
+
+      resetForm();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleEditProposal = (proposal: ProposalCard) => {
+    setEditingProposalId(proposal._id as Id<"accommodations">);
+    setName(proposal.name);
+    setLink(proposal.link || "");
+    setLocationName(proposal.locationName || "");
+    setLat(proposal.lat);
+    setLng(proposal.lng);
+    setCategory((proposal.category || "accommodation") as ProposalCategory);
+    setPreview(
+      proposal.link
+        ? {
+            normalizedUrl: normalizeProposalLink(proposal.link),
+            provider: getProposalProvider(proposal.link),
+            title: proposal.name,
+            imageUrl: proposal.imageUrl,
+          }
+        : proposal.imageUrl
+          ? {
+              normalizedUrl: "",
+              provider: null,
+              title: proposal.name,
+              imageUrl: proposal.imageUrl,
+            }
+          : null
+    );
+    setOpen(true);
+  };
+
+  const handleRemoveProposal = async (proposalId: Id<"accommodations">) => {
+    if (!window.confirm("Delete this proposal?")) return;
+
+    try {
+      await removeProposal({ accommodationId: proposalId });
+      if (editingProposalId === proposalId) {
+        resetForm();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleToggleSelection = async (proposal: ProposalCard) => {
+    const proposalCategory = (proposal.category || "accommodation") as ProposalCategory;
+    const selectedId = getSelectedProposalId(trip, proposalCategory);
+
+    try {
+      await setSelectedProposal({
+        tripId,
+        category: proposalCategory,
+        accommodationId:
+          selectedId === (proposal._id as Id<"accommodations">)
+            ? undefined
+            : (proposal._id as Id<"accommodations">),
+      });
+      setExpandedCategories((current) => ({
+        ...current,
+        [proposalCategory]: false,
+      }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="rounded-[2.2rem] bg-white p-5 shadow-[0_18px_50px_rgba(15,15,15,0.05)] sm:p-6"
+    >
+      <div>
+        <p className="section-kicker">Proposals</p>
+        <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-stone-950">
+          What the group likes
+        </h2>
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-2.5">
+        {proposalFilterMeta.map((item) => {
+          const active = selectedCategory === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setSelectedCategory(item.id)}
+              data-active={active}
+              className="editorial-filter-chip"
+            >
+              <span className="editorial-filter-chip__icon">{item.icon}</span>
+              <span className="editorial-filter-chip__label">
+                <span className="editorial-filter-chip__title">{item.label}</span>
+                <span className="editorial-filter-chip__meta">{categoryCounts[item.id]}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {activeChosenProposal ? (
+        <div className="mt-5 overflow-hidden rounded-[1.6rem] border border-[#d6c28d]/70 bg-[#fbf7ea]">
+          <div className="grid gap-0 sm:grid-cols-[5.5rem_minmax(0,1fr)]">
+            <div className="relative min-h-[5.5rem] bg-[#efe8da]">
+              {activeChosenProposal.imageUrl ? (
+                <Image
+                  src={activeChosenProposal.imageUrl}
+                  alt={activeChosenProposal.name}
+                  fill
+                  unoptimized
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-stone-400">
+                  <BedDouble className="h-5 w-5" />
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col justify-center gap-2 px-4 py-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="section-kicker text-[0.56rem] text-[#6b5524]">Chosen pick</span>
+                <span
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.58rem] font-semibold uppercase tracking-[0.14em] ${getCategoryMeta(activeChosenProposal.category).tone}`}
+                >
+                  {getCategoryMeta(activeChosenProposal.category).icon}
+                  {getCategoryMeta(activeChosenProposal.category).label}
+                </span>
+              </div>
+              <div>
+                <p className="text-base font-semibold tracking-[-0.03em] text-stone-950">
+                  {activeChosenProposal.name}
+                </p>
+                <p className="mt-1 text-sm text-stone-500">
+                  {activeChosenProposal.locationName || "Address will appear here after you set a place."}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {proposals === undefined ? (
+        <div className="mt-6">
+          <Loader />
+        </div>
+      ) : (
+        <div className="mt-8 space-y-3">
+          <AddTile
+            title="Add proposal"
+            description="Open a drawer and drop in a new option."
+            onClick={() => {
+              setEditingProposalId(null);
+              setOpen(true);
+            }}
+            className="min-h-[9.75rem]"
+          />
+          {visibleProposals.map((proposal) => {
+            const meta = getCategoryMeta(proposal.category);
+            const rank = filteredProposals.findIndex((item) => item._id === proposal._id) + 1;
+            const rankClasses = getProposalRankClasses(rank);
+            const provider = getProposalProvider(proposal.link);
+            const proposalCategory = (proposal.category || "accommodation") as ProposalCategory;
+            const isSelected = getSelectedProposalId(trip, proposalCategory) === proposal._id;
+            const siteIcon = provider ? (
+              <span className="text-[0.72rem] font-bold">{provider === "airbnb" ? "A" : "B"}</span>
+            ) : proposal.link ? (
+              <ExternalLink className="h-4 w-4" />
+            ) : null;
+
+            return (
+              <article
+                key={proposal._id}
+                className={`overflow-hidden rounded-[1.8rem] border transition-colors ${rankClasses.card}`}
+              >
+                <div className="grid gap-0 md:grid-cols-[18rem_minmax(0,1fr)]">
+                  <div className="relative min-h-[12rem] bg-[#f2eee8] md:min-h-full">
+                    {proposal.imageUrl ? (
+                      <Image
+                        src={proposal.imageUrl}
+                        alt={proposal.name}
+                        width={720}
+                        height={520}
+                        unoptimized
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full min-h-[12rem] items-center justify-center text-stone-400">
+                        <BedDouble className="h-7 w-7" />
+                      </div>
+                    )}
+
+                    <div className="absolute inset-0 bg-linear-to-r from-black/18 via-transparent to-transparent" />
+
+                    {rank <= 3 ? (
+                      <div
+                        className={`absolute left-4 top-4 flex h-12 w-12 items-center justify-center rounded-[1rem] border font-serif text-[1.8rem] tracking-[-0.08em] backdrop-blur-sm ${rankClasses.rank}`}
+                      >
+                        {rank}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="p-4 sm:p-5">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span
+                            className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.14em] ${meta.tone}`}
+                          >
+                            {meta.icon}
+                            {meta.label}
+                          </span>
+                          {isSelected ? (
+                            <span className="inline-flex items-center gap-2 rounded-full border border-[#d6c28d] bg-[#fff7dd] px-3 py-1.5 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-[#6b5524]">
+                              <Pin className="h-3.5 w-3.5" />
+                              Chosen
+                            </span>
+                          ) : null}
+                          {proposal.link ? (
+                            <a
+                              href={proposal.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-stone-900/10 bg-white text-stone-500 transition-colors hover:text-stone-950"
+                              title={provider ? getProviderLabel(provider) : "Open link"}
+                            >
+                              {siteIcon}
+                            </a>
+                          ) : null}
+                        </div>
+
+                        <h3 className="mt-3 font-serif text-[clamp(1.65rem,2vw,2.35rem)] leading-[1] tracking-[-0.05em] text-stone-950">
+                          {proposal.name}
+                        </h3>
+                        {proposal.locationName ? (
+                          <p className="mt-2 inline-flex items-center gap-2 text-sm text-stone-500">
+                            <MapPin className="h-4 w-4" />
+                            {proposal.locationName}
+                          </p>
+                        ) : null}
+                      </div>
+
+                <div className="flex flex-wrap items-start gap-2 lg:justify-end">
+                        {canManageSelections ? (
+                          <button
+                            type="button"
+                            onClick={() => void handleToggleSelection(proposal)}
+                            className={`editorial-button-secondary justify-center px-3.5 py-2.5 text-[0.58rem] ${
+                              isSelected ? "border-[#d6c28d] bg-[#fff2c7] text-[#6b5524]" : "bg-white"
+                            }`}
+                          >
+                            <Pin className={`h-4 w-4 ${isSelected ? "fill-current" : ""}`} />
+                            {isSelected ? "Pinned" : "Pin pick"}
+                          </button>
+                        ) : null}
+
+                        {proposal.isOwnedByMe ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleEditProposal(proposal)}
+                              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-stone-900/10 bg-white text-stone-500 transition-colors hover:text-stone-950"
+                              title="Edit proposal"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                void handleRemoveProposal(proposal._id as Id<"accommodations">)
+                              }
+                              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-stone-900/10 bg-white text-stone-500 transition-colors hover:text-rose-600"
+                              title="Delete proposal"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : null}
+
+                        <div className="flex min-w-[6.5rem] flex-col items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              void voteProposal({ accommodationId: proposal._id as Id<"accommodations"> })
+                            }
+                            className={`editorial-button-secondary justify-center px-3.5 py-2.5 text-[0.58rem] ${
+                              proposal.isVotedByMe ? "border-stone-950 bg-stone-950 text-white" : "bg-white"
+                            }`}
+                          >
+                            <ThumbsUp className={`h-4 w-4 ${proposal.isVotedByMe ? "fill-current" : ""}`} />
+                            Vote
+                          </button>
+                          <p className="text-sm text-stone-500">
+                            {proposal.votes} vote{proposal.votes === 1 ? "" : "s"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-5">
+                      <AvatarStack users={proposal.voters} compact />
+                    </div>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+      {selectedCategory !== "all" && filteredProposals.length > 2 && activeChosenProposal ? (
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            onClick={() =>
+              setExpandedCategories((current) => ({
+                ...current,
+                [selectedCategory]: !current[selectedCategory],
+              }))
+            }
+            className="editorial-button-secondary px-4 py-3 text-[0.62rem]"
+          >
+            {expandedCategories[selectedCategory] ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+            {expandedCategories[selectedCategory]
+              ? `Show fewer ${getCategoryMeta(selectedCategory).label.toLowerCase()} picks`
+              : `Show all ${filteredProposals.length} ${getCategoryMeta(selectedCategory).label.toLowerCase()} picks`}
+          </button>
+        </div>
+      ) : null}
+
+      <EditorDrawer
+        open={open}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            resetForm();
+            return;
+          }
+          setOpen(nextOpen);
+        }}
+        title={editingProposalId ? "Edit proposal" : "Add proposal"}
+        description="Save one option with its category, link preview and map location."
+        footer={
+          <div className="flex items-center justify-between gap-3">
+            {editingProposalId ? (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="editorial-button-ghost px-4 py-3 text-[0.62rem]"
+              >
+                <X className="h-4 w-4" />
+                Cancel
+              </button>
+            ) : (
+              <div />
+            )}
+            <SubmitButton
+              label={editingProposalId ? "Save changes" : "Save proposal"}
+              form="proposal-drawer-form"
+            />
+          </div>
+        }
+      >
+        <form id="proposal-drawer-form" onSubmit={handleSubmit} className="grid gap-4 pb-4">
+          <Input placeholder="Hotel Splendido" value={name} onChange={setName} />
+          <Input
+            placeholder="Airbnb or Booking link"
+            value={link}
+            onChange={setLink}
+            type="url"
+            startAdornment={<ProposalProviderMark provider={detectedProvider} />}
+          />
+
+          <div className="space-y-2">
+            <label className="section-kicker text-[0.58rem]">Location</label>
+            <LocationSearch
+              defaultValue={locationName}
+              onSelect={(location: SelectedLocation) => {
+                setName((previous) => previous || location.place_name.split(",")[0]);
+                setLocationName(location.place_name);
+                setLng(location.center[0]);
+                setLat(location.center[1]);
+              }}
+              placeholder="Search place"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="section-kicker text-[0.58rem]">Category</label>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(categoryMeta).map(([id, meta]) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setCategory(id as ProposalCategory)}
+                  className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] transition-colors ${
+                    category === id
+                      ? meta.softTone
+                      : "border-stone-900/10 bg-white text-stone-500 hover:text-stone-950"
+                  }`}
+                >
+                  {meta.icon}
+                  <span className="text-[0.58rem] tracking-[0.14em]">{meta.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {detectedProvider ? (
+            <div className="overflow-hidden rounded-[1.35rem] border border-stone-900/8 bg-white">
+              <div className="flex items-center justify-between gap-3 border-b border-stone-900/8 px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <ProposalProviderBadge provider={detectedProvider} subtle />
+                  <p className="text-sm text-stone-500">
+                    {previewLoading ? "Reading preview..." : "Link preview"}
+                  </p>
+                </div>
+                {normalizedLink ? (
+                  <a
+                    href={normalizedLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-stone-400 transition-colors hover:text-stone-950"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                ) : null}
+              </div>
+
+              <div className="grid gap-4 p-4 sm:grid-cols-[minmax(0,1fr)_11rem] sm:items-center">
+                <div className="min-w-0">
+                  <p className="text-base font-semibold tracking-[-0.03em] text-stone-950">
+                    {preview?.title || "We will pull the stay title from the link if it's available."}
+                  </p>
+                  <p className="mt-2 text-sm text-stone-500">
+                    Saved proposals keep this preview image when the remote page exposes one.
+                  </p>
+                </div>
+
+                <div className="overflow-hidden rounded-[1.1rem] bg-[#f4f1ec]">
+                  {preview?.imageUrl ? (
+                    <Image
+                      src={preview.imageUrl}
+                      alt={preview.title || "Proposal preview"}
+                      width={320}
+                      height={220}
+                      unoptimized
+                      className="h-36 w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-36 items-center justify-center text-stone-400">
+                      <BedDouble className="h-6 w-6" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </form>
+      </EditorDrawer>
+    </motion.section>
+  );
+}
+
+function BudgetStudio({
+  tripId,
+  expenses,
+  totalBudget,
+}: {
+  tripId: Id<"trips">;
+  expenses: ExpenseCard[] | undefined;
+  totalBudget: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [amount, setAmount] = useState("");
+  const addExpense = useMutation(api.expenses.add);
+  const removeExpense = useMutation(api.expenses.remove);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!title || !amount) return;
+
+    try {
+      await addExpense({ tripId, title, amount: parseFloat(amount) });
+      setTitle("");
+      setAmount("");
+      setOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="overflow-hidden rounded-[2.2rem] bg-white shadow-[0_18px_50px_rgba(15,15,15,0.05)]"
+    >
+      <div className="border-b border-stone-900/8 bg-[#eff0ef] px-5 py-5 sm:px-6">
+        <div>
+          <p className="section-kicker">Budget</p>
+          <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-stone-950">
+            Money snapshot
+          </h2>
+            <div className="mt-5">
+              <p className="section-kicker text-[0.56rem]">Total</p>
+              <p className="editorial-metric mt-2 text-[clamp(2.1rem,4vw,3.4rem)] text-stone-950">
+                {currencyFormatter.format(totalBudget)}
+              </p>
+            </div>
+        </div>
+      </div>
+
+      <div className="px-5 py-6 sm:px-6">
+        {expenses === undefined ? (
+          <Loader />
+        ) : (
+          <div className="grid gap-3 lg:grid-cols-2">
+            <AddTile
+              title="Add expense"
+              description="Open the drawer and save a new cost."
+              onClick={() => setOpen(true)}
+            />
+            {expenses.map((expense) => (
+              <article
+                key={expense._id}
+                className="flex items-center justify-between gap-3 rounded-[1.4rem] bg-[#eff0ef] px-4 py-4"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-stone-950">{expense.title}</p>
+                  <div className="mt-2 flex items-center gap-3">
+                    <UserAvatar
+                      name={expense.payerName}
+                      image={expense.payerImage}
+                      seed={expense.payerUserId || expense.payerName}
+                      size={28}
+                    />
+                    <p className="truncate text-xs uppercase tracking-[0.14em] text-stone-500">
+                      {expense.payerName}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-stone-950">
+                    {currencyFormatter.format(expense.amount)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => void removeExpense({ expenseId: expense._id as Id<"expenses"> })}
+                    className="rounded-full border border-stone-900/10 bg-white p-2 text-stone-400 transition-colors hover:border-rose-200 hover:text-rose-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <EditorDrawer
+        open={open}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen);
+          if (!nextOpen) {
+            setTitle("");
+            setAmount("");
+          }
+        }}
+        title="Add expense"
+        description="Log a shared cost and keep the running total tidy."
+        footer={<SubmitButton label="Save" form="expense-drawer-form" />}
+      >
+        <form id="expense-drawer-form" onSubmit={handleSubmit} className="grid gap-4 pb-4">
+          <Input placeholder="Dinner reservation" value={title} onChange={setTitle} />
+          <Input placeholder="Amount" value={amount} onChange={setAmount} type="number" />
+        </form>
+      </EditorDrawer>
+    </motion.section>
+  );
+}
+
+function MapStudio({
+  trip,
+  markers,
+  proposalCount,
+}: {
+  trip: Doc<"trips">;
+  markers: Array<{
+    id: string;
+    name: string;
+    locationName?: string;
+    lat: number;
+    lng: number;
+    category: "accommodation" | "food" | "activity" | "favorite" | "general";
+    selected?: boolean;
+  }>;
+  proposalCount: number;
+}) {
+  const categorizedMarkers = markers
+    .map((marker) => ({
+      ...marker,
+      meta:
+        marker.category === "general"
+          ? {
+              label: "Base",
+              icon: <MapPin className="h-4 w-4" />,
+              tone: "bg-stone-100 text-stone-700",
+            }
+          : getCategoryMeta(marker.category),
+    }))
+    .sort((left, right) => Number(Boolean(right.selected)) - Number(Boolean(left.selected)));
+  const [activeMarkerId, setActiveMarkerId] = useState<string | null>(
+    categorizedMarkers.find((marker) => marker.selected)?.id || categorizedMarkers[0]?.id || null
+  );
+
+  useEffect(() => {
+    if (categorizedMarkers.length === 0) {
+      setActiveMarkerId(null);
+      return;
+    }
+
+    if (!activeMarkerId || !categorizedMarkers.some((marker) => marker.id === activeMarkerId)) {
+      setActiveMarkerId(
+        categorizedMarkers.find((marker) => marker.selected)?.id || categorizedMarkers[0]?.id || null
+      );
+    }
+  }, [activeMarkerId, categorizedMarkers]);
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="overflow-hidden rounded-[2.2rem] bg-white shadow-[0_18px_50px_rgba(15,15,15,0.05)]"
+    >
+      <div className="border-b border-stone-900/8 px-5 py-5 sm:px-6">
+        <p className="section-kicker">Map</p>
+        <div className="mt-3 flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-stone-950">
+              Around {trip.destination}
+            </h2>
+            <p className="mt-2 text-sm text-stone-500">
+              {proposalCount > 0
+                ? `${proposalCount} saved places around the base pin`
+                : "The base destination is pinned and ready"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="h-[23rem] overflow-hidden rounded-[1.5rem] border border-stone-900/8 bg-[#eff0ef] sm:h-[29rem] lg:h-[32rem]">
+          <TripMap
+            center={trip.lat && trip.lng ? { lat: trip.lat, lng: trip.lng } : undefined}
+            markers={markers}
+            activeMarkerId={activeMarkerId || undefined}
+            onActiveMarkerChange={(markerId) => setActiveMarkerId(markerId)}
+          />
+        </div>
+
+        <div className="rounded-[1.5rem] border border-stone-900/8 bg-white p-3">
+          <div className="flex items-center justify-between gap-3 border-b border-stone-900/8 px-2 pb-3">
+            <p className="section-kicker">Locations</p>
+            <p className="text-xs uppercase tracking-[0.14em] text-stone-500">
+              {categorizedMarkers.length} total
+            </p>
+          </div>
+          <div className="mt-3 max-h-[17rem] space-y-2 overflow-y-auto pr-1 sm:max-h-[20rem] lg:max-h-[29rem]">
+            {categorizedMarkers.map((marker) => {
+              const isActive = marker.id === activeMarkerId;
+
+              return (
+                <button
+                  key={marker.id}
+                  type="button"
+                  onClick={() => setActiveMarkerId(marker.id)}
+                  className={`w-full rounded-[1.1rem] border px-3 py-3 text-left transition-all ${
+                    isActive
+                      ? "border-stone-900/18 bg-[#f7f4ef] shadow-[0_8px_18px_rgba(15,15,15,0.06)]"
+                      : "border-stone-900/8 bg-white hover:border-stone-900/16 hover:bg-[#faf8f5]"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span
+                      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${marker.meta.tone}`}
+                    >
+                      {marker.meta.icon}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-stone-950">{marker.name}</p>
+                      <p className="mt-1 truncate text-xs text-stone-500">
+                        {marker.locationName || trip.destination}
+                      </p>
+                      <p className="mt-1 text-[0.62rem] uppercase tracking-[0.14em] text-stone-500">
+                        {marker.selected ? `Chosen ${marker.meta.label}` : marker.meta.label}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </motion.section>
+  );
+}
+
+function GalleryStudio({
+  tripId,
+  photos,
+}: {
+  tripId: Id<"trips">;
+  photos: PhotoCard[] | undefined;
+}) {
+  const addPhoto = useMutation(api.photos.add);
+  const removePhoto = useMutation(api.photos.remove);
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="overflow-hidden rounded-[2.2rem] bg-[#eff0ef]"
+    >
+      <div className="bg-white px-5 py-6 sm:px-6">
+        <p className="section-kicker">Gallery</p>
+        <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-stone-950">
+          Notebook images
+        </h2>
+        <p className="mt-3 max-w-md text-sm leading-6 text-stone-500">
+          Add real photos from the trip thread. The grid stays dense and quiet.
+        </p>
+      </div>
+
+      <div className="border-t border-stone-900/8 bg-white">
+        {photos === undefined ? (
+          <div className="p-6">
+            <Loader />
+          </div>
+        ) : (
+          <div className="p-3 sm:p-4">
+            <div className="grid grid-cols-2 gap-[1px] sm:grid-cols-3 xl:grid-cols-5">
+              <ImageKitUpload
+                folder={`/gather/trips/${tripId}/photos`}
+                onSuccess={(url) => void addPhoto({ tripId, url })}
+                mode="tile"
+               
+              />
+
+              {(photos ?? []).map((photo) => (
+                <div
+                  key={photo._id}
+                  className="group relative aspect-[3/4] overflow-hidden  bg-[#eceae6]"
+                >
+                  <Image
+                    src={photo.url}
+                    alt={photo.uploaderName}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  {photo.canDelete ? (
+                    <button
+                      type="button"
+                      onClick={() => void removePhoto({ photoId: photo._id as Id<"photos"> })}
+                      className="absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/60 bg-stone-950/58 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-stone-950/78 group-hover:opacity-100"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  ) : null}
+                  <div className="absolute inset-x-0 bottom-0 flex items-center gap-2 bg-gradient-to-t from-stone-950/70 to-transparent px-3 py-3">
+                    <UserAvatar
+                      name={photo.uploaderName}
+                      image={photo.uploaderImage}
+                      seed={photo.uploaderUserId || photo.uploaderName}
+                      size={26}
+                    />
+                    <p className="truncate text-xs font-medium text-white">{photo.uploaderName}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {photos.length === 0 ? (
+              <div className="mt-3 rounded-[1.2rem] border border-dashed border-stone-900/8 bg-[#f7f4ef] px-4 py-5 text-sm text-stone-500">
+                No photos yet. Start with the first tile.
+              </div>
+            ) : null}
+          </div>
+        )}
+      </div>
+    </motion.section>
+  );
+}
+
+function TasksStudio({
+  tripId,
+  tasks,
+}: {
+  tripId: Id<"trips">;
+  tasks: TaskCard[] | undefined;
+}) {
+  const [open, setOpen] = useState(false);
+  const [task, setTask] = useState("");
+  const [category, setCategory] = useState("General");
+  const categories = ["General", "Packing", "Booking", "Docs", "Food"];
+  const addTask = useMutation(api.tasks.add);
+  const toggleTask = useMutation(api.tasks.toggle);
+  const completed = tasks?.filter((item) => item.isChecked).length || 0;
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!task) return;
+
+    try {
+      await addTask({ tripId, name: task, category });
+      setTask("");
+      setOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="h-full overflow-hidden rounded-[2rem] bg-white shadow-[0_18px_50px_rgba(15,15,15,0.05)]"
+    >
+      <div className="border-b border-stone-900/8 px-5 py-5 sm:px-6">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="section-kicker">Tasks</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-stone-950">
+              Pre-trip checklist
+            </h2>
+          </div>
+          <p className="editorial-metric text-4xl text-stone-950">
+            {completed}/{tasks?.length || 0}
+          </p>
+        </div>
+      </div>
+
+      <div className="p-5 sm:p-6">
+        <div className="mt-1">
+          {tasks === undefined ? (
+            <Loader />
+          ) : (
+            <div className="grid gap-3">
+              <AddTile
+                title="Add task" 
+                onClick={() => setOpen(true)}
+              />
+              {tasks.map((taskItem) => (
+                <button
+                  key={taskItem._id}
+                  type="button"
+                  onClick={() => void toggleTask({ taskId: taskItem._id })}
+                  className={`flex items-start gap-3 rounded-[1.4rem] px-4 py-4 text-left transition-colors ${
+                    taskItem.isChecked ? "bg-[#eff0ef]" : "border border-stone-900/8"
+                  }`}
+                >
+                  <div className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${taskItem.isChecked ? "border-stone-950 bg-stone-950 text-white" : "border-stone-900/12 bg-white text-transparent"}`}>
+                    <Check className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className={`w-full break-words whitespace-normal text-sm font-medium ${taskItem.isChecked ? "text-stone-500 line-through" : "text-stone-950"}`}>
+                      {taskItem.name}
+                    </p>
+                    <p className="mt-2 text-xs uppercase tracking-[0.14em] text-stone-500">
+                      {taskItem.category}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <EditorDrawer
+        open={open}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen);
+          if (!nextOpen) {
+            setTask("");
+            setCategory("General");
+          }
+        }}
+        title="Add task"
+        description="Keep the pre-trip checklist focused and easy to scan."
+        footer={<SubmitButton label="Save task" form="task-drawer-form" />}
+      >
+        <form id="task-drawer-form" onSubmit={handleSubmit} className="grid gap-4 pb-4">
+          <Input placeholder="Reserve the train" value={task} onChange={setTask} />
+          <div className="flex flex-wrap gap-2">
+            {categories.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setCategory(item)}
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] transition-colors ${
+                  category === item
+                    ? "border-stone-950 bg-stone-950 text-white"
+                    : "border-stone-900/10 bg-white text-stone-500 hover:text-stone-950"
+                }`}
+              >
+                {taskCategoryMeta[item]?.icon || <CheckSquare className="h-3.5 w-3.5" />}
+                <span>{taskCategoryMeta[item]?.shortLabel || item}</span>
+              </button>
+            ))}
+          </div>
+        </form>
+      </EditorDrawer>
+    </motion.section>
+  );
+}
+
+function PlaylistStudio({
+  tripId,
+  songs,
+}: {
+  tripId: Id<"trips">;
+  songs: SongCard[] | undefined;
+}) {
+  const [open, setOpen] = useState(false);
+  const [url, setUrl] = useState("");
+  const addSong = useMutation(api.music.add);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!url) return;
+
+    try {
+      await addSong({ tripId, url });
+      setUrl("");
+      setOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="h-full overflow-hidden rounded-[2rem] bg-[#eff0ef]"
+    >
+      <div className="px-5 py-5 sm:px-6">
+        <div>
+          <p className="section-kicker">Playlist</p>
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-stone-950">
+            Trip soundtrack
+          </h2>
+        </div>
+        <div className="mt-6 space-y-3">
+          {songs === undefined ? (
+            <Loader />
+          ) : (
+            <>
+              <AddTile
+                title="Add song"
+                description="Paste a Spotify or Apple Music link."
+                onClick={() => setOpen(true)}
+                className="min-h-[9rem] bg-white"
+              />
+              {songs.map((song) => (
+                <article key={song._id} className="rounded-[1.4rem] bg-white px-4 py-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-3">
+                        <UserAvatar
+                          name={song.addedByName}
+                          image={song.addedByImage}
+                          seed={song.addedByUserId || song.addedByName}
+                          size={32}
+                        />
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-stone-950">{song.addedByName}</p>
+                          <p className="mt-1 text-xs uppercase tracking-[0.14em] text-stone-500">Added this track</p>
+                        </div>
+                      </div>
+
+                      <a
+                        href={song.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-4 inline-flex min-w-0 items-center gap-2 text-sm font-medium text-stone-900 transition-colors hover:text-stone-600"
+                      >
+                        <Send className="h-4 w-4" />
+                        <span className="truncate">{song.url}</span>
+                      </a>
+                    </div>
+
+                    <span className="rounded-full bg-[#eff0ef] px-3 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-stone-600">
+                      {song.platform}
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </>
+          )}
+        </div>
+      </div>
+
+      <EditorDrawer
+        open={open}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen);
+          if (!nextOpen) {
+            setUrl("");
+          }
+        }}
+        title="Add song"
+        description="Attach one link and keep the trip soundtrack in one place."
+        footer={<SubmitButton label="Save song" form="song-drawer-form" />}
+      >
+        <form id="song-drawer-form" onSubmit={handleSubmit} className="grid gap-4 pb-4">
+          <Input
+            placeholder="Paste Spotify or Apple Music link"
+            value={url}
+            onChange={setUrl}
+            type="url"
+          />
+        </form>
+      </EditorDrawer>
+    </motion.section>
+  );
+}
+
+function AvatarStack({
+  users,
+  compact = false,
+}: {
+  users: Array<{ name: string; image?: string; userId?: string }>;
+  compact?: boolean;
+}) {
+  if (users.length === 0) {
+    return (
+      <div className="flex items-center">
+        {Array.from({ length: compact ? 3 : 4 }).map((_, index) => (
+          <div
+            key={index}
+            className={`${index === 0 ? "" : "-ml-2.5"} h-7 w-7 rounded-full border border-dashed border-stone-300 bg-white/70 sm:h-8 sm:w-8`}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center">
+      {users.slice(0, compact ? 4 : 6).map((user, index) => (
+        <div key={`${user.userId || user.name}-${index}`} className={index === 0 ? "" : "-ml-2.5"}>
+          <UserAvatar
+            name={user.name}
+            image={user.image}
+            seed={user.userId || user.name}
+            size={compact ? 30 : 34}
+            className="ring-2 ring-white"
+          />
+        </div>
+      ))}
+      {users.length > (compact ? 4 : 6) ? (
+        <div
+          className={`${
+            users.length > 0 ? "-ml-2.5" : ""
+          } flex h-[30px] w-[30px] items-center justify-center rounded-full bg-stone-950 text-[0.64rem] font-semibold text-white ring-2 ring-white`}
+        >
+          +{users.length - (compact ? 4 : 6)}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function AddTile({
+  title,
+  description,
+  onClick,
+  className = "",
+}: {
+  title: string;
+  description?: string;
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group flex min-h-[7.5rem] w-full flex-col items-center justify-center rounded-[1.45rem] border border-dashed border-stone-900/12 bg-[#f1f0ed] px-4 py-5 text-center transition-colors hover:border-stone-900/20 hover:bg-[#ebe8e3] ${className}`}
+    >
+      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-stone-500 shadow-[0_8px_20px_rgba(15,15,15,0.05)] transition-transform group-hover:scale-[1.03] group-hover:text-stone-950">
+        <Plus className="h-4 w-4" />
+      </span>
+      <span className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-stone-700">
+        {title}
+      </span>
+      {description ? <span className="mt-1 text-sm text-stone-500">{description}</span> : null}
+    </button>
+  );
+}
+
+function EditorDrawer({
+  open,
+  onOpenChange,
+  title,
+  description,
+  children,
+  footer,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  footer: React.ReactNode;
+}) {
+  return (
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent>
+        <DrawerHeader>
+          <p className="section-kicker">Editor</p>
+          <DrawerTitle>{title}</DrawerTitle>
+          {description ? <DrawerDescription>{description}</DrawerDescription> : null}
+        </DrawerHeader>
+        <div className="overflow-y-auto px-5 pb-2 sm:px-6">{children}</div>
+        <DrawerFooter>{footer}</DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
+function Input({
+  placeholder,
+  value,
+  onChange,
+  type = "text",
+  startAdornment,
+}: {
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+  startAdornment?: React.ReactNode;
+}) {
+  return (
+    <div className="relative">
+      {startAdornment ? (
+        <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
+          {startAdornment}
+        </div>
+      ) : null}
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={`editorial-input ${startAdornment ? "pl-12" : ""}`}
+      />
+    </div>
+  );
+}
+
+function SubmitButton({ label, form }: { label: string; form?: string }) {
+  return (
+    <button
+      type="submit"
+      form={form}
+      className="editorial-button-primary justify-center px-5 py-3 text-[0.66rem]"
+    >
+      {label}
+    </button>
+  );
+}
+
+function EmptyState({
+  icon,
+  title,
+}: {
+  icon: React.ReactNode;
+  title: string;
+}) {
+  return (
+    <div className="flex min-h-[12rem] flex-col items-center justify-center rounded-[1.5rem] bg-white text-center text-stone-500">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#eff0ef] text-stone-700">
+        {icon}
+      </div>
+      <p className="mt-4 text-sm">{title}</p>
+    </div>
+  );
+}
+
+function Loader() {
+  return (
+    <div className="flex justify-center py-8">
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-900/60" />
+    </div>
+  );
+}

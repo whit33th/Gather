@@ -83,3 +83,33 @@ export const remove = mutation({
     await ctx.db.delete(args.expenseId);
   },
 });
+
+export const update = mutation({
+  args: {
+    expenseId: v.id("expenses"),
+    title: v.string(),
+    amount: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const expense = await ctx.db.get(args.expenseId);
+    if (!expense) return;
+
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_user_trip", (q) => q.eq("userId", userId).eq("tripId", expense.tripId))
+      .unique();
+
+    if (!member) throw new Error("Not a member");
+    if (expense.paidBy !== member._id && member.role !== "owner") {
+      throw new Error("Unauthorized");
+    }
+
+    await ctx.db.patch(args.expenseId, {
+      title: args.title,
+      amount: args.amount,
+    });
+  },
+});

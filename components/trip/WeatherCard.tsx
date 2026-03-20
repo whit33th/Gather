@@ -163,9 +163,9 @@ export default function WeatherCard({
 
   if (lat == null || lng == null) {
     return (
-      <div className="editorial-card-soft rounded-[1.6rem] p-5">
+      <div className="rounded-[1.8rem] border border-white/10 bg-[#171717] p-5 text-white shadow-[0_24px_60px_rgba(0,0,0,0.28)]">
         <p className="section-kicker">Weather</p>
-        <p className="mt-2 text-sm text-stone-600">
+        <p className="mt-2 text-sm text-white/56">
           Add a destination with coordinates to see the forecast.
         </p>
       </div>
@@ -173,12 +173,11 @@ export default function WeatherCard({
   }
 
   return (
-    <div className="editorial-card relative overflow-hidden rounded-[1.8rem]">
+    <div className="relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#171717] text-white shadow-[0_24px_60px_rgba(0,0,0,0.28)]">
       {theme ? (
         <>
-          <div className={`absolute inset-0 bg-gradient-to-br ${theme.shell}`} />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.7),transparent_34%),radial-gradient(circle_at_85%_18%,rgba(255,255,255,0.5),transparent_20%)]" />
-          <div className="absolute right-6 top-6 h-28 w-28 rounded-full bg-white/30 blur-2xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_34%),radial-gradient(circle_at_85%_18%,rgba(255,255,255,0.08),transparent_20%)]" />
+          <div className="absolute right-6 top-6 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
         </>
       ) : null}
 
@@ -186,21 +185,21 @@ export default function WeatherCard({
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="section-kicker">Weather</p>
-            <p className="mt-2 text-sm text-stone-600">{location || "Current location"}</p>
+            <p className="mt-2 text-sm text-white/58">{location || "Current location"}</p>
           </div>
 
           {data && theme ? (
             <div className="flex items-center gap-4 sm:text-right">
               <div
-                className={`weather-orb weather-float hidden h-24 w-24 items-center justify-center rounded-[2rem] ${theme.orb} ${theme.accent} shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_20px_40px_rgba(76,96,126,0.14)] sm:flex`}
+                className="hidden h-24 w-24 items-center justify-center rounded-[2rem] bg-white/[0.08] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_20px_40px_rgba(0,0,0,0.18)] sm:flex"
               >
                 {theme.icon}
               </div>
               <div>
-                <p className="editorial-metric text-4xl text-stone-950">
+                <p className="editorial-metric text-4xl text-white">
                   {Math.round(data.current.temperature_2m)}°
                 </p>
-                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-stone-500">
+                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/46">
                   {codeToLabel(data.current.weather_code)} / {Math.round(data.current.wind_speed_10m)} kmh wind
                 </p>
               </div>
@@ -212,23 +211,21 @@ export default function WeatherCard({
           <div className="mt-5 h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-900/60" />
         ) : null}
 
-        {error ? <p className="mt-4 text-sm text-rose-600">{error}</p> : null}
+        {error ? <p className="mt-4 text-sm text-rose-400">{error}</p> : null}
 
         {data ? (
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
             {data.daily.time.slice(0, 5).map((day, index) => {
-              const dailyTheme = getWeatherTheme(data.daily.weather_code[index]);
-
               return (
                 <div
                   key={day}
-                  className={`rounded-[1.25rem] border border-white/60 ${dailyTheme.tint} p-3 text-center shadow-[0_10px_22px_rgba(96,58,30,0.06)] backdrop-blur-sm`}
+                  className="rounded-[1.25rem] border border-white/10 bg-white/[0.06] p-3 text-center shadow-[0_10px_22px_rgba(0,0,0,0.16)] backdrop-blur-sm"
                 >
                   <p className="section-kicker text-[0.58rem]">{format(new Date(day), "EEE")}</p>
-                  <p className="mt-2 text-sm font-semibold text-stone-900">
+                  <p className="mt-2 text-sm font-semibold text-white">
                     {Math.round(data.daily.temperature_2m_max[index])} / {Math.round(data.daily.temperature_2m_min[index])}
                   </p>
-                  <p className="mt-1 text-xs text-stone-500">
+                  <p className="mt-1 text-xs text-white/46">
                     {codeToLabel(data.daily.weather_code[index])}
                   </p>
                 </div>

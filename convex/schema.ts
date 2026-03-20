@@ -141,4 +141,45 @@ export default defineSchema({
     addedBy: v.id("members"),
   })
     .index("by_trip", ["tripId"]),
+
+  dashboardCards: defineTable({
+    tripId: v.id("trips"),
+    kind: v.union(
+      v.literal("hero"),
+      v.literal("arrival"),
+      v.literal("stay"),
+      v.literal("weather"),
+      v.literal("map"),
+      v.literal("travelers"),
+      v.literal("tripNotes"),
+      v.literal("budgetSummary"),
+      v.literal("spots"),
+      v.literal("packingSummary"),
+      v.literal("budget"),
+      v.literal("packing"),
+      v.literal("gallery"),
+      v.literal("proposals"),
+      v.literal("availability"),
+      v.literal("chat"),
+      v.literal("note")
+    ),
+    title: v.optional(v.string()),
+    content: v.optional(v.string()),
+    order: v.number(),
+  })
+    .index("by_trip", ["tripId"])
+    .index("by_trip_order", ["tripId", "order"]),
+
+  tripScheduleItems: defineTable({
+    tripId: v.id("trips"),
+    title: v.string(),
+    startsAt: v.string(),
+    endsAt: v.string(),
+    tone: v.optional(
+      v.union(v.literal("purple"), v.literal("green"), v.literal("neutral"))
+    ),
+    order: v.number(),
+  })
+    .index("by_trip", ["tripId"])
+    .index("by_trip_order", ["tripId", "order"]),
 });

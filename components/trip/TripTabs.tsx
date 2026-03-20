@@ -18,14 +18,14 @@ export default function TripTabs({
   return (
     <div className="space-y-6">
       <div className="flex justify-start">
-        <div className="inline-flex items-center gap-1 rounded-full bg-[#eff0ef] p-1">
+        <div className="glass-panel inline-flex items-center gap-1 rounded-full p-1">
           <button
             type="button"
             onClick={() => setActive("overview")}
             className={`inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[0.72rem] font-medium transition-all ${
               active === "overview"
-                ? "bg-white text-stone-950 shadow-[0_3px_10px_rgba(15,15,15,0.06)]"
-                : "text-stone-500 hover:text-stone-950"
+                ? "bg-white text-[#072432] shadow-[0_10px_24px_rgba(2,14,20,0.28)]"
+                : "text-white/66 hover:text-white"
             }`}
           >
             <LayoutGrid className="h-4 w-4" />
@@ -36,8 +36,8 @@ export default function TripTabs({
             onClick={() => setActive("chat")}
             className={`inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[0.72rem] font-medium transition-all ${
               active === "chat"
-                ? "bg-white text-stone-950 shadow-[0_3px_10px_rgba(15,15,15,0.06)]"
-                : "text-stone-500 hover:text-stone-950"
+                ? "bg-white text-[#072432] shadow-[0_10px_24px_rgba(2,14,20,0.28)]"
+                : "text-white/66 hover:text-white"
             }`}
           >
             <MessageCircle className="h-4 w-4" />

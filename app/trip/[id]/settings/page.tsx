@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
+import type { Route } from "next";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, Settings2 } from "lucide-react";
 import LocationSearch from "../../../../components/LocationSearch";
@@ -94,7 +95,7 @@ export default function TripSettingsPage() {
         lng,
         locationName: locationName || destination || undefined,
       });
-      router.push(`/trip/${tripId}`);
+      router.push(`/trip/${tripId}` as Route);
     } catch (error) {
       console.error(error);
       setIsSaving(false);
@@ -105,7 +106,7 @@ export default function TripSettingsPage() {
     <div className="bg-white">
       <section className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
         <Link
-          href={`/trip/${tripId}`}
+          href={`/trip/${tripId}` as Route}
           className="inline-flex items-center gap-2 text-sm font-medium text-stone-700 transition-colors hover:text-stone-950"
         >
           <ArrowLeft className="h-4 w-4" />

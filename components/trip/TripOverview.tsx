@@ -139,26 +139,26 @@ const categoryMeta: Record<
   accommodation: {
     label: "Stay",
     icon: <Hotel className="h-4 w-4" />,
-    tone: "bg-[#d9e0f7] text-[#44588c]",
-    softTone: "border-[#d9e0f7] bg-[#f3f6fd] text-[#44588c]",
+    tone: "border border-sky-400/30 bg-sky-400/12 text-sky-100",
+    softTone: "border-sky-400/30 bg-sky-400/14 text-sky-100",
   },
   food: {
     label: "Food",
     icon: <Utensils className="h-4 w-4" />,
-    tone: "bg-[#f4e1cd] text-[#8c5f2f]",
-    softTone: "border-[#f4e1cd] bg-[#fbf2e9] text-[#8c5f2f]",
+    tone: "border border-amber-400/30 bg-amber-400/12 text-amber-100",
+    softTone: "border-amber-400/30 bg-amber-400/14 text-amber-100",
   },
   activity: {
     label: "Activity",
     icon: <FlagIcon className="h-4 w-4" />,
-    tone: "bg-[#d9ebe2] text-[#446b56]",
-    softTone: "border-[#d9ebe2] bg-[#f1f7f3] text-[#446b56]",
+    tone: "border border-emerald-400/30 bg-emerald-400/12 text-emerald-100",
+    softTone: "border-emerald-400/30 bg-emerald-400/14 text-emerald-100",
   },
   favorite: {
     label: "Favorite",
     icon: <Heart className="h-4 w-4 fill-current" />,
-    tone: "bg-[#efdde2] text-[#85525f]",
-    softTone: "border-[#efdde2] bg-[#faf1f3] text-[#85525f]",
+    tone: "border border-rose-400/30 bg-rose-400/12 text-rose-100",
+    softTone: "border-rose-400/30 bg-rose-400/14 text-rose-100",
   },
 };
 
@@ -211,9 +211,9 @@ const selectionFieldByCategory = {
 } as const;
 
 const availabilityTone: Record<AvailabilityStatus, string> = {
-  yes: "border-emerald-200 bg-emerald-50 text-emerald-900",
-  no: "border-rose-200 bg-rose-50 text-rose-900",
-  maybe: "border-amber-200 bg-amber-50 text-amber-900",
+  yes: "border-emerald-400/30 bg-emerald-400/14 text-emerald-100",
+  no: "border-rose-400/30 bg-rose-400/14 text-rose-100",
+  maybe: "border-amber-400/30 bg-amber-400/14 text-amber-100",
 };
 
 const availabilityLegend = [
@@ -221,47 +221,47 @@ const availabilityLegend = [
     id: "yes" as const,
     label: "Yes",
     icon: <Check className="h-3.5 w-3.5" />,
-    className: "border-emerald-200 bg-white text-emerald-900",
+    className: "border-emerald-400/30 bg-emerald-400/14 text-emerald-100",
   },
   {
     id: "no" as const,
     label: "No",
     icon: <CircleSlash className="h-3.5 w-3.5" />,
-    className: "border-rose-200 bg-white text-rose-900",
+    className: "border-rose-400/30 bg-rose-400/14 text-rose-100",
   },
   {
     id: "maybe" as const,
     label: "Maybe",
     icon: <Clock3 className="h-3.5 w-3.5" />,
-    className: "border-amber-200 bg-white text-amber-900",
+    className: "border-amber-400/30 bg-amber-400/14 text-amber-100",
   },
 ];
 
 function getProposalRankClasses(rank: number) {
   if (rank === 1) {
     return {
-      card: "border-[#d6c28d] bg-[#fbf7ea] shadow-[0_16px_36px_rgba(96,76,32,0.08)]",
-      rank: "border-[#d6c28d] bg-[#f2e3b6] text-[#6b5524]",
+      card: "border-amber-300/28 bg-[#18150d] shadow-[0_20px_40px_rgba(0,0,0,0.28)]",
+      rank: "border-amber-300/30 bg-amber-300/14 text-amber-100",
     };
   }
 
   if (rank === 2) {
     return {
-      card: "border-[#d8dde2] bg-[#f7f8fa]",
-      rank: "border-[#d0d6dc] bg-[#e8edf2] text-[#56606b]",
+      card: "border-white/10 bg-[#151515]",
+      rank: "border-white/12 bg-white/8 text-white/72",
     };
   }
 
   if (rank === 3) {
     return {
-      card: "border-[#e1d3c5] bg-[#fbf4ed]",
-      rank: "border-[#dfc6ae] bg-[#f0dcc8] text-[#765745]",
+      card: "border-white/10 bg-[#161311]",
+      rank: "border-orange-300/24 bg-orange-300/12 text-orange-100",
     };
   }
 
   return {
-    card: "border-stone-900/8 bg-white",
-    rank: "border-stone-900/10 bg-[#f4f1ec] text-stone-600",
+    card: "border-white/10 bg-[#141414]",
+    rank: "border-white/12 bg-white/6 text-white/60",
   };
 }
 
@@ -275,7 +275,7 @@ function ProposalProviderMark({ provider }: { provider: ProposalProvider }) {
   if (!provider) return null;
 
   return (
-    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[0.7rem] font-bold">
+    <span className="flex h-5 w-5 items-center justify-center rounded-full border border-white/12 bg-white/10 text-[0.7rem] font-bold text-white/82">
       {provider === "airbnb" ? "A" : "B"}
     </span>
   );
@@ -423,7 +423,7 @@ export default function TripOverview({
   );
 }
 
-function AvailabilityStudio({
+export function AvailabilityStudio({
   tripId,
   dates,
   members,
@@ -471,16 +471,16 @@ function AvailabilityStudio({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.45, ease: "easeOut" }}
-      className="overflow-hidden rounded-[2.2rem] bg-white shadow-[0_18px_50px_rgba(15,15,15,0.05)]"
+      className="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[#111111] shadow-[0_24px_70px_rgba(0,0,0,0.32)]"
     >
-      <div className="border-b border-stone-900/8 bg-[#eff0ef] px-5 py-5 sm:px-6">
+      <div className="border-b border-white/10 bg-white/[0.04] px-5 py-5 sm:px-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="section-kicker">Availability</p>
-            <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-stone-950">
+            <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-white">
               Find the overlap
             </h2>
-            <p className="mt-3 text-sm text-stone-500">
+            <p className="mt-3 text-sm text-white/52">
               {bestDay
                 ? `Best day so far: ${format(bestDay.date, "EEE, MMM d")} / ${bestDay.yes} yes / ${bestDay.maybe} maybe`
                 : "No one has marked dates yet"}
@@ -497,7 +497,7 @@ function AvailabilityStudio({
                   className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.14em] transition-colors ${
                     status === option.id
                       ? option.className
-                      : "border-stone-900/10 bg-white text-stone-500 hover:text-stone-900"
+                      : "border-white/10 bg-white/[0.05] text-white/60 hover:border-white/18 hover:text-white"
                   }`}
                 >
                   {option.icon}
@@ -522,10 +522,10 @@ function AvailabilityStudio({
               >
                 <div />
                 {dateSummaries.map((summary) => (
-                  <div key={summary.dateKey} className="rounded-[1rem] bg-[#eff0ef] px-2 py-3 text-center">
+                  <div key={summary.dateKey} className="rounded-[1rem] border border-white/10 bg-white/[0.05] px-2 py-3 text-center">
                     <p className="section-kicker text-[0.52rem]">{format(summary.date, "EEE")}</p>
-                    <p className="mt-1 text-base font-semibold text-stone-950">{format(summary.date, "d")}</p>
-                    <p className="mt-1 text-[0.65rem] uppercase tracking-[0.14em] text-stone-500">
+                    <p className="mt-1 text-base font-semibold text-white">{format(summary.date, "d")}</p>
+                    <p className="mt-1 text-[0.65rem] uppercase tracking-[0.14em] text-white/50">
                       {summary.yes > 0 ? `${summary.yes} yes` : summary.maybe > 0 ? `${summary.maybe} maybe` : summary.no > 0 ? `${summary.no} no` : "open"}
                     </p>
                   </div>
@@ -538,11 +538,11 @@ function AvailabilityStudio({
                   className="grid gap-2"
                   style={{ gridTemplateColumns: `15rem repeat(${dates.length}, minmax(3.35rem, 1fr))` }}
                 >
-                  <div className={`flex items-center gap-3 rounded-[1.2rem] px-4 py-3 ${member.isCurrentUser ? "bg-stone-950 text-white" : "bg-[#eff0ef] text-stone-950"}`}>
+                  <div className={`flex items-center gap-3 rounded-[1.2rem] border px-4 py-3 ${member.isCurrentUser ? "border-cyan-300/18 bg-[#171717] text-white" : "border-white/10 bg-white/[0.05] text-white"}`}>
                     <UserAvatar name={member.name} image={member.image} seed={member.userId} size={40} />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold">{member.name}</p>
-                      <p className={`mt-1 text-[0.62rem] uppercase tracking-[0.16em] ${member.isCurrentUser ? "text-white/60" : "text-stone-500"}`}>
+                      <p className={`mt-1 text-[0.62rem] uppercase tracking-[0.16em] ${member.isCurrentUser ? "text-white/60" : "text-white/48"}`}>
                         {member.isCurrentUser ? "You" : member.role}
                       </p>
                     </div>
@@ -551,7 +551,7 @@ function AvailabilityStudio({
                   {dates.map((date) => {
                     const dateKey = format(date, "yyyy-MM-dd");
                     const current = member.availabilities.find((entry) => entry.date === dateKey);
-                    const tone = current ? availabilityTone[current.status] : "border-stone-900/8 bg-white text-stone-300";
+                    const tone = current ? availabilityTone[current.status] : "border-white/10 bg-white/[0.04] text-white/28";
 
                     return (
                       <button
@@ -650,7 +650,7 @@ function SignalsStudio({
   );
 }
 
-function ProposalStudio({
+export function ProposalStudio({
   trip,
   tripId,
   proposals,
@@ -909,11 +909,11 @@ function ProposalStudio({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.45, ease: "easeOut" }}
-      className="rounded-[2.2rem] bg-white p-5 shadow-[0_18px_50px_rgba(15,15,15,0.05)] sm:p-6"
+      className="rounded-[2.2rem] border border-white/10 bg-[#111111] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.32)] sm:p-6"
     >
       <div>
         <p className="section-kicker">Proposals</p>
-        <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-stone-950">
+        <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-white">
           What the group likes
         </h2>
       </div>
@@ -940,9 +940,9 @@ function ProposalStudio({
       </div>
 
       {activeChosenProposal ? (
-        <div className="mt-5 overflow-hidden rounded-[1.6rem] border border-[#d6c28d]/70 bg-[#fbf7ea]">
+        <div className="mt-5 overflow-hidden rounded-[1.6rem] border border-amber-300/30 bg-[#1b1710]">
           <div className="grid gap-0 sm:grid-cols-[5.5rem_minmax(0,1fr)]">
-            <div className="relative min-h-[5.5rem] bg-[#efe8da]">
+            <div className="relative min-h-[5.5rem] bg-white/[0.05]">
               {activeChosenProposal.imageUrl ? (
                 <Image
                   src={activeChosenProposal.imageUrl}
@@ -960,7 +960,7 @@ function ProposalStudio({
 
             <div className="flex flex-col justify-center gap-2 px-4 py-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="section-kicker text-[0.56rem] text-[#6b5524]">Chosen pick</span>
+                <span className="section-kicker text-[0.56rem] text-amber-100/72">Chosen pick</span>
                 <span
                   className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.58rem] font-semibold uppercase tracking-[0.14em] ${getCategoryMeta(activeChosenProposal.category).tone}`}
                 >
@@ -969,10 +969,10 @@ function ProposalStudio({
                 </span>
               </div>
               <div>
-                <p className="text-base font-semibold tracking-[-0.03em] text-stone-950">
+                <p className="text-base font-semibold tracking-[-0.03em] text-white">
                   {activeChosenProposal.name}
                 </p>
-                <p className="mt-1 text-sm text-stone-500">
+                <p className="mt-1 text-sm text-white/52">
                   {activeChosenProposal.locationName || "Address will appear here after you set a place."}
                 </p>
               </div>
@@ -1015,7 +1015,7 @@ function ProposalStudio({
                 className={`overflow-hidden rounded-[1.8rem] border transition-colors ${rankClasses.card}`}
               >
                 <div className="grid gap-0 md:grid-cols-[18rem_minmax(0,1fr)]">
-                  <div className="relative min-h-[12rem] bg-[#f2eee8] md:min-h-full">
+                  <div className="relative min-h-[12rem] bg-white/[0.05] md:min-h-full">
                     {proposal.imageUrl ? (
                       <Image
                         src={proposal.imageUrl}
@@ -1053,7 +1053,7 @@ function ProposalStudio({
                             {meta.label}
                           </span>
                           {isSelected ? (
-                            <span className="inline-flex items-center gap-2 rounded-full border border-[#d6c28d] bg-[#fff7dd] px-3 py-1.5 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-[#6b5524]">
+                            <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/14 px-3 py-1.5 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-amber-100">
                               <Pin className="h-3.5 w-3.5" />
                               Chosen
                             </span>
@@ -1063,7 +1063,7 @@ function ProposalStudio({
                               href={proposal.link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-stone-900/10 bg-white text-stone-500 transition-colors hover:text-stone-950"
+                              className="trip-glass-icon-button h-9 w-9 text-white/64 hover:text-white"
                               title={provider ? getProviderLabel(provider) : "Open link"}
                             >
                               {siteIcon}
@@ -1071,11 +1071,11 @@ function ProposalStudio({
                           ) : null}
                         </div>
 
-                        <h3 className="mt-3 font-serif text-[clamp(1.65rem,2vw,2.35rem)] leading-[1] tracking-[-0.05em] text-stone-950">
+                        <h3 className="mt-3 font-serif text-[clamp(1.65rem,2vw,2.35rem)] leading-[1] tracking-[-0.05em] text-white">
                           {proposal.name}
                         </h3>
                         {proposal.locationName ? (
-                          <p className="mt-2 inline-flex items-center gap-2 text-sm text-stone-500">
+                          <p className="mt-2 inline-flex items-center gap-2 text-sm text-white/52">
                             <MapPin className="h-4 w-4" />
                             {proposal.locationName}
                           </p>
@@ -1088,7 +1088,7 @@ function ProposalStudio({
                             type="button"
                             onClick={() => void handleToggleSelection(proposal)}
                             className={`editorial-button-secondary justify-center px-3.5 py-2.5 text-[0.58rem] ${
-                              isSelected ? "border-[#d6c28d] bg-[#fff2c7] text-[#6b5524]" : "bg-white"
+                              isSelected ? "border-amber-300/30 bg-amber-300/14 text-amber-100" : "bg-white/[0.06]"
                             }`}
                           >
                             <Pin className={`h-4 w-4 ${isSelected ? "fill-current" : ""}`} />
@@ -1101,7 +1101,7 @@ function ProposalStudio({
                             <button
                               type="button"
                               onClick={() => handleEditProposal(proposal)}
-                              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-stone-900/10 bg-white text-stone-500 transition-colors hover:text-stone-950"
+                              className="trip-glass-icon-button h-10 w-10 text-white/64 hover:text-white"
                               title="Edit proposal"
                             >
                               <Pencil className="h-4 w-4" />
@@ -1111,7 +1111,7 @@ function ProposalStudio({
                               onClick={() =>
                                 void handleRemoveProposal(proposal._id as Id<"accommodations">)
                               }
-                              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-stone-900/10 bg-white text-stone-500 transition-colors hover:text-rose-600"
+                              className="trip-glass-icon-button h-10 w-10 text-white/64 hover:text-rose-300"
                               title="Delete proposal"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -1126,13 +1126,13 @@ function ProposalStudio({
                               void voteProposal({ accommodationId: proposal._id as Id<"accommodations"> })
                             }
                             className={`editorial-button-secondary justify-center px-3.5 py-2.5 text-[0.58rem] ${
-                              proposal.isVotedByMe ? "border-stone-950 bg-stone-950 text-white" : "bg-white"
+                              proposal.isVotedByMe ? "border-white/20 bg-white/14 text-white" : "bg-white/[0.06]"
                             }`}
                           >
                             <ThumbsUp className={`h-4 w-4 ${proposal.isVotedByMe ? "fill-current" : ""}`} />
                             Vote
                           </button>
-                          <p className="text-sm text-stone-500">
+                          <p className="text-sm text-white/48">
                             {proposal.votes} vote{proposal.votes === 1 ? "" : "s"}
                           </p>
                         </div>
@@ -1240,7 +1240,7 @@ function ProposalStudio({
                   className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] transition-colors ${
                     category === id
                       ? meta.softTone
-                      : "border-stone-900/10 bg-white text-stone-500 hover:text-stone-950"
+                      : "border-white/10 bg-white/[0.05] text-white/56 hover:border-white/18 hover:text-white"
                   }`}
                 >
                   {meta.icon}
@@ -1251,11 +1251,11 @@ function ProposalStudio({
           </div>
 
           {detectedProvider ? (
-            <div className="overflow-hidden rounded-[1.35rem] border border-stone-900/8 bg-white">
-              <div className="flex items-center justify-between gap-3 border-b border-stone-900/8 px-4 py-3">
+            <div className="overflow-hidden rounded-[1.35rem] border border-white/10 bg-white/[0.04]">
+              <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
                 <div className="flex items-center gap-2">
                   <ProposalProviderBadge provider={detectedProvider} subtle />
-                  <p className="text-sm text-stone-500">
+                  <p className="text-sm text-white/52">
                     {previewLoading ? "Reading preview..." : "Link preview"}
                   </p>
                 </div>
@@ -1264,7 +1264,7 @@ function ProposalStudio({
                     href={normalizedLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-stone-400 transition-colors hover:text-stone-950"
+                    className="text-white/46 transition-colors hover:text-white"
                   >
                     <ExternalLink className="h-4 w-4" />
                   </a>
@@ -1273,15 +1273,15 @@ function ProposalStudio({
 
               <div className="grid gap-4 p-4 sm:grid-cols-[minmax(0,1fr)_11rem] sm:items-center">
                 <div className="min-w-0">
-                  <p className="text-base font-semibold tracking-[-0.03em] text-stone-950">
+                  <p className="text-base font-semibold tracking-[-0.03em] text-white">
                     {preview?.title || "We will pull the stay title from the link if it's available."}
                   </p>
-                  <p className="mt-2 text-sm text-stone-500">
+                  <p className="mt-2 text-sm text-white/52">
                     Saved proposals keep this preview image when the remote page exposes one.
                   </p>
                 </div>
 
-                <div className="overflow-hidden rounded-[1.1rem] bg-[#f4f1ec]">
+                <div className="overflow-hidden rounded-[1.1rem] bg-white/[0.05]">
                   {preview?.imageUrl ? (
                     <Image
                       src={preview.imageUrl}
@@ -1306,7 +1306,7 @@ function ProposalStudio({
   );
 }
 
-function BudgetStudio({
+export function BudgetStudio({
   tripId,
   expenses,
   totalBudget,
@@ -1318,7 +1318,9 @@ function BudgetStudio({
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
+  const [editingExpenseId, setEditingExpenseId] = useState<Id<"expenses"> | null>(null);
   const addExpense = useMutation(api.expenses.add);
+  const updateExpense = useMutation(api.expenses.update);
   const removeExpense = useMutation(api.expenses.remove);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -1326,13 +1328,29 @@ function BudgetStudio({
     if (!title || !amount) return;
 
     try {
-      await addExpense({ tripId, title, amount: parseFloat(amount) });
+      const numericAmount = parseFloat(amount);
+      if (Number.isNaN(numericAmount)) return;
+
+      if (editingExpenseId) {
+        await updateExpense({ expenseId: editingExpenseId, title, amount: numericAmount });
+      } else {
+        await addExpense({ tripId, title, amount: numericAmount });
+      }
+
       setTitle("");
       setAmount("");
+      setEditingExpenseId(null);
       setOpen(false);
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const resetEditor = () => {
+    setTitle("");
+    setAmount("");
+    setEditingExpenseId(null);
+    setOpen(false);
   };
 
   return (
@@ -1341,17 +1359,17 @@ function BudgetStudio({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.45, ease: "easeOut" }}
-      className="overflow-hidden rounded-[2.2rem] bg-white shadow-[0_18px_50px_rgba(15,15,15,0.05)]"
+      className="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[#111111] shadow-[0_24px_70px_rgba(0,0,0,0.32)]"
     >
-      <div className="border-b border-stone-900/8 bg-[#eff0ef] px-5 py-5 sm:px-6">
+      <div className="border-b border-white/10 bg-white/[0.04] px-5 py-5 sm:px-6">
         <div>
           <p className="section-kicker">Budget</p>
-          <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-stone-950">
+          <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-white">
             Money snapshot
           </h2>
             <div className="mt-5">
               <p className="section-kicker text-[0.56rem]">Total</p>
-              <p className="editorial-metric mt-2 text-[clamp(2.1rem,4vw,3.4rem)] text-stone-950">
+              <p className="editorial-metric mt-2 text-[clamp(2.1rem,4vw,3.4rem)] text-white">
                 {currencyFormatter.format(totalBudget)}
               </p>
             </div>
@@ -1371,10 +1389,10 @@ function BudgetStudio({
             {expenses.map((expense) => (
               <article
                 key={expense._id}
-                className="flex items-center justify-between gap-3 rounded-[1.4rem] bg-[#eff0ef] px-4 py-4"
+                className="flex items-center justify-between gap-3 rounded-[1.4rem] border border-white/10 bg-white/[0.05] px-4 py-4"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-stone-950">{expense.title}</p>
+                  <p className="truncate text-sm font-semibold text-white">{expense.title}</p>
                   <div className="mt-2 flex items-center gap-3">
                     <UserAvatar
                       name={expense.payerName}
@@ -1382,20 +1400,32 @@ function BudgetStudio({
                       seed={expense.payerUserId || expense.payerName}
                       size={28}
                     />
-                    <p className="truncate text-xs uppercase tracking-[0.14em] text-stone-500">
+                    <p className="truncate text-xs uppercase tracking-[0.14em] text-white/48">
                       {expense.payerName}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-stone-950">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingExpenseId(expense._id as Id<"expenses">);
+                      setTitle(expense.title);
+                      setAmount(String(expense.amount));
+                      setOpen(true);
+                    }}
+                    className="trip-glass-icon-button h-10 w-10 text-white/64 hover:text-white"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <span className="text-sm font-semibold text-white">
                     {currencyFormatter.format(expense.amount)}
                   </span>
                   <button
                     type="button"
                     onClick={() => void removeExpense({ expenseId: expense._id as Id<"expenses"> })}
-                    className="rounded-full border border-stone-900/10 bg-white p-2 text-stone-400 transition-colors hover:border-rose-200 hover:text-rose-600"
+                    className="trip-glass-icon-button h-10 w-10 text-white/64 hover:text-rose-300"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -1409,15 +1439,32 @@ function BudgetStudio({
       <EditorDrawer
         open={open}
         onOpenChange={(nextOpen) => {
-          setOpen(nextOpen);
           if (!nextOpen) {
-            setTitle("");
-            setAmount("");
+            resetEditor();
+            return;
           }
+
+          setOpen(nextOpen);
         }}
-        title="Add expense"
+        title={editingExpenseId ? "Edit expense" : "Add expense"}
         description="Log a shared cost and keep the running total tidy."
-        footer={<SubmitButton label="Save" form="expense-drawer-form" />}
+        footer={
+          <div className="flex items-center justify-between gap-3">
+            {editingExpenseId ? (
+              <button
+                type="button"
+                onClick={resetEditor}
+                className="editorial-button-ghost px-4 py-3 text-[0.62rem]"
+              >
+                <X className="h-4 w-4" />
+                Cancel
+              </button>
+            ) : (
+              <div />
+            )}
+            <SubmitButton label={editingExpenseId ? "Save changes" : "Save"} form="expense-drawer-form" />
+          </div>
+        }
       >
         <form id="expense-drawer-form" onSubmit={handleSubmit} className="grid gap-4 pb-4">
           <Input placeholder="Dinner reservation" value={title} onChange={setTitle} />
@@ -1428,7 +1475,7 @@ function BudgetStudio({
   );
 }
 
-function MapStudio({
+export function MapStudio({
   trip,
   markers,
   proposalCount,
@@ -1453,7 +1500,7 @@ function MapStudio({
           ? {
               label: "Base",
               icon: <MapPin className="h-4 w-4" />,
-              tone: "bg-stone-100 text-stone-700",
+              tone: "border border-white/12 bg-white/10 text-white/78",
             }
           : getCategoryMeta(marker.category),
     }))
@@ -1481,16 +1528,16 @@ function MapStudio({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.45, ease: "easeOut" }}
-      className="overflow-hidden rounded-[2.2rem] bg-white shadow-[0_18px_50px_rgba(15,15,15,0.05)]"
+      className="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[#111111] shadow-[0_24px_70px_rgba(0,0,0,0.32)]"
     >
-      <div className="border-b border-stone-900/8 px-5 py-5 sm:px-6">
+      <div className="border-b border-white/10 px-5 py-5 sm:px-6">
         <p className="section-kicker">Map</p>
         <div className="mt-3 flex items-end justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-stone-950">
+            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-white">
               Around {trip.destination}
             </h2>
-            <p className="mt-2 text-sm text-stone-500">
+            <p className="mt-2 text-sm text-white/52">
               {proposalCount > 0
                 ? `${proposalCount} saved places around the base pin`
                 : "The base destination is pinned and ready"}
@@ -1500,7 +1547,7 @@ function MapStudio({
       </div>
 
       <div className="grid gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="h-[23rem] overflow-hidden rounded-[1.5rem] border border-stone-900/8 bg-[#eff0ef] sm:h-[29rem] lg:h-[32rem]">
+        <div className="h-[23rem] overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.05] sm:h-[29rem] lg:h-[32rem]">
           <TripMap
             center={trip.lat && trip.lng ? { lat: trip.lat, lng: trip.lng } : undefined}
             markers={markers}
@@ -1509,10 +1556,10 @@ function MapStudio({
           />
         </div>
 
-        <div className="rounded-[1.5rem] border border-stone-900/8 bg-white p-3">
-          <div className="flex items-center justify-between gap-3 border-b border-stone-900/8 px-2 pb-3">
+        <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-3">
+          <div className="flex items-center justify-between gap-3 border-b border-white/10 px-2 pb-3">
             <p className="section-kicker">Locations</p>
-            <p className="text-xs uppercase tracking-[0.14em] text-stone-500">
+            <p className="text-xs uppercase tracking-[0.14em] text-white/48">
               {categorizedMarkers.length} total
             </p>
           </div>
@@ -1527,8 +1574,8 @@ function MapStudio({
                   onClick={() => setActiveMarkerId(marker.id)}
                   className={`w-full rounded-[1.1rem] border px-3 py-3 text-left transition-all ${
                     isActive
-                      ? "border-stone-900/18 bg-[#f7f4ef] shadow-[0_8px_18px_rgba(15,15,15,0.06)]"
-                      : "border-stone-900/8 bg-white hover:border-stone-900/16 hover:bg-[#faf8f5]"
+                      ? "border-cyan-300/24 bg-white/[0.1] shadow-[0_12px_28px_rgba(0,0,0,0.24)]"
+                      : "border-white/10 bg-white/[0.04] hover:border-white/18 hover:bg-white/[0.08]"
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -1538,11 +1585,11 @@ function MapStudio({
                       {marker.meta.icon}
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-stone-950">{marker.name}</p>
-                      <p className="mt-1 truncate text-xs text-stone-500">
+                      <p className="truncate text-sm font-semibold text-white">{marker.name}</p>
+                      <p className="mt-1 truncate text-xs text-white/50">
                         {marker.locationName || trip.destination}
                       </p>
-                      <p className="mt-1 text-[0.62rem] uppercase tracking-[0.14em] text-stone-500">
+                      <p className="mt-1 text-[0.62rem] uppercase tracking-[0.14em] text-white/44">
                         {marker.selected ? `Chosen ${marker.meta.label}` : marker.meta.label}
                       </p>
                     </div>
@@ -1557,7 +1604,7 @@ function MapStudio({
   );
 }
 
-function GalleryStudio({
+export function GalleryStudio({
   tripId,
   photos,
 }: {
@@ -1573,19 +1620,19 @@ function GalleryStudio({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.45, ease: "easeOut" }}
-      className="overflow-hidden rounded-[2.2rem] bg-[#eff0ef]"
+      className="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[#111111]"
     >
-      <div className="bg-white px-5 py-6 sm:px-6">
+      <div className="bg-white/[0.04] px-5 py-6 sm:px-6">
         <p className="section-kicker">Gallery</p>
-        <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-stone-950">
+        <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-white">
           Notebook images
         </h2>
-        <p className="mt-3 max-w-md text-sm leading-6 text-stone-500">
+        <p className="mt-3 max-w-md text-sm leading-6 text-white/52">
           Add real photos from the trip thread. The grid stays dense and quiet.
         </p>
       </div>
 
-      <div className="border-t border-stone-900/8 bg-white">
+      <div className="border-t border-white/10 bg-transparent">
         {photos === undefined ? (
           <div className="p-6">
             <Loader />
@@ -1603,7 +1650,7 @@ function GalleryStudio({
               {(photos ?? []).map((photo) => (
                 <div
                   key={photo._id}
-                  className="group relative aspect-[3/4] overflow-hidden  bg-[#eceae6]"
+                  className="group relative aspect-[3/4] overflow-hidden bg-white/[0.05]"
                 >
                   <Image
                     src={photo.url}
@@ -1634,7 +1681,7 @@ function GalleryStudio({
             </div>
 
             {photos.length === 0 ? (
-              <div className="mt-3 rounded-[1.2rem] border border-dashed border-stone-900/8 bg-[#f7f4ef] px-4 py-5 text-sm text-stone-500">
+              <div className="mt-3 rounded-[1.2rem] border border-dashed border-white/12 bg-white/[0.04] px-4 py-5 text-sm text-white/52">
                 No photos yet. Start with the first tile.
               </div>
             ) : null}
@@ -1645,7 +1692,7 @@ function GalleryStudio({
   );
 }
 
-function TasksStudio({
+export function TasksStudio({
   tripId,
   tasks,
 }: {
@@ -1655,9 +1702,12 @@ function TasksStudio({
   const [open, setOpen] = useState(false);
   const [task, setTask] = useState("");
   const [category, setCategory] = useState("General");
+  const [editingTaskId, setEditingTaskId] = useState<Id<"packingItems"> | null>(null);
   const categories = ["General", "Packing", "Booking", "Docs", "Food"];
   const addTask = useMutation(api.tasks.add);
   const toggleTask = useMutation(api.tasks.toggle);
+  const updateTask = useMutation(api.tasks.update);
+  const removeTask = useMutation(api.tasks.remove);
   const completed = tasks?.filter((item) => item.isChecked).length || 0;
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -1665,12 +1715,25 @@ function TasksStudio({
     if (!task) return;
 
     try {
-      await addTask({ tripId, name: task, category });
+      if (editingTaskId) {
+        await updateTask({ taskId: editingTaskId, name: task, category });
+      } else {
+        await addTask({ tripId, name: task, category });
+      }
+
       setTask("");
+      setEditingTaskId(null);
       setOpen(false);
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const resetEditor = () => {
+    setTask("");
+    setCategory("General");
+    setEditingTaskId(null);
+    setOpen(false);
   };
 
   return (
@@ -1679,17 +1742,17 @@ function TasksStudio({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.45, ease: "easeOut" }}
-      className="h-full overflow-hidden rounded-[2rem] bg-white shadow-[0_18px_50px_rgba(15,15,15,0.05)]"
+      className="h-full overflow-hidden rounded-[2rem] border border-white/10 bg-[#111111] shadow-[0_24px_70px_rgba(0,0,0,0.32)]"
     >
-      <div className="border-b border-stone-900/8 px-5 py-5 sm:px-6">
+      <div className="border-b border-white/10 px-5 py-5 sm:px-6">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="section-kicker">Tasks</p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-stone-950">
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
               Pre-trip checklist
             </h2>
           </div>
-          <p className="editorial-metric text-4xl text-stone-950">
+          <p className="editorial-metric text-4xl text-white">
             {completed}/{tasks?.length || 0}
           </p>
         </div>
@@ -1706,26 +1769,50 @@ function TasksStudio({
                 onClick={() => setOpen(true)}
               />
               {tasks.map((taskItem) => (
-                <button
+                <article
                   key={taskItem._id}
-                  type="button"
-                  onClick={() => void toggleTask({ taskId: taskItem._id })}
                   className={`flex items-start gap-3 rounded-[1.4rem] px-4 py-4 text-left transition-colors ${
-                    taskItem.isChecked ? "bg-[#eff0ef]" : "border border-stone-900/8"
+                    taskItem.isChecked ? "border border-white/12 bg-white/[0.08]" : "border border-white/10 bg-white/[0.04]"
                   }`}
                 >
-                  <div className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${taskItem.isChecked ? "border-stone-950 bg-stone-950 text-white" : "border-stone-900/12 bg-white text-transparent"}`}>
+                  <button
+                    type="button"
+                    onClick={() => void toggleTask({ taskId: taskItem._id })}
+                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${taskItem.isChecked ? "border-white/20 bg-white/14 text-white" : "border-white/14 bg-white/[0.04] text-transparent"}`}
+                    aria-label={`Toggle ${taskItem.name}`}
+                  >
                     <Check className="h-3.5 w-3.5" />
-                  </div>
+                  </button>
                   <div className="min-w-0 flex-1">
-                    <p className={`w-full break-words whitespace-normal text-sm font-medium ${taskItem.isChecked ? "text-stone-500 line-through" : "text-stone-950"}`}>
+                    <p className={`w-full break-words whitespace-normal text-sm font-medium ${taskItem.isChecked ? "text-white/42 line-through" : "text-white"}`}>
                       {taskItem.name}
                     </p>
-                    <p className="mt-2 text-xs uppercase tracking-[0.14em] text-stone-500">
+                    <p className="mt-2 text-xs uppercase tracking-[0.14em] text-white/46">
                       {taskItem.category}
                     </p>
                   </div>
-                </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingTaskId(taskItem._id as Id<"packingItems">);
+                        setTask(taskItem.name);
+                        setCategory(taskItem.category);
+                        setOpen(true);
+                      }}
+                      className="trip-glass-icon-button h-10 w-10 text-white/64 hover:text-white"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void removeTask({ taskId: taskItem._id })}
+                      className="trip-glass-icon-button h-10 w-10 text-white/64 hover:text-rose-300"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </article>
               ))}
             </div>
           )}
@@ -1735,15 +1822,34 @@ function TasksStudio({
       <EditorDrawer
         open={open}
         onOpenChange={(nextOpen) => {
-          setOpen(nextOpen);
           if (!nextOpen) {
-            setTask("");
-            setCategory("General");
+            resetEditor();
+            return;
           }
+          setOpen(nextOpen);
         }}
-        title="Add task"
+        title={editingTaskId ? "Edit task" : "Add task"}
         description="Keep the pre-trip checklist focused and easy to scan."
-        footer={<SubmitButton label="Save task" form="task-drawer-form" />}
+        footer={
+          <div className="flex items-center justify-between gap-3">
+            {editingTaskId ? (
+              <button
+                type="button"
+                onClick={resetEditor}
+                className="editorial-button-ghost px-4 py-3 text-[0.62rem]"
+              >
+                <X className="h-4 w-4" />
+                Cancel
+              </button>
+            ) : (
+              <div />
+            )}
+            <SubmitButton
+              label={editingTaskId ? "Save changes" : "Save task"}
+              form="task-drawer-form"
+            />
+          </div>
+        }
       >
         <form id="task-drawer-form" onSubmit={handleSubmit} className="grid gap-4 pb-4">
           <Input placeholder="Reserve the train" value={task} onChange={setTask} />
@@ -1755,8 +1861,8 @@ function TasksStudio({
                 onClick={() => setCategory(item)}
                 className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] transition-colors ${
                   category === item
-                    ? "border-stone-950 bg-stone-950 text-white"
-                    : "border-stone-900/10 bg-white text-stone-500 hover:text-stone-950"
+                    ? "border-white/20 bg-white/14 text-white"
+                    : "border-white/10 bg-white/[0.05] text-white/56 hover:border-white/18 hover:text-white"
                 }`}
               >
                 {taskCategoryMeta[item]?.icon || <CheckSquare className="h-3.5 w-3.5" />}
@@ -1770,7 +1876,7 @@ function TasksStudio({
   );
 }
 
-function PlaylistStudio({
+export function PlaylistStudio({
   tripId,
   songs,
 }: {
@@ -1945,15 +2051,15 @@ function AddTile({
     <button
       type="button"
       onClick={onClick}
-      className={`group flex min-h-[7.5rem] w-full flex-col items-center justify-center rounded-[1.45rem] border border-dashed border-stone-900/12 bg-[#f1f0ed] px-4 py-5 text-center transition-colors hover:border-stone-900/20 hover:bg-[#ebe8e3] ${className}`}
+      className={`group flex min-h-[7.5rem] w-full flex-col items-center justify-center rounded-[1.45rem] border border-dashed border-white/14 bg-white/[0.04] px-4 py-5 text-center transition-colors hover:border-white/22 hover:bg-white/[0.08] ${className}`}
     >
-      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-stone-500 shadow-[0_8px_20px_rgba(15,15,15,0.05)] transition-transform group-hover:scale-[1.03] group-hover:text-stone-950">
+      <span className="trip-glass-icon-button h-11 w-11 text-white/62 transition-transform group-hover:scale-[1.03] group-hover:text-white">
         <Plus className="h-4 w-4" />
       </span>
-      <span className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-stone-700">
+      <span className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-white/74">
         {title}
       </span>
-      {description ? <span className="mt-1 text-sm text-stone-500">{description}</span> : null}
+      {description ? <span className="mt-1 text-sm text-white/46">{description}</span> : null}
     </button>
   );
 }
@@ -2039,8 +2145,8 @@ function EmptyState({
   title: string;
 }) {
   return (
-    <div className="flex min-h-[12rem] flex-col items-center justify-center rounded-[1.5rem] bg-white text-center text-stone-500">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#eff0ef] text-stone-700">
+    <div className="flex min-h-[12rem] flex-col items-center justify-center rounded-[1.5rem] border border-white/10 bg-white/[0.04] text-center text-white/52">
+      <div className="trip-glass-icon-button h-12 w-12 text-white/68">
         {icon}
       </div>
       <p className="mt-4 text-sm">{title}</p>

@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "convex/react";
 import { motion } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import { ArrowUpRight, CalendarDays, MapPin, Sparkles, Users } from "lucide-react";
+import type { Route } from "next";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
@@ -34,7 +35,7 @@ export default function InvitePage() {
 
     try {
       await joinTrip({ tripId });
-      router.push(`/trip/${tripId}`);
+      router.push(`/trip/${tripId}` as Route);
     } catch (e: unknown) {
       if (e instanceof Error && e.message.includes("Unauthenticated")) {
         await signIn("google", { redirectTo: `/invite/${tripId}` });

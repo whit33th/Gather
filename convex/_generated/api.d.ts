@@ -10,6 +10,7 @@
 
 import type * as auth from "../auth.js";
 import type * as availabilities from "../availabilities.js";
+import type * as dashboardCards from "../dashboardCards.js";
 import type * as expenses from "../expenses.js";
 import type * as http from "../http.js";
 import type * as invites from "../invites.js";
@@ -20,6 +21,7 @@ import type * as photos from "../photos.js";
 import type * as presenters from "../presenters.js";
 import type * as proposals from "../proposals.js";
 import type * as tasks from "../tasks.js";
+import type * as tripScheduleItems from "../tripScheduleItems.js";
 import type * as trips from "../trips.js";
 
 import type {
@@ -31,6 +33,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   availabilities: typeof availabilities;
+  dashboardCards: typeof dashboardCards;
   expenses: typeof expenses;
   http: typeof http;
   invites: typeof invites;
@@ -41,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   presenters: typeof presenters;
   proposals: typeof proposals;
   tasks: typeof tasks;
+  tripScheduleItems: typeof tripScheduleItems;
   trips: typeof trips;
 }>;
 

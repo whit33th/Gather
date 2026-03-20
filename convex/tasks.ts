@@ -67,3 +67,50 @@ export const toggle = mutation({
     await ctx.db.patch(args.taskId, { isChecked: !task.isChecked });
   },
 });
+
+export const update = mutation({
+  args: {
+    taskId: v.id("packingItems"),
+    name: v.string(),
+    category: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const task = await ctx.db.get(args.taskId);
+    if (!task) return;
+
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_user_trip", (q) => q.eq("userId", userId).eq("tripId", task.tripId))
+      .unique();
+
+    if (!member) throw new Error("Not a member");
+
+    await ctx.db.patch(args.taskId, {
+      name: args.name,
+      category: args.category,
+    });
+  },
+});
+
+export const remove = mutation({
+  args: { taskId: v.id("packingItems") },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const task = await ctx.db.get(args.taskId);
+    if (!task) return;
+
+    const member = await ctx.db
+      .query("members")
+      .withIndex("by_user_trip", (q) => q.eq("userId", userId).eq("tripId", task.tripId))
+      .unique();
+
+    if (!member) throw new Error("Not a member");
+
+    await ctx.db.delete(args.taskId);
+  },
+});

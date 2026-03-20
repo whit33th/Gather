@@ -1,13 +1,13 @@
+import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import type { Metadata } from "next";
 import {
   Cormorant_Garamond,
   Manrope,
 } from "next/font/google";
-import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
-import { ConvexClientProvider } from "./ConvexClientProvider";
-import SplashScreen from "../components/SplashScreen";
-import AppShell from "../components/AppShell";
+import AppChrome from "../components/AppChrome";
 import LenisProvider from "../components/LenisProvider";
+import SplashScreen from "../components/SplashScreen";
+import { ConvexClientProvider } from "./ConvexClientProvider";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -35,13 +35,13 @@ export default function RootLayout({
     <ConvexAuthNextjsServerProvider>
       <html lang="en">
         <body
-          className={`${manrope.variable} ${cormorant.variable} bg-background text-foreground antialiased`}
+          className={`${manrope.variable} ${cormorant.variable} flex min-h-dvh flex-col bg-background text-foreground antialiased`}
         >
           <ConvexClientProvider>
             <SplashScreen />
 
             <LenisProvider>
-              <AppShell>{children}</AppShell>
+              <AppChrome>{children}</AppChrome>
             </LenisProvider>
           </ConvexClientProvider>
         </body>

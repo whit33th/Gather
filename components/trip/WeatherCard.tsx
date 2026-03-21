@@ -49,7 +49,7 @@ function getWeatherTheme(code: number) {
       tint: "bg-[#152720]/80",
       orb: "bg-[#dbe887]/30",
       accent: "text-[#eef5d0]",
-      icon: <SunMedium className="h-14 w-14" strokeWidth={1.7} />,
+      icon: <SunMedium className="h-12 w-12" strokeWidth={1.7} />,
     };
   }
 
@@ -59,7 +59,7 @@ function getWeatherTheme(code: number) {
       tint: "bg-[#172921]/80",
       orb: "bg-[#cfd8cd]/20",
       accent: "text-[#dbe6cf]",
-      icon: <CloudSun className="h-14 w-14" strokeWidth={1.7} />,
+      icon: <CloudSun className="h-12 w-12" strokeWidth={1.7} />,
     };
   }
 
@@ -69,7 +69,7 @@ function getWeatherTheme(code: number) {
       tint: "bg-[#172921]/84",
       orb: "bg-[#cfd8cd]/16",
       accent: "text-[#d7e1d3]",
-      icon: <CloudFog className="h-14 w-14" strokeWidth={1.7} />,
+      icon: <CloudFog className="h-12 w-12" strokeWidth={1.7} />,
     };
   }
 
@@ -79,7 +79,7 @@ function getWeatherTheme(code: number) {
       tint: "bg-[#162820]/84",
       orb: "bg-[#9fb0a3]/18",
       accent: "text-[#d7e1d3]",
-      icon: <CloudRain className="h-14 w-14" strokeWidth={1.7} />,
+      icon: <CloudRain className="h-12 w-12" strokeWidth={1.7} />,
     };
   }
 
@@ -89,7 +89,7 @@ function getWeatherTheme(code: number) {
       tint: "bg-[#172921]/84",
       orb: "bg-[#cfd8cd]/16",
       accent: "text-[#d7e1d3]",
-      icon: <CloudSnow className="h-14 w-14" strokeWidth={1.7} />,
+      icon: <CloudSnow className="h-12 w-12" strokeWidth={1.7} />,
     };
   }
 
@@ -99,7 +99,7 @@ function getWeatherTheme(code: number) {
       tint: "bg-[#162820]/84",
       orb: "bg-[#d48d7a]/16",
       accent: "text-[#f3d0c5]",
-      icon: <CloudLightning className="h-14 w-14" strokeWidth={1.7} />,
+      icon: <CloudLightning className="h-12 w-12" strokeWidth={1.7} />,
     };
   }
 
@@ -108,7 +108,7 @@ function getWeatherTheme(code: number) {
     tint: "bg-[#172921]/84",
     orb: "bg-[#cfd8cd]/16",
     accent: "text-[#d7e1d3]",
-    icon: <Cloud className="h-14 w-14" strokeWidth={1.7} />,
+    icon: <Cloud className="h-12 w-12" strokeWidth={1.7} />,
   };
 }
 
@@ -198,7 +198,7 @@ export default function WeatherCard({
           {data && theme ? (
             <div className="flex items-center gap-4 sm:text-right">
               <div
-                className={`hidden h-24 w-24 items-center justify-center rounded-[2rem] border border-[#31463c] ${theme.tint} ${theme.accent} shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_20px_40px_rgba(0,0,0,0.16)] sm:flex`}
+                className={`hidden  aspect-square p-4 items-center justify-center rounded-[2rem] border border-[#31463c] ${theme.tint} ${theme.accent} shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_20px_40px_rgba(0,0,0,0.16)] sm:flex`}
               >
                 {theme.icon}
               </div>

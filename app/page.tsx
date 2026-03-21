@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useConvexAuth, useQuery } from "convex/react";
 import { format, parseISO } from "date-fns";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
@@ -91,9 +91,8 @@ function TripCard({
   return (
     <Link href={href} className="group block">
       <article
-        className={`glass-panel mesh-card overflow-hidden rounded-[2rem] ${
-          featured ? "lg:grid lg:grid-cols-[1.15fr_0.85fr]" : ""
-        }`}
+        className={`glass-panel mesh-card overflow-hidden rounded-[2rem] ${featured ? "lg:grid lg:grid-cols-[1.15fr_0.85fr]" : ""
+          }`}
       >
         <div className={`relative ${featured ? "min-h-[24rem]" : "h-72"}`}>
           <Image
@@ -119,9 +118,8 @@ function TripCard({
           <div>
             <p className="section-kicker">Trip notebook</p>
             <h3
-              className={`mt-4 font-semibold tracking-[-0.05em] text-white ${
-                featured ? "text-4xl sm:text-5xl" : "text-3xl"
-              }`}
+              className={`mt-4 font-semibold tracking-[-0.05em] text-white ${featured ? "text-4xl sm:text-5xl" : "text-3xl"
+                }`}
             >
               {title}
             </h3>
@@ -162,12 +160,6 @@ export default function Home() {
     router.push("/login");
   };
 
-  useEffect(() => {
-    if (isAuthenticated && featuredTrip) {
-      router.replace(`/trip/${featuredTrip._id}` as Route);
-    }
-  }, [featuredTrip, isAuthenticated, router]);
-
   if (isLoading || trips === undefined) {
     return (
       <AppState
@@ -175,17 +167,6 @@ export default function Home() {
         eyebrow="Trips"
         title="Loading notebooks"
         description="Preparing your workspace and recent trip data."
-      />
-    );
-  }
-
-  if (isAuthenticated && featuredTrip) {
-    return (
-      <AppState
-        loading
-        eyebrow="Trips"
-        title="Opening your dashboard"
-        description="Routing you into the active trip workspace."
       />
     );
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import {
   closestCorners,
   DndContext,
@@ -23,8 +23,7 @@ import {
   sortableKeyboardCoordinates,
   useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { GripVertical, X } from "lucide-react";
 import { Id } from "../../convex/_generated/dataModel";
 import { cn } from "../../lib/utils";
@@ -128,8 +127,8 @@ function SortableBoardCard({
   });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
-    transition: transition || "transform 260ms cubic-bezier(0.22, 1, 0.36, 1)",
+    // transform: CSS.Transform.toString(transform),
+    // transition: transition || "transform 260ms cubic-bezier(0.22, 1, 0.36, 1)",
   };
 
   return (
@@ -149,8 +148,8 @@ function SortableBoardCard({
         className={cn(
           "pointer-events-none absolute inset-0 z-20 rounded-[32px] opacity-0 transition-all duration-200",
           isDropTarget &&
-            !isDragging &&
-            "bg-[#dbe887]/10 opacity-100 shadow-[inset_0_0_0_2px_rgba(219,232,135,0.6)]"
+          !isDragging &&
+          "bg-[#dbe887]/10 opacity-100 shadow-[inset_0_0_0_2px_rgba(219,232,135,0.6)]"
         )}
       />
 
@@ -175,48 +174,6 @@ function SortableBoardCard({
 
       {children}
     </motion.div>
-  );
-}
-
-function BoardCardPreview({
-  card,
-  activeRect,
-}: {
-  card: DashboardCardRecord;
-  activeRect: ActiveCardRect | null;
-}) {
-  const style: CSSProperties | undefined = activeRect
-    ? {
-        width: activeRect.width,
-        height: activeRect.height,
-        maxWidth: "calc(100vw - 2rem)",
-      }
-    : undefined;
-
-  return (
-    <div
-      style={style}
-      className="pointer-events-none min-w-0 overflow-hidden rounded-[32px] border border-[#2a3e34] bg-[#10211b]/96 p-5 text-[#f7f4ea] shadow-[0_28px_70px_rgba(0,0,0,0.34)] backdrop-blur-xl"
-    >
-      <div className="flex h-full min-w-0 flex-col justify-between gap-4">
-        <div className="flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-[#9fb0a3]">
-              Moving Card
-            </p>
-            <p className="mt-2 truncate text-2xl font-semibold tracking-[-0.05em]">
-              {card.title || kindLabel[card.kind]}
-            </p>
-          </div>
-          <span className="shrink-0 rounded-full border border-[#2d4238] bg-[#152720] px-3 py-2 text-[0.68rem] uppercase tracking-[0.14em] text-[#aebbb2]">
-            {kindLabel[card.kind]}
-          </span>
-        </div>
-        <div className="rounded-[24px] border border-[#23372e] bg-[#14251e] p-4 text-sm leading-6 text-[#9fb0a3]">
-          The card keeps its original size while you reorder the dashboard.
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -255,6 +212,14 @@ export default function TripBoard({
 
   const cardIds = useMemo(() => orderedCards.map((card) => card._id), [orderedCards]);
   const activeCard = orderedCards.find((card) => card._id === activeCardId) || null;
+  const activeCardContent = activeCard ? renderCard(activeCard) : null;
+  const activeOverlayStyle = activeCardRect
+    ? {
+        width: activeCardRect.width,
+        height: activeCardRect.height,
+        maxWidth: "calc(100vw - 2rem)",
+      }
+    : undefined;
 
   const handleDragStart = (event: DragStartEvent) => {
     const nextActiveCardId = event.active.id as Id<"dashboardCards">;
@@ -268,9 +233,9 @@ export default function TripBoard({
     setActiveCardRect(
       rect
         ? {
-            width: Math.min(rect.width, window.innerWidth - 32),
-            height: rect.height,
-          }
+          width: Math.min(rect.width, window.innerWidth - 32),
+          height: rect.height,
+        }
         : null
     );
   };
@@ -331,22 +296,29 @@ export default function TripBoard({
     >
       <SortableContext items={cardIds} strategy={rectSortingStrategy}>
         <div className="min-w-0 overflow-x-hidden grid min-w-0 gap-4 lg:grid-cols-12">
-            {orderedCards.map((card) => (
-              <SortableBoardCard
-                key={card._id}
-                card={card}
-                onRemove={onRemove}
-                isDropTarget={Boolean(activeCardId) && overCardId === card._id}
-                className={getSpan(card.kind)}
-              >
-                {renderCard(card)}
-              </SortableBoardCard>
-            ))}
+          {orderedCards.map((card) => (
+            <SortableBoardCard
+              key={card._id}
+              card={card}
+              onRemove={onRemove}
+              isDropTarget={Boolean(activeCardId) && overCardId === card._id}
+              className={getSpan(card.kind)}
+            >
+              {renderCard(card)}
+            </SortableBoardCard>
+          ))}
         </div>
       </SortableContext>
 
       <DragOverlay adjustScale={false} dropAnimation={dropAnimation}>
-        {activeCard ? <BoardCardPreview card={activeCard} activeRect={activeCardRect} /> : null}
+        {activeCardContent ? (
+          <div
+            style={activeOverlayStyle}
+            className="pointer-events-none min-w-0 overflow-hidden shadow-[0_28px_70px_rgba(0,0,0,0.22)]"
+          >
+            {activeCardContent}
+          </div>
+        ) : null}
       </DragOverlay>
     </DndContext>
   );

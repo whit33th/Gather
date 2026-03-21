@@ -56,23 +56,23 @@ type DashboardCardRecord = {
   _id: Id<"dashboardCards">;
   tripId: Id<"trips">;
   kind:
-    | "hero"
-    | "arrival"
-    | "stay"
-    | "weather"
-    | "map"
-    | "travelers"
-    | "tripNotes"
-    | "budgetSummary"
-    | "spots"
-    | "packingSummary"
-    | "budget"
-    | "packing"
-    | "gallery"
-    | "proposals"
-    | "availability"
-    | "chat"
-    | "note";
+  | "hero"
+  | "arrival"
+  | "stay"
+  | "weather"
+  | "map"
+  | "travelers"
+  | "tripNotes"
+  | "budgetSummary"
+  | "spots"
+  | "packingSummary"
+  | "budget"
+  | "packing"
+  | "gallery"
+  | "proposals"
+  | "availability"
+  | "chat"
+  | "note";
   title?: string;
   content?: string;
   order: number;
@@ -81,7 +81,7 @@ type DashboardCardRecord = {
 type ScheduleItem = Doc<"tripScheduleItems">;
 
 function surface(extra = "") {
-  return `rounded-[30px] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] text-[#f7f4ea] shadow-[0_24px_60px_rgba(0,0,0,0.22)] ${extra}`;
+  return `rounded-[30px]  border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] text-[#f7f4ea] shadow-[0_24px_60px_rgba(0,0,0,0.22)] ${extra}`;
 }
 
 function EmptyAddState({
@@ -97,7 +97,7 @@ function EmptyAddState({
     <button
       type="button"
       onClick={onClick}
-      className="mt-4 flex min-h-[8rem] w-full flex-col items-center justify-center rounded-[24px] border border-dashed border-[#31463c] bg-[#12241d] px-4 text-center transition hover:border-[#42584d] hover:bg-[#162a22]"
+      className=" flex min-h-[8rem] w-full flex-col items-center justify-center rounded-[24px] border border-dashed border-[#31463c] bg-[#12241d] p-4 text-center transition hover:border-[#42584d] hover:bg-[#162a22]"
     >
       <span className="trip-glass-icon-button">
         <Plus className="h-4 w-4" />
@@ -187,7 +187,7 @@ export function StaySummaryCard({
         <div className="flex flex-col justify-between py-2 pr-2">
           <div>
             <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">Stay</p>
-            <h2 className="mt-3 text-[1.85rem] font-semibold tracking-[-0.05em]">
+            <h2 className="my-2 text-[1.85rem] font-semibold tracking-[-0.05em]">
               {proposal?.name || "Choose your stay"}
             </h2>
             <p className="mt-3 text-[1.02rem] leading-7 text-[#9fb0a3]">
@@ -219,7 +219,7 @@ export function TravelersSummaryCard({
       <div className="flex h-full flex-col justify-between gap-6">
         <div>
           <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">People</p>
-          <h2 className="mt-3 text-[1.85rem] font-semibold tracking-[-0.05em]">
+          <h2 className="my-2 text-[1.85rem] font-semibold tracking-[-0.05em]">
             {travelers?.length || 0} travelers
           </h2>
         </div>
@@ -337,7 +337,7 @@ export function SpotsSummaryCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">Spots</p>
-          <h2 className="mt-3 text-[1.85rem] font-semibold tracking-[-0.05em]">Saved highlights</h2>
+          <h2 className="my-2 text-[1.85rem] font-semibold tracking-[-0.05em]">Saved highlights</h2>
         </div>
         <button type="button" onClick={onOpenSearch} className="trip-glass-icon-button" aria-label="Add spot">
           <Plus className="h-4 w-4" />
@@ -356,9 +356,8 @@ export function SpotsSummaryCard({
             {featured.slice(0, 2).map((spot, index) => (
               <article
                 key={spot._id}
-                className={`relative overflow-hidden rounded-[24px] bg-cover bg-center ${
-                  index === 0 ? "min-h-[11rem]" : "min-h-[10rem]"
-                }`}
+                className={`relative overflow-hidden rounded-[24px] bg-cover bg-center ${index === 0 ? "min-h-[11rem]" : "min-h-[10rem]"
+                  }`}
                 style={{ backgroundImage: `url("${spot.imageUrl || images[index] || images[0]}")` }}
               >
                 <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.82))] p-4">
@@ -457,7 +456,7 @@ export function ArrivalSummaryCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-lg text-[#9fb0a3]">Arrival</p>
-          <p className="mt-2 text-[2rem] font-semibold tracking-[-0.06em]">{arrivalDate}</p>
+          <p className="my-2 text-[2rem] font-semibold tracking-[-0.06em]">{arrivalDate}</p>
         </div>
         <CardAction
           icon={Plus}
@@ -610,10 +609,7 @@ export function BudgetSummaryCard({
             }).format(totalBudget)}
           </p>
           <p className="mt-2 text-[#9fb0a3]">Total</p>
-          <button type="button" onClick={() => setIsAdding(true)} className="trip-glass-button mt-5 px-4 py-3">
-            <Plus className="h-4 w-4" />
-            <span>Add expense</span>
-          </button>
+
         </div>
 
         <div className="space-y-3">
@@ -726,7 +722,7 @@ export function PackingSummaryCard({
       <header className="flex items-center justify-between gap-3">
         <div>
           <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">Packing</p>
-          <h2 className="mt-3 text-[1.85rem] font-medium tracking-[-0.04em]">Mandatory essentials</h2>
+          <h2 className="my-2 text-[1.85rem] font-medium tracking-[-0.04em]">Mandatory essentials</h2>
         </div>
         <CardAction icon={Plus} label="Add packing item" onClick={() => setIsAdding(true)} />
       </header>
@@ -736,20 +732,18 @@ export function PackingSummaryCard({
           {tasks.slice(0, 5).map((task) => (
             <li key={task._id}>
               <article
-                className={`flex items-start gap-4 rounded-[22px] border px-4 py-4 ${
-                  task.isChecked
-                    ? "border-[#31453b] bg-[#11211b]"
-                    : "border-[#23372e] bg-[#14251e]"
-                }`}
+                className={`flex items-start gap-4 rounded-[22px] border px-4 py-4 ${task.isChecked
+                  ? "border-[#31453b] bg-[#11211b]"
+                  : "border-[#23372e] bg-[#14251e]"
+                  }`}
               >
                 <button
                   type="button"
                   onClick={() => void toggleTask({ taskId: task._id })}
-                  className={`mt-1 flex h-5 w-5 items-center justify-center rounded-full border ${
-                    task.isChecked
-                      ? "border-[#dbe887] bg-[#dbe887] text-[#0f1b16]"
-                      : "border-[#506257] bg-transparent text-transparent"
-                  }`}
+                  className={`mt-1 flex h-5 w-5 items-center justify-center rounded-full border ${task.isChecked
+                    ? "border-[#dbe887] bg-[#dbe887] text-[#0f1b16]"
+                    : "border-[#506257] bg-transparent text-transparent"
+                    }`}
                 >
                   <Check className="h-3.5 w-3.5" />
                 </button>

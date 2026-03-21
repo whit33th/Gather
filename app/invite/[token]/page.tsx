@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { format, parseISO } from "date-fns";
 import { ArrowUpRight, CalendarDays, MapPin, Sparkles, Users } from "lucide-react";
 import type { Route } from "next";

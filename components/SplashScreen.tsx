@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 
 const SESSION_KEY = "gather-splash-complete";
@@ -164,7 +164,7 @@ export default function SplashScreen() {
               className="mt-10 h-px w-24 origin-center bg-stone-900/18"
             />
 
-           
+
           </div>
         </motion.div>
       ) : null}

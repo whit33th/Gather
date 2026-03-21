@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, Settings2 } from "lucide-react";
+import AppState from "../../../../components/AppState";
 import LocationSearch from "../../../../components/LocationSearch";
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
@@ -61,22 +62,22 @@ export default function TripSettingsPage() {
 
   if (trip === undefined) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-stone-900/60" />
-      </div>
+      <AppState
+        loading
+        eyebrow="Trip settings"
+        title="Loading settings"
+        description="Fetching the current notebook details before editing."
+      />
     );
   }
 
   if (trip === null) {
     return (
-      <div className="mx-auto flex min-h-[60vh] max-w-3xl items-center justify-center px-4">
-        <div className="w-full rounded-[1.6rem] border border-stone-900/8 bg-white p-8 text-center">
-          <p className="section-kicker">Trip unavailable</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-stone-950">
-            You cannot edit this trip.
-          </h1>
-        </div>
-      </div>
+      <AppState
+        eyebrow="Trip unavailable"
+        title="You cannot edit this trip."
+        description="Only members with access to this notebook can change its settings."
+      />
     );
   }
 
@@ -144,10 +145,21 @@ export default function TripSettingsPage() {
             </div>
 
             <div>
-              <label className="section-kicker text-[0.58rem]">Destination</label>
+              <label htmlFor="trip-settings-destination" className="section-kicker text-[0.58rem]">
+                Destination
+              </label>
               <div className="mt-3">
                 <LocationSearch
-                  defaultValue={locationName || destination}
+                  id="trip-settings-destination"
+                  name="destination"
+                  value={locationName || destination}
+                  onValueChange={(value) => {
+                    setIsDirty(true);
+                    setDestination(value);
+                    setLocationName(value);
+                    setLat(undefined);
+                    setLng(undefined);
+                  }}
                   onSelect={(location: SelectedLocation) => {
                     setIsDirty(true);
                     setDestination(location.place_name);

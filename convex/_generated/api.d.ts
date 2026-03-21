@@ -23,6 +23,7 @@ import type * as proposals from "../proposals.js";
 import type * as tasks from "../tasks.js";
 import type * as tripScheduleItems from "../tripScheduleItems.js";
 import type * as trips from "../trips.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -46,6 +47,7 @@ declare const fullApi: ApiFromModules<{
   tasks: typeof tasks;
   tripScheduleItems: typeof tripScheduleItems;
   trips: typeof trips;
+  users: typeof users;
 }>;
 
 /**

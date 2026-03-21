@@ -2,7 +2,6 @@
 
 import { useAuthActions } from "@convex-dev/auth/react";
 import Image from "next/image";
-import Link from "next/link";
 
 const HERO_IMAGE = "/1.jpg";
 
@@ -29,22 +28,11 @@ function GoogleIcon() {
   );
 }
 
-function Brand() {
-  return (
-    <Link href="/" className="flex items-center gap-2.5">
-      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-extrabold tracking-[-0.06em] text-black">
-        G
-      </span>
-      <span className="text-xl font-extrabold tracking-[-0.04em] text-white">GATHER</span>
-    </Link>
-  );
-}
-
 export default function LoginPage() {
   const { signIn } = useAuthActions();
 
   return (
-    <div className="relative min-h-svh overflow-hidden bg-[#040506]">
+    <div className="relative min-h-full overflow-hidden bg-[#040506]">
       <div className="absolute inset-0">
         <Image
           src={HERO_IMAGE}
@@ -58,23 +46,10 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.24),transparent_28%),radial-gradient(circle_at_50%_38%,rgba(255,255,255,0.06),transparent_42%)]" />
       </div>
 
-      <main className="relative z-10 flex min-h-svh flex-col">
-        <header className="px-5 pb-2 pt-[calc(1rem+env(safe-area-inset-top))] text-white md:px-6 lg:px-10 lg:pt-8 xl:px-14">
-          <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between">
-            <Brand />
-
-            <Link
-              href="/"
-              className="inline-flex min-h-[2.75rem] items-center justify-center rounded-full border border-white/30 bg-white/10 px-5 text-base font-semibold text-white backdrop-blur-md transition hover:bg-white/18"
-            >
-              Skip
-            </Link>
-          </div>
-        </header>
-
+      <main className="relative z-10 flex min-h-full flex-col">
         <div className="flex flex-1 flex-col justify-end lg:px-10 lg:pb-10 xl:px-14">
           <div className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col justify-end lg:grid lg:grid-cols-[minmax(0,1.15fr)_26rem] lg:items-end lg:gap-10">
-            <section className="px-5 pb-8 md:px-6 md:pb-10 lg:px-0 lg:pb-14">
+            <section className="px-5 pb-8 pt-8 md:px-6 md:pb-10 md:pt-10 lg:px-0 lg:pb-14 lg:pt-14">
               <div className="max-w-[18rem] lg:max-w-[54rem]">
                 <h1 className="text-[4rem] font-semibold leading-[0.9] tracking-[-0.08em] text-white sm:text-[4.5rem] lg:mt-5 lg:text-[clamp(5.4rem,9vw,8.8rem)] lg:leading-[0.88]">
                   The Journey Starts Here

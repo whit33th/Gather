@@ -1,24 +1,24 @@
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import type { Metadata } from "next";
 import {
-  Cormorant_Garamond,
-  Manrope,
+  Instrument_Serif,
+  Sora,
 } from "next/font/google";
-import AppChrome from "../components/AppChrome";
-import LenisProvider from "../components/LenisProvider";
+import Navbar from "../components/Navbar";
 import SplashScreen from "../components/SplashScreen";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import "./globals.css";
+import "lenis/dist/lenis.css";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
+const sora = Sora({
+  variable: "--font-sora",
   subsets: ["latin"],
 });
 
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400"],
 });
 
 export const metadata: Metadata = {
@@ -35,14 +35,12 @@ export default function RootLayout({
     <ConvexAuthNextjsServerProvider>
       <html lang="en">
         <body
-          className={`${manrope.variable} ${cormorant.variable} flex min-h-dvh flex-col bg-background text-foreground antialiased`}
+          className={`${sora.variable} ${instrumentSerif.variable} flex h-dvh min-h-0 flex-col overflow-hidden bg-background text-foreground antialiased`}
         >
           <ConvexClientProvider>
             <SplashScreen />
-
-            <LenisProvider>
-              <AppChrome>{children}</AppChrome>
-            </LenisProvider>
+            <Navbar>{children}</Navbar>
+            
           </ConvexClientProvider>
         </body>
       </html>

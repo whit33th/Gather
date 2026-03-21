@@ -159,16 +159,26 @@ export default function CreateTripModal({
 
                 {/* destination */}
                 <div>
-                  <label className={fieldLabelClassName}>Destination</label>
+                  <label htmlFor="trip-destination" className={fieldLabelClassName}>
+                    Destination
+                  </label>
                   <div className="mt-3">
                     <LocationSearch
+                      id="trip-destination"
+                      name="destination"
+                      required
+                      value={destination}
+                      onValueChange={(value) => {
+                        setDestination(value);
+                        setLat(undefined);
+                        setLng(undefined);
+                      }}
                       onSelect={(location: SelectedLocation) => {
                         setDestination(location.place_name);
                         setLng(location.center[0]);
                         setLat(location.center[1]);
                       }}
                       placeholder="Tokyo, Japan"
-                      defaultValue={destination}
                     />
                   </div>
                 </div>

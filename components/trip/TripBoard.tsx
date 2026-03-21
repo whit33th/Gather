@@ -150,14 +150,14 @@ function SortableBoardCard({
           "pointer-events-none absolute inset-0 z-20 rounded-[32px] opacity-0 transition-all duration-200",
           isDropTarget &&
             !isDragging &&
-            "bg-[#d4ff4a]/8 opacity-100 shadow-[inset_0_0_0_2px_rgba(212,255,74,0.7)]"
+            "bg-[#dbe887]/10 opacity-100 shadow-[inset_0_0_0_2px_rgba(219,232,135,0.6)]"
         )}
       />
 
       <button
         type="button"
         aria-label={`Drag ${kindLabel[card.kind]} card`}
-        className="absolute left-4 top-4 z-30 flex h-9 w-9 cursor-grab touch-none items-center justify-center rounded-full border border-white/10 bg-black/45 text-white/70 opacity-0 backdrop-blur-xl transition hover:border-white/20 hover:text-white group-hover:opacity-100 active:cursor-grabbing"
+        className="absolute left-4 top-4 z-30 flex h-9 w-9 cursor-grab touch-none items-center justify-center rounded-full border border-[#2b4035] bg-[#14251e]/92 text-[#cfd8cd] opacity-0 backdrop-blur-xl transition hover:border-[#465b50] hover:text-white group-hover:opacity-100 active:cursor-grabbing"
         {...attributes}
         {...listeners}
       >
@@ -167,7 +167,7 @@ function SortableBoardCard({
       <button
         type="button"
         onClick={() => void onRemove(card._id)}
-        className="absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/45 text-white/70 opacity-0 backdrop-blur-xl transition hover:border-rose-300 hover:text-rose-300 group-hover:opacity-100"
+        className="absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-[#2b4035] bg-[#14251e]/92 text-[#cfd8cd] opacity-0 backdrop-blur-xl transition hover:border-[#d48d7a] hover:text-[#f3b4a3] group-hover:opacity-100"
         aria-label="Remove card"
       >
         <X className="h-4 w-4" />
@@ -196,23 +196,23 @@ function BoardCardPreview({
   return (
     <div
       style={style}
-      className="pointer-events-none min-w-0 overflow-hidden rounded-[32px] border border-white/15 bg-[#171717]/92 p-5 text-white shadow-[0_28px_70px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+      className="pointer-events-none min-w-0 overflow-hidden rounded-[32px] border border-[#2a3e34] bg-[#10211b]/96 p-5 text-[#f7f4ea] shadow-[0_28px_70px_rgba(0,0,0,0.34)] backdrop-blur-xl"
     >
       <div className="flex h-full min-w-0 flex-col justify-between gap-4">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-white/45">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-[#9fb0a3]">
               Moving Card
             </p>
             <p className="mt-2 truncate text-2xl font-semibold tracking-[-0.05em]">
               {card.title || kindLabel[card.kind]}
             </p>
           </div>
-          <span className="shrink-0 rounded-full border border-white/10 bg-white/6 px-3 py-2 text-[0.68rem] uppercase tracking-[0.14em] text-white/62">
+          <span className="shrink-0 rounded-full border border-[#2d4238] bg-[#152720] px-3 py-2 text-[0.68rem] uppercase tracking-[0.14em] text-[#aebbb2]">
             {kindLabel[card.kind]}
           </span>
         </div>
-        <div className="rounded-[24px] bg-white/[0.04] p-4 text-sm leading-6 text-white/52">
+        <div className="rounded-[24px] border border-[#23372e] bg-[#14251e] p-4 text-sm leading-6 text-[#9fb0a3]">
           The card keeps its original size while you reorder the dashboard.
         </div>
       </div>
@@ -313,11 +313,11 @@ export default function TripBoard({
   };
 
   if (cards === undefined) {
-    return <div className="rounded-[28px] border border-white/10 bg-[#171717] p-8 text-center text-white/62">Loading board...</div>;
+    return <div className="rounded-[30px] border border-[#23362d] bg-[#10211b] p-8 text-center text-[#9fb0a3]">Loading board...</div>;
   }
 
   if (orderedCards.length === 0) {
-    return <div className="rounded-[28px] border border-dashed border-white/10 bg-[#171717] p-8 text-center text-white/52">No cards on the board yet.</div>;
+    return <div className="rounded-[30px] border border-dashed border-[#31463c] bg-[#10211b] p-8 text-center text-[#9fb0a3]">No cards on the board yet.</div>;
   }
 
   return (
@@ -330,8 +330,7 @@ export default function TripBoard({
       onDragEnd={handleDragEnd}
     >
       <SortableContext items={cardIds} strategy={rectSortingStrategy}>
-        <div className="min-w-0 overflow-x-hidden">
-          <div className="grid min-w-0 gap-4 lg:grid-cols-12">
+        <div className="min-w-0 overflow-x-hidden grid min-w-0 gap-4 lg:grid-cols-12">
             {orderedCards.map((card) => (
               <SortableBoardCard
                 key={card._id}
@@ -343,7 +342,6 @@ export default function TripBoard({
                 {renderCard(card)}
               </SortableBoardCard>
             ))}
-          </div>
         </div>
       </SortableContext>
 

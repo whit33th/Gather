@@ -81,7 +81,7 @@ type DashboardCardRecord = {
 type ScheduleItem = Doc<"tripScheduleItems">;
 
 function surface(extra = "") {
-  return `rounded-[28px] border border-white/10 bg-[#171717] text-white shadow-[0_24px_60px_rgba(0,0,0,0.32)] ${extra}`;
+  return `rounded-[30px] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] text-[#f7f4ea] shadow-[0_24px_60px_rgba(0,0,0,0.22)] ${extra}`;
 }
 
 function EmptyAddState({
@@ -97,13 +97,13 @@ function EmptyAddState({
     <button
       type="button"
       onClick={onClick}
-      className="mt-4 flex min-h-[8rem] w-full flex-col items-center justify-center rounded-[22px] border border-dashed border-white/12 bg-white/[0.03] px-4 text-center transition hover:border-white/20 hover:bg-white/[0.05]"
+      className="mt-4 flex min-h-[8rem] w-full flex-col items-center justify-center rounded-[24px] border border-dashed border-[#31463c] bg-[#12241d] px-4 text-center transition hover:border-[#42584d] hover:bg-[#162a22]"
     >
       <span className="trip-glass-icon-button">
         <Plus className="h-4 w-4" />
       </span>
       <span className="mt-3 text-sm font-medium">{label}</span>
-      <span className="mt-1 max-w-xs text-sm text-white/46">{description}</span>
+      <span className="mt-1 max-w-xs text-sm text-[#9fb0a3]">{description}</span>
     </button>
   );
 }
@@ -118,7 +118,12 @@ function CardAction({
   onClick: () => void;
 }) {
   return (
-    <button type="button" onClick={onClick} className="trip-glass-icon-button" aria-label={label}>
+    <button
+      type="button"
+      onClick={onClick}
+      className="trip-glass-icon-button border-[#2b4035] bg-[#152720] text-[#f7f4ea]"
+      aria-label={label}
+    >
       <Icon className="h-4 w-4" />
     </button>
   );
@@ -148,7 +153,7 @@ export function HeroSummaryCard({
       >
         <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.18)_50%,rgba(0,0,0,0.58)_100%)]" />
         <div className="absolute bottom-0 left-0 right-0 p-5">
-          <p className="text-sm uppercase tracking-[0.18em] text-white/52">{trip.destination}</p>
+          <p className="text-sm uppercase tracking-[0.18em] text-[#dbe6cf]">{trip.destination}</p>
           <h1 className="mt-2 text-[2.35rem] font-semibold tracking-[-0.07em]">{trip.title}</h1>
           <div className="mt-4 flex flex-wrap gap-2 text-sm text-white/82">
             {[duration, `${Math.max(travelerCount, 1)} travelers`, "Shared dashboard"].map((item) => (
@@ -181,11 +186,11 @@ export function StaySummaryCard({
         />
         <div className="flex flex-col justify-between py-2 pr-2">
           <div>
-            <p className="text-sm uppercase tracking-[0.18em] text-white/42">Stay</p>
+            <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">Stay</p>
             <h2 className="mt-3 text-[1.85rem] font-semibold tracking-[-0.05em]">
               {proposal?.name || "Choose your stay"}
             </h2>
-            <p className="mt-3 text-[1.02rem] leading-7 text-white/58">
+            <p className="mt-3 text-[1.02rem] leading-7 text-[#9fb0a3]">
               {proposal?.locationName || "Select the shared stay and keep the group aligned on one place."}
             </p>
           </div>
@@ -213,7 +218,7 @@ export function TravelersSummaryCard({
     <section className={surface("p-5")}>
       <div className="flex h-full flex-col justify-between gap-6">
         <div>
-          <p className="text-sm uppercase tracking-[0.18em] text-white/42">People</p>
+          <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">People</p>
           <h2 className="mt-3 text-[1.85rem] font-semibold tracking-[-0.05em]">
             {travelers?.length || 0} travelers
           </h2>
@@ -221,7 +226,10 @@ export function TravelersSummaryCard({
 
         <div className="space-y-3">
           {visibleTravelers.map((traveler) => (
-            <div key={traveler.memberId} className="flex items-center gap-3 rounded-[20px] bg-white/[0.04] px-4 py-3">
+            <div
+              key={traveler.memberId}
+              className="flex items-center gap-3 rounded-[22px] border border-[#22372e] bg-[#14251e] px-4 py-3"
+            >
               <UserAvatar
                 name={traveler.name}
                 image={traveler.image}
@@ -230,7 +238,7 @@ export function TravelersSummaryCard({
               />
               <div className="min-w-0">
                 <p className="truncate text-base font-medium">{traveler.name}</p>
-                <p className="text-sm text-white/46">{traveler.isCurrentUser ? "You" : traveler.role}</p>
+                <p className="text-sm text-[#9fb0a3]">{traveler.isCurrentUser ? "You" : traveler.role}</p>
               </div>
             </div>
           ))}
@@ -269,7 +277,7 @@ export function TripNotesSummaryCard({
       <div className="flex h-full flex-col justify-between gap-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-sm uppercase tracking-[0.18em] text-white/42">Trip Notes</p>
+            <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">Trip Notes</p>
             <h2 className="mt-3 truncate text-[1.85rem] font-semibold tracking-[-0.05em]">
               {title}
             </h2>
@@ -302,7 +310,7 @@ export function TripNotesSummaryCard({
             </div>
           </div>
         ) : (
-          <p className="whitespace-pre-wrap text-[1.02rem] leading-8 text-white/62">
+          <p className="whitespace-pre-wrap text-[1.02rem] leading-8 text-[#a8b8ad]">
             {content || "Add the high-level itinerary, meeting point, and any shared reminders here."}
           </p>
         )}
@@ -328,7 +336,7 @@ export function SpotsSummaryCard({
     <section className={surface("overflow-hidden p-4")}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm uppercase tracking-[0.18em] text-white/42">Spots</p>
+          <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">Spots</p>
           <h2 className="mt-3 text-[1.85rem] font-semibold tracking-[-0.05em]">Saved highlights</h2>
         </div>
         <button type="button" onClick={onOpenSearch} className="trip-glass-icon-button" aria-label="Add spot">
@@ -404,9 +412,9 @@ export function ArrivalSummaryCard({
   const editingItem = items?.find((item) => item._id === editingId);
 
   const toneClasses = {
-    purple: "bg-[#3b3152] text-[#c7aff5]",
-    green: "bg-[#415029] text-[#b7ea63]",
-    neutral: "bg-white/[0.08] text-white",
+    purple: "border border-[#3e4a44] bg-[#18231f] text-[#f0eadc]",
+    green: "border border-[#47614a] bg-[#15261d] text-[#d4e8cf]",
+    neutral: "border border-[#2b3c34] bg-[#13211c] text-[#f7f4ea]",
   };
 
   const resetDraft = () => {
@@ -448,7 +456,7 @@ export function ArrivalSummaryCard({
     <section className={surface("p-5")}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-lg text-white/46">Arrival</p>
+          <p className="text-lg text-[#9fb0a3]">Arrival</p>
           <p className="mt-2 text-[2rem] font-semibold tracking-[-0.06em]">{arrivalDate}</p>
         </div>
         <CardAction
@@ -468,7 +476,7 @@ export function ArrivalSummaryCard({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-lg">{item.title}</p>
-                  <p className="mt-1 text-lg text-white/74">
+                  <p className="mt-1 text-lg text-[#b9c5bb]">
                     {item.startsAt} - {item.endsAt}
                   </p>
                 </div>
@@ -506,7 +514,7 @@ export function ArrivalSummaryCard({
       )}
 
       {isAdding || editingItem ? (
-        <div className="mt-4 grid gap-3 rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
+        <div className="mt-4 grid gap-3 rounded-[24px] border border-[#23372e] bg-[#13231d] p-4">
           <input
             value={draft.title}
             onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
@@ -533,7 +541,7 @@ export function ArrivalSummaryCard({
                 key={tone}
                 type="button"
                 onClick={() => setDraft((current) => ({ ...current, tone }))}
-                className={`trip-glass-button px-4 py-2 ${draft.tone === tone ? "border-white/24 bg-white/[0.14]" : ""}`}
+                className={`trip-glass-button px-4 py-2 capitalize ${draft.tone === tone ? "border-[#dbe887]/40 bg-[#213229]" : ""}`}
               >
                 {tone}
               </button>
@@ -593,7 +601,7 @@ export function BudgetSummaryCard({
   return (
     <section className={surface("p-5")}>
       <div className="grid gap-4 md:grid-cols-[180px_minmax(0,1fr)]">
-        <div className="rounded-[22px] bg-white/[0.04] px-5 py-6 text-center">
+        <div className="rounded-[24px] border border-[#23372e] bg-[#13241d] px-5 py-6 text-center">
           <p className="text-[2.35rem] font-semibold tracking-[-0.06em]">
             {new Intl.NumberFormat("en-US", {
               style: "currency",
@@ -601,7 +609,7 @@ export function BudgetSummaryCard({
               maximumFractionDigits: 0,
             }).format(totalBudget)}
           </p>
-          <p className="mt-2 text-white/48">Total</p>
+          <p className="mt-2 text-[#9fb0a3]">Total</p>
           <button type="button" onClick={() => setIsAdding(true)} className="trip-glass-button mt-5 px-4 py-3">
             <Plus className="h-4 w-4" />
             <span>Add expense</span>
@@ -611,11 +619,14 @@ export function BudgetSummaryCard({
         <div className="space-y-3">
           {expenses && expenses.length > 0 ? (
             expenses.slice(0, 4).map((expense) => (
-              <article key={expense._id} className="rounded-[20px] bg-white/[0.04] px-4 py-4">
+              <article
+                key={expense._id}
+                className="rounded-[22px] border border-[#23372e] bg-[#14251e] px-4 py-4"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="truncate text-lg font-medium">{expense.title}</p>
-                    <p className="mt-1 text-sm text-white/46">{expense.payerName}</p>
+                    <p className="mt-1 text-sm text-[#9fb0a3]">{expense.payerName}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-lg font-medium">
@@ -655,7 +666,7 @@ export function BudgetSummaryCard({
       </div>
 
       {isAdding ? (
-        <div className="mt-4 grid gap-3 rounded-[22px] border border-white/10 bg-white/[0.03] p-4 md:grid-cols-[1fr_180px_auto_auto]">
+        <div className="mt-4 grid gap-3 rounded-[24px] border border-[#23372e] bg-[#13231d] p-4 md:grid-cols-[1fr_180px_auto_auto]">
           <input value={title} onChange={(event) => setTitle(event.target.value)} className="editorial-input" placeholder="Flights" />
           <input value={amount} onChange={(event) => setAmount(event.target.value)} className="editorial-input" placeholder="920" inputMode="decimal" />
           <button type="button" onClick={handleSave} className="trip-glass-button justify-center px-4 py-3">
@@ -714,7 +725,7 @@ export function PackingSummaryCard({
     <section className={surface("p-6")}>
       <header className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm uppercase tracking-[0.18em] text-white/42">Packing</p>
+          <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">Packing</p>
           <h2 className="mt-3 text-[1.85rem] font-medium tracking-[-0.04em]">Mandatory essentials</h2>
         </div>
         <CardAction icon={Plus} label="Add packing item" onClick={() => setIsAdding(true)} />
@@ -724,19 +735,29 @@ export function PackingSummaryCard({
         <ul className="mt-6 space-y-3">
           {tasks.slice(0, 5).map((task) => (
             <li key={task._id}>
-              <article className={`flex items-start gap-4 rounded-[20px] px-4 py-4 ${task.isChecked ? "bg-white/[0.02]" : "bg-white/[0.06]"}`}>
+              <article
+                className={`flex items-start gap-4 rounded-[22px] border px-4 py-4 ${
+                  task.isChecked
+                    ? "border-[#31453b] bg-[#11211b]"
+                    : "border-[#23372e] bg-[#14251e]"
+                }`}
+              >
                 <button
                   type="button"
                   onClick={() => void toggleTask({ taskId: task._id })}
-                  className={`mt-1 flex h-5 w-5 items-center justify-center rounded-full border ${task.isChecked ? "border-emerald-400 bg-emerald-400 text-black" : "border-white/20 bg-transparent text-transparent"}`}
+                  className={`mt-1 flex h-5 w-5 items-center justify-center rounded-full border ${
+                    task.isChecked
+                      ? "border-[#dbe887] bg-[#dbe887] text-[#0f1b16]"
+                      : "border-[#506257] bg-transparent text-transparent"
+                  }`}
                 >
                   <Check className="h-3.5 w-3.5" />
                 </button>
                 <div className="min-w-0 flex-1">
-                  <p className={`text-[1.12rem] font-medium tracking-[-0.03em] ${task.isChecked ? "text-white/34 line-through" : "text-white"}`}>
+                  <p className={`text-[1.12rem] font-medium tracking-[-0.03em] ${task.isChecked ? "text-[#6f7d74] line-through" : "text-white"}`}>
                     {task.name}
                   </p>
-                  <p className={`mt-1 text-sm ${task.isChecked ? "text-white/20 line-through" : "text-white/52"}`}>
+                  <p className={`mt-1 text-sm ${task.isChecked ? "text-[#5f6d65] line-through" : "text-[#9fb0a3]"}`}>
                     {task.category}
                   </p>
                 </div>
@@ -770,7 +791,7 @@ export function PackingSummaryCard({
       )}
 
       {isAdding ? (
-        <div className="mt-4 grid gap-3 rounded-[22px] border border-white/10 bg-white/[0.03] p-4">
+        <div className="mt-4 grid gap-3 rounded-[24px] border border-[#23372e] bg-[#13231d] p-4">
           <input value={name} onChange={(event) => setName(event.target.value)} className="editorial-input" placeholder="Passport" />
           <input value={category} onChange={(event) => setCategory(event.target.value)} className="editorial-input" placeholder="Documents" />
           <div className="flex gap-2">

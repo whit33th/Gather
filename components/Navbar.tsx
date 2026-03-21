@@ -1,55 +1,191 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
-import { Authenticated, Unauthenticated } from "convex/react";
-import { ArrowUpRight, LogOut } from "lucide-react";
+import { useConvexAuth, useQuery } from "convex/react";
+import {
+  ArrowUpRight,
+  Compass,
+  Home,
+  Menu,
+  Search,
+  Settings2,
+  Sparkles,
+} from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useMemo, useState } from "react";
+import { api } from "../convex/_generated/api";
+import { cn } from "../lib/utils";
+import LenisProvider from "./LenisProvider";
+import UserAvatar from "./UserAvatar";
 
-export default function Navbar() {
-  const { signOut } = useAuthActions();
+type AppNavItem = {
+  href: Route;
+  label: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  active: boolean;
+};
+
+function SidebarLink({
+  href,
+  label,
+  description,
+  icon: Icon,
+  active,
+  onNavigate,
+}: AppNavItem & {
+  onNavigate?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      className={cn(
+        "flex gap-2 w-full rounded-4xl justify-start px-4 py-3.5",
+        active
+          ? "border-white/24 bg-white/[0.07] text-white"
+          : "text-white/72 hover:text-white"
+      )}
+    >
+      <span className="flex h-10 w-10 items-center justify-center rounded-[14px] border border-white/10 bg-white/[0.04]">
+        <Icon className="h-4 w-4" />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-sm font-medium tracking-[-0.03em]">{label}</span>
+        <span className="mt-0.5 block truncate text-[0.68rem] uppercase tracking-[0.14em] text-white/42">
+          {description}
+        </span>
+      </span>
+    </Link>
+  );
+}
+
+export default function Navbar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isTripPage = pathname.startsWith("/trip/");
+  const { isLoading } = useConvexAuth();
+  const { signIn } = useAuthActions();
+  const currentUser = useQuery(api.users.current);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  const navItems = useMemo<AppNavItem[]>(
+    () => [
+      {
+        href: "/" as Route,
+        label: "Trips",
+        description: "All notebooks",
+        icon: Home,
+        active:
+          pathname === "/" ||
+          pathname.startsWith("/trip/") ||
+          pathname.startsWith("/settings"),
+      },
+      {
+        href: "/discover" as Route,
+        label: "Discover",
+        description: "Trip ideas",
+        icon: Search,
+        active: pathname.startsWith("/discover"),
+      },
+    ],
+    [pathname]
+  );
+
+  const navLinks = navItems.map((item) => (
+    <SidebarLink
+      key={item.href}
+      {...item}
+      onNavigate={() => setMobileNavOpen(false)}
+    />
+  ));
+
+  const authPanel = isLoading || currentUser === undefined ? (
+    <div className="rounded-[1.55rem] border border-white/10  p-4">
+      <div className="h-12 animate-pulse rounded-[1rem] bg-white/6" />
+    </div>
+  ) : currentUser ? (
+    <div className="rounded-[1.55rem] border border-white/10  p-4">
+      <div className="flex items-center gap-3">
+        <UserAvatar
+          name={currentUser.name || "Traveler"}
+          image={currentUser.image}
+          seed={currentUser._id}
+          size={44}
+        />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium tracking-[-0.03em] text-white">
+            {currentUser.name || "Traveler"}
+          </p>
+          <p className="truncate text-[0.7rem] uppercase tracking-[0.16em] text-white/42">
+            Account
+          </p>
+        </div>
+        <Link
+          href={"/settings" as Route}
+          onClick={() => setMobileNavOpen(false)}
+          className="trip-glass-icon-button h-10 w-10"
+          aria-label="Open account settings"
+        >
+          <Settings2 className="h-4 w-4" />
+        </Link>
+      </div>
+    </div>
+  ) : (
+    <button
+      type="button"
+      onClick={() => void signIn("google", { redirectTo: pathname })}
+      className="trip-glass-button w-full justify-center rounded-[1.35rem] px-4 py-3.5 text-sm"
+    >
+      <ArrowUpRight className="h-4 w-4" />
+      <span>Continue with Google</span>
+    </button>
+  );
 
   return (
-    <nav className="sticky top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-5">
-      <div className="mx-auto flex h-[4.8rem] max-w-7xl items-center justify-between rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(9,12,16,0.9),rgba(4,5,7,0.78))] px-4 shadow-[0_26px_70px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:px-6 lg:px-8">
-        <div className="flex items-center gap-4 sm:gap-8">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[0.66rem] font-bold uppercase tracking-[0.24em] text-black">
-              G
-            </span>
-            <span className="font-sans text-[1.45rem] font-extrabold tracking-[-0.05em] text-white sm:text-[1.65rem]">
-              Gather
-            </span>
-          </Link>
-          <span className="hidden rounded-full border border-white/12 bg-white/[0.06] px-3 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/62 lg:inline">
-            {isTripPage ? "Trip notebook" : "Shared trip planning"}
-          </span>
-        </div>
+    <div className="flex h-full min-h-0 min-w-0 overflow-hidden">
+      {mobileNavOpen ? (
+        <button
+          type="button"
+          onClick={() => setMobileNavOpen(false)}
+          className="fixed inset-0 z-40 bg-black/55 md:hidden"
+          aria-label="Close sidebar"
+        />
+      ) : null}
 
-        <div className="flex items-center gap-3">
-          <Authenticated>
-            <button
-              onClick={() => void signOut()}
-              className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-4 py-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-white/[0.11]"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Sign out
-            </button>
-          </Authenticated>
+      <button
+        type="button"
+        onClick={() => setMobileNavOpen((value) => !value)}
+        className="fixed bottom-4 left-4 z-50 flex h-13 w-13 items-center justify-center rounded-full border border-white/10 bg-[#141414]/92 text-white shadow-[0_18px_50px_rgba(0,0,0,0.45)] backdrop-blur-xl md:hidden"
+        aria-label={mobileNavOpen ? "Hide sidebar" : "Show sidebar"}
+      >
+        <Menu className="h-5 w-5" />
+      </button>
 
-          <Unauthenticated>
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white px-4 py-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-black transition hover:bg-white/90"
-            >
-              Sign in
-              <ArrowUpRight className="h-3.5 w-3.5" />
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex h-full min-h-0 w-[18rem] shrink-0 flex-col overflow-y-auto border-r border-white/8  transition-transform duration-300 md:static md:z-auto md:translate-x-0",
+          mobileNavOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="flex min-h-full flex-col p-4 lg:p-5">
+          <div className="flex items-center gap-3 text-white">
+            <Link href={"/" as Route} className="flex items-center gap-3">
+              <span className="text-[2rem] font-semibold tracking-[-0.08em]">Gather</span>
             </Link>
-          </Unauthenticated>
+          </div>
+
+
+
+          <div className="mt-5 grid gap-2">{navLinks}</div>
+
+          <div className="mt-auto pt-5">{authPanel}</div>
         </div>
-      </div>
-    </nav>
+      </aside>
+
+      <LenisProvider className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+        <main className="min-h-full min-w-0">{children}</main>
+      </LenisProvider>
+    </div>
   );
 }

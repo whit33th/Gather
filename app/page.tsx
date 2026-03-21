@@ -23,6 +23,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { api } from "../convex/_generated/api";
+import AppState from "../components/AppState";
 import CreateTripModal from "../components/CreateTripModal";
 
 const COVERS = ["/covers/cover-1.png", "/covers/cover-2.png", "/covers/cover-3.png"];
@@ -169,27 +170,23 @@ export default function Home() {
 
   if (isLoading || trips === undefined) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-4 lg:grid-cols-2">
-          {[1, 2].map((item) => (
-            <div
-              key={item}
-              className="glass-panel h-72 animate-pulse rounded-[2rem]"
-            />
-          ))}
-        </div>
-      </div>
+      <AppState
+        loading
+        eyebrow="Trips"
+        title="Loading notebooks"
+        description="Preparing your workspace and recent trip data."
+      />
     );
   }
 
   if (isAuthenticated && featuredTrip) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center px-4 py-16">
-        <div className="glass-panel flex items-center gap-4 rounded-full px-6 py-4">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white" />
-          <span className="text-sm text-white/70">Opening your dashboard...</span>
-        </div>
-      </div>
+      <AppState
+        loading
+        eyebrow="Trips"
+        title="Opening your dashboard"
+        description="Routing you into the active trip workspace."
+      />
     );
   }
 

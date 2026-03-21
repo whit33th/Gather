@@ -8,6 +8,7 @@ import type { Route } from "next";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
+import AppState from "../../../components/AppState";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 
@@ -49,33 +50,30 @@ export default function InvitePage() {
 
   if (trip === undefined) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-300 border-t-stone-900/60" />
-      </div>
+      <AppState
+        loading
+        eyebrow="Invite"
+        title="Loading invitation"
+        description="Checking the shared trip link and preparing the invite view."
+      />
     );
   }
 
   if (trip === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="editorial-card w-full max-w-lg rounded-[2rem] p-8 text-center">
-          <p className="section-kicker">Invite not found</p>
-          <h1 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-stone-950">
-            This invitation is no longer valid.
-          </h1>
-          <p className="mt-4 text-sm text-stone-600">
-            The trip may have been removed, or the link may be incomplete.
-          </p>
-        </div>
-      </div>
+      <AppState
+        eyebrow="Invite not found"
+        title="This invitation is no longer valid."
+        description="The trip may have been removed, or the link may be incomplete."
+      />
     );
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
+    <div className="relative min-h-full overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,218,198,0.84),transparent_30%),radial-gradient(circle_at_88%_16%,rgba(255,244,228,0.84),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0))]" />
 
-      <div className="relative mx-auto flex min-h-[calc(100vh-3rem)] max-w-5xl items-center">
+      <div className="relative mx-auto flex min-h-full max-w-5xl items-center">
         <div className="grid w-full gap-6 lg:grid-cols-[0.96fr_1.04fr]">
           <motion.div
             initial={{ opacity: 0, y: 24 }}

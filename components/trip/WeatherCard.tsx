@@ -45,69 +45,69 @@ function codeToLabel(code: number) {
 function getWeatherTheme(code: number) {
   if (code === 0) {
     return {
-      shell: "from-[#d9edff] via-[#eef7ff] to-[#fff9ef]",
-      tint: "bg-[#eef7ff]/76",
-      orb: "bg-[#fff0b4]",
-      accent: "text-[#3d6798]",
+      shell: "from-[#12231d] via-[#162c24] to-[#1d3329]",
+      tint: "bg-[#152720]/80",
+      orb: "bg-[#dbe887]/30",
+      accent: "text-[#eef5d0]",
       icon: <SunMedium className="h-14 w-14" strokeWidth={1.7} />,
     };
   }
 
   if (code <= 3) {
     return {
-      shell: "from-[#dbe8f7] via-[#eef5fb] to-[#faf4ec]",
-      tint: "bg-[#f4f7fb]/74",
-      orb: "bg-[#f8ecc7]",
-      accent: "text-[#58718f]",
+      shell: "from-[#12231d] via-[#172a22] to-[#20342b]",
+      tint: "bg-[#172921]/80",
+      orb: "bg-[#cfd8cd]/20",
+      accent: "text-[#dbe6cf]",
       icon: <CloudSun className="h-14 w-14" strokeWidth={1.7} />,
     };
   }
 
   if (code <= 48) {
     return {
-      shell: "from-[#e4e8ed] via-[#f2f4f7] to-[#faf8f3]",
-      tint: "bg-white/72",
-      orb: "bg-[#dfe5eb]",
-      accent: "text-[#6a7584]",
+      shell: "from-[#11201a] via-[#152720] to-[#1a2e25]",
+      tint: "bg-[#172921]/84",
+      orb: "bg-[#cfd8cd]/16",
+      accent: "text-[#d7e1d3]",
       icon: <CloudFog className="h-14 w-14" strokeWidth={1.7} />,
     };
   }
 
-  if (code <= 67 || code <= 82) {
+  if (code <= 82) {
     return {
-      shell: "from-[#d8e3f1] via-[#ebf1f7] to-[#f8f4ef]",
-      tint: "bg-[#f2f6fa]/74",
-      orb: "bg-[#cedaea]",
-      accent: "text-[#587090]",
+      shell: "from-[#10201a] via-[#162921] to-[#1b3127]",
+      tint: "bg-[#162820]/84",
+      orb: "bg-[#9fb0a3]/18",
+      accent: "text-[#d7e1d3]",
       icon: <CloudRain className="h-14 w-14" strokeWidth={1.7} />,
     };
   }
 
   if (code <= 86) {
     return {
-      shell: "from-[#e7edf5] via-[#f3f7fb] to-[#fdfcff]",
-      tint: "bg-white/76",
-      orb: "bg-[#edf3fa]",
-      accent: "text-[#7088a6]",
+      shell: "from-[#10201a] via-[#152720] to-[#1a2e25]",
+      tint: "bg-[#172921]/84",
+      orb: "bg-[#cfd8cd]/16",
+      accent: "text-[#d7e1d3]",
       icon: <CloudSnow className="h-14 w-14" strokeWidth={1.7} />,
     };
   }
 
   if (code <= 99) {
     return {
-      shell: "from-[#dde2ea] via-[#edf1f6] to-[#f8f2ee]",
-      tint: "bg-[#f3f4f7]/74",
-      orb: "bg-[#d9dee7]",
-      accent: "text-[#616a79]",
+      shell: "from-[#0f1c17] via-[#152720] to-[#1a2d24]",
+      tint: "bg-[#162820]/84",
+      orb: "bg-[#d48d7a]/16",
+      accent: "text-[#f3d0c5]",
       icon: <CloudLightning className="h-14 w-14" strokeWidth={1.7} />,
     };
   }
 
   return {
-    shell: "from-[#e5e9ee] via-[#f2f4f7] to-[#faf8f4]",
-    tint: "bg-white/74",
-    orb: "bg-[#dfe3e8]",
-    accent: "text-[#68717d]",
+    shell: "from-[#10201a] via-[#152720] to-[#1a2e25]",
+    tint: "bg-[#172921]/84",
+    orb: "bg-[#cfd8cd]/16",
+    accent: "text-[#d7e1d3]",
     icon: <Cloud className="h-14 w-14" strokeWidth={1.7} />,
   };
 }
@@ -163,9 +163,12 @@ export default function WeatherCard({
 
   if (lat == null || lng == null) {
     return (
-      <div className="rounded-[1.8rem] border border-white/10 bg-[#171717] p-5 text-white shadow-[0_24px_60px_rgba(0,0,0,0.28)]">
+      <div className="rounded-[2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] p-5 text-white shadow-[0_24px_60px_rgba(0,0,0,0.22)]">
         <p className="section-kicker">Weather</p>
-        <p className="mt-2 text-sm text-white/56">
+        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
+          Forecast snapshot
+        </h2>
+        <p className="mt-3 text-sm text-[#a8b8ad]">
           Add a destination with coordinates to see the forecast.
         </p>
       </div>
@@ -173,11 +176,12 @@ export default function WeatherCard({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#171717] text-white shadow-[0_24px_60px_rgba(0,0,0,0.28)]">
+    <div className="relative overflow-hidden rounded-[2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] text-white shadow-[0_24px_60px_rgba(0,0,0,0.22)]">
       {theme ? (
         <>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_34%),radial-gradient(circle_at_85%_18%,rgba(255,255,255,0.08),transparent_20%)]" />
-          <div className="absolute right-6 top-6 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
+          <div className={`absolute inset-0 bg-gradient-to-br ${theme.shell}`} />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.05),transparent_34%),radial-gradient(circle_at_85%_18%,rgba(219,232,135,0.06),transparent_20%)]" />
+          <div className={`absolute right-6 top-6 h-28 w-28 rounded-full ${theme.orb} blur-2xl`} />
         </>
       ) : null}
 
@@ -185,21 +189,24 @@ export default function WeatherCard({
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="section-kicker">Weather</p>
-            <p className="mt-2 text-sm text-white/58">{location || "Current location"}</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
+              Forecast snapshot
+            </h2>
+            <p className="mt-2 text-sm text-[#a8b8ad]">{location || "Current location"}</p>
           </div>
 
           {data && theme ? (
             <div className="flex items-center gap-4 sm:text-right">
               <div
-                className="hidden h-24 w-24 items-center justify-center rounded-[2rem] bg-white/[0.08] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_20px_40px_rgba(0,0,0,0.18)] sm:flex"
+                className={`hidden h-24 w-24 items-center justify-center rounded-[2rem] border border-[#31463c] ${theme.tint} ${theme.accent} shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_20px_40px_rgba(0,0,0,0.16)] sm:flex`}
               >
                 {theme.icon}
               </div>
               <div>
                 <p className="editorial-metric text-4xl text-white">
-                  {Math.round(data.current.temperature_2m)}°
+                  {`${Math.round(data.current.temperature_2m)}°`}
                 </p>
-                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/46">
+                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-[#9fb0a3]">
                   {codeToLabel(data.current.weather_code)} / {Math.round(data.current.wind_speed_10m)} kmh wind
                 </p>
               </div>
@@ -208,29 +215,27 @@ export default function WeatherCard({
         </div>
 
         {!data && !error ? (
-          <div className="mt-5 h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-900/60" />
+          <div className="mt-5 h-5 w-5 animate-spin rounded-full border-2 border-[#627168] border-t-[#dbe887]" />
         ) : null}
 
         {error ? <p className="mt-4 text-sm text-rose-400">{error}</p> : null}
 
         {data ? (
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
-            {data.daily.time.slice(0, 5).map((day, index) => {
-              return (
-                <div
-                  key={day}
-                  className="rounded-[1.25rem] border border-white/10 bg-white/[0.06] p-3 text-center shadow-[0_10px_22px_rgba(0,0,0,0.16)] backdrop-blur-sm"
-                >
-                  <p className="section-kicker text-[0.58rem]">{format(new Date(day), "EEE")}</p>
-                  <p className="mt-2 text-sm font-semibold text-white">
-                    {Math.round(data.daily.temperature_2m_max[index])} / {Math.round(data.daily.temperature_2m_min[index])}
-                  </p>
-                  <p className="mt-1 text-xs text-white/46">
-                    {codeToLabel(data.daily.weather_code[index])}
-                  </p>
-                </div>
-              );
-            })}
+            {data.daily.time.slice(0, 5).map((day, index) => (
+              <div
+                key={day}
+                className="rounded-[1.25rem] border border-[#23372e] bg-[#14251e] p-3 text-center shadow-[0_10px_22px_rgba(0,0,0,0.16)] backdrop-blur-sm"
+              >
+                <p className="section-kicker text-[0.58rem]">{format(new Date(day), "EEE")}</p>
+                <p className="mt-2 text-sm font-semibold text-white">
+                  {Math.round(data.daily.temperature_2m_max[index])} / {Math.round(data.daily.temperature_2m_min[index])}
+                </p>
+                <p className="mt-1 text-xs text-[#9fb0a3]">
+                  {codeToLabel(data.daily.weather_code[index])}
+                </p>
+              </div>
+            ))}
           </div>
         ) : null}
       </div>

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import {
   BedDouble,
@@ -240,28 +240,28 @@ const availabilityLegend = [
 function getProposalRankClasses(rank: number) {
   if (rank === 1) {
     return {
-      card: "border-amber-300/28 bg-[#18150d] shadow-[0_20px_40px_rgba(0,0,0,0.28)]",
-      rank: "border-amber-300/30 bg-amber-300/14 text-amber-100",
+      card: "border-[#556246] bg-[#16241c] shadow-[0_20px_40px_rgba(0,0,0,0.2)]",
+      rank: "border-[#dbe887]/32 bg-[#2a3923] text-[#eef5d0]",
     };
   }
 
   if (rank === 2) {
     return {
-      card: "border-white/10 bg-[#151515]",
-      rank: "border-white/12 bg-white/8 text-white/72",
+      card: "border-[#2b4035] bg-[#13211b]",
+      rank: "border-[#31463c] bg-[#1a2b23] text-[#d7e1d3]",
     };
   }
 
   if (rank === 3) {
     return {
-      card: "border-white/10 bg-[#161311]",
-      rank: "border-orange-300/24 bg-orange-300/12 text-orange-100",
+      card: "border-[#2b4035] bg-[#14231c]",
+      rank: "border-[#46584a] bg-[#1d3027] text-[#d7e1d3]",
     };
   }
 
   return {
-    card: "border-white/10 bg-[#141414]",
-    rank: "border-white/12 bg-white/6 text-white/60",
+    card: "border-[#23372e] bg-[#12201a]",
+    rank: "border-[#31463c] bg-[#172821] text-[#9fb0a3]",
   };
 }
 
@@ -324,6 +324,32 @@ function getDateRange(startDate: string, endDate: string) {
   return Array.from({ length: totalDays }, (_, index) => addDays(start, index));
 }
 
+function RevealSection({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className: string;
+}) {
+  const shouldReduceMotion = useReducedMotion();
+
+  return (
+    <motion.section
+      {...(shouldReduceMotion
+        ? {}
+        : {
+          initial: { opacity: 0, y: 18 },
+          whileInView: { opacity: 1, y: 0 },
+          viewport: { once: true, margin: "-60px" },
+          transition: { duration: 0.45, ease: "easeOut" as const },
+        })}
+      className={className}
+    >
+      {children}
+    </motion.section>
+  );
+}
+
 export default function TripOverview({
   trip,
   tripId,
@@ -364,14 +390,14 @@ export default function TripOverview({
   const markers = [
     ...(trip.lat && trip.lng
       ? [
-          {
-            id: "destination",
-            name: trip.destination,
-            lat: trip.lat,
-            lng: trip.lng,
-            category: "general" as const,
-          },
-        ]
+        {
+          id: "destination",
+          name: trip.destination,
+          lat: trip.lat,
+          lng: trip.lng,
+          category: "general" as const,
+        },
+      ]
       : []),
     ...(sortedProposals
       .filter((proposal) => proposal.lat && proposal.lng)
@@ -466,18 +492,12 @@ export function AvailabilityStudio({
   };
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
-      className="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[#111111] shadow-[0_24px_70px_rgba(0,0,0,0.32)]"
-    >
-      <div className="border-b border-white/10 bg-white/[0.04] px-5 py-5 sm:px-6">
+    <RevealSection className="overflow-hidden rounded-[2.2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] ">
+      <div className="border-b border-[#23372e] bg-[#13231d] px-5 py-5 sm:px-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="section-kicker">Availability</p>
-            <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-white">
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
               Find the overlap
             </h2>
             <p className="mt-3 text-sm text-white/52">
@@ -494,11 +514,10 @@ export function AvailabilityStudio({
                   key={option.id}
                   type="button"
                   onClick={() => setStatus(option.id)}
-                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.14em] transition-colors ${
-                    status === option.id
-                      ? option.className
-                      : "border-white/10 bg-white/[0.05] text-white/60 hover:border-white/18 hover:text-white"
-                  }`}
+                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.14em] transition-colors ${status === option.id
+                    ? option.className
+                    : "border-white/10 bg-white/[0.05] text-white/60 hover:border-white/18 hover:text-white"
+                    }`}
                 >
                   {option.icon}
                   {option.label}
@@ -510,76 +529,76 @@ export function AvailabilityStudio({
       </div>
 
       <div className="overflow-x-auto p-5 sm:p-6">
-          {members === undefined ? (
-            <Loader />
-          ) : members.length === 0 ? (
-            <EmptyState icon={<CalendarDays className="h-6 w-6" />} title="No traveler rows yet" />
-          ) : (
-            <div className="min-w-[52rem] space-y-3">
-              <div
-                className="grid gap-2"
-                style={{ gridTemplateColumns: `15rem repeat(${dates.length}, minmax(3.35rem, 1fr))` }}
-              >
-                <div />
-                {dateSummaries.map((summary) => (
-                  <div key={summary.dateKey} className="rounded-[1rem] border border-white/10 bg-white/[0.05] px-2 py-3 text-center">
-                    <p className="section-kicker text-[0.52rem]">{format(summary.date, "EEE")}</p>
-                    <p className="mt-1 text-base font-semibold text-white">{format(summary.date, "d")}</p>
-                    <p className="mt-1 text-[0.65rem] uppercase tracking-[0.14em] text-white/50">
-                      {summary.yes > 0 ? `${summary.yes} yes` : summary.maybe > 0 ? `${summary.maybe} maybe` : summary.no > 0 ? `${summary.no} no` : "open"}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              {members.map((member) => (
-                <div
-                  key={member.memberId}
-                  className="grid gap-2"
-                  style={{ gridTemplateColumns: `15rem repeat(${dates.length}, minmax(3.35rem, 1fr))` }}
-                >
-                  <div className={`flex items-center gap-3 rounded-[1.2rem] border px-4 py-3 ${member.isCurrentUser ? "border-cyan-300/18 bg-[#171717] text-white" : "border-white/10 bg-white/[0.05] text-white"}`}>
-                    <UserAvatar name={member.name} image={member.image} seed={member.userId} size={40} />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold">{member.name}</p>
-                      <p className={`mt-1 text-[0.62rem] uppercase tracking-[0.16em] ${member.isCurrentUser ? "text-white/60" : "text-white/48"}`}>
-                        {member.isCurrentUser ? "You" : member.role}
-                      </p>
-                    </div>
-                  </div>
-
-                  {dates.map((date) => {
-                    const dateKey = format(date, "yyyy-MM-dd");
-                    const current = member.availabilities.find((entry) => entry.date === dateKey);
-                    const tone = current ? availabilityTone[current.status] : "border-white/10 bg-white/[0.04] text-white/28";
-
-                    return (
-                      <button
-                        key={`${member.memberId}-${dateKey}`}
-                        type="button"
-                        disabled={!member.isCurrentUser}
-                        onClick={() => void handleDateClick(dateKey, member.isCurrentUser)}
-                        className={`flex h-[4.15rem] items-center justify-center rounded-[1rem] border transition-colors ${tone} ${member.isCurrentUser ? "cursor-pointer" : "cursor-default"}`}
-                        aria-label={`${member.name} ${dateKey}`}
-                      >
-                        {current?.status === "yes" ? (
-                          <Check className="h-4 w-4" />
-                        ) : current?.status === "no" ? (
-                          <CircleSlash className="h-4 w-4" />
-                        ) : current?.status === "maybe" ? (
-                          <Clock3 className="h-4 w-4" />
-                        ) : (
-                          <span className="h-2.5 w-2.5 rounded-full bg-current/40" />
-                        )}
-                      </button>
-                    );
-                  })}
+        {members === undefined ? (
+          <Loader />
+        ) : members.length === 0 ? (
+          <EmptyState icon={<CalendarDays className="h-6 w-6" />} title="No traveler rows yet" />
+        ) : (
+          <div className="min-w-[52rem] space-y-3">
+            <div
+              className="grid gap-2"
+              style={{ gridTemplateColumns: `15rem repeat(${dates.length}, minmax(3.35rem, 1fr))` }}
+            >
+              <div />
+              {dateSummaries.map((summary) => (
+                <div key={summary.dateKey} className="rounded-[1rem] border border-white/10 bg-white/[0.05] px-2 py-3 text-center">
+                  <p className="section-kicker text-[0.52rem]">{format(summary.date, "EEE")}</p>
+                  <p className="mt-1 text-base font-semibold text-white">{format(summary.date, "d")}</p>
+                  <p className="mt-1 text-[0.65rem] uppercase tracking-[0.14em] text-white/50">
+                    {summary.yes > 0 ? `${summary.yes} yes` : summary.maybe > 0 ? `${summary.maybe} maybe` : summary.no > 0 ? `${summary.no} no` : "open"}
+                  </p>
                 </div>
               ))}
             </div>
-          )}
+
+            {members.map((member) => (
+              <div
+                key={member.memberId}
+                className="grid gap-2"
+                style={{ gridTemplateColumns: `15rem repeat(${dates.length}, minmax(3.35rem, 1fr))` }}
+              >
+                <div className={`flex items-center gap-3 rounded-[1.2rem] border px-4 py-3 ${member.isCurrentUser ? "border-cyan-300/18  text-white" : "border-white/10 bg-white/[0.05] text-white"}`}>
+                  <UserAvatar name={member.name} image={member.image} seed={member.userId} size={40} />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{member.name}</p>
+                    <p className={`mt-1 text-[0.62rem] uppercase tracking-[0.16em] ${member.isCurrentUser ? "text-white/60" : "text-white/48"}`}>
+                      {member.isCurrentUser ? "You" : member.role}
+                    </p>
+                  </div>
+                </div>
+
+                {dates.map((date) => {
+                  const dateKey = format(date, "yyyy-MM-dd");
+                  const current = member.availabilities.find((entry) => entry.date === dateKey);
+                  const tone = current ? availabilityTone[current.status] : "border-white/10 bg-white/[0.04] text-white/28";
+
+                  return (
+                    <button
+                      key={`${member.memberId}-${dateKey}`}
+                      type="button"
+                      disabled={!member.isCurrentUser}
+                      onClick={() => void handleDateClick(dateKey, member.isCurrentUser)}
+                      className={`flex h-[4.15rem] items-center justify-center rounded-[1rem] border transition-colors ${tone} ${member.isCurrentUser ? "cursor-pointer" : "cursor-default"}`}
+                      aria-label={`${member.name} ${dateKey}`}
+                    >
+                      {current?.status === "yes" ? (
+                        <Check className="h-4 w-4" />
+                      ) : current?.status === "no" ? (
+                        <CircleSlash className="h-4 w-4" />
+                      ) : current?.status === "maybe" ? (
+                        <Clock3 className="h-4 w-4" />
+                      ) : (
+                        <span className="h-2.5 w-2.5 rounded-full bg-current/40" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    </motion.section>
+    </RevealSection>
   );
 }
 
@@ -605,13 +624,7 @@ function SignalsStudio({
   ];
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
-      className="overflow-hidden rounded-[2rem] bg-[#eff0ef]"
-    >
+    <RevealSection className="overflow-hidden rounded-[2rem] bg-[#eff0ef]">
       <div className="p-5 sm:p-6">
         <p className="section-kicker">Trip signal</p>
         <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-stone-950">{trip.destination}</h2>
@@ -646,7 +659,7 @@ function SignalsStudio({
           </div>
         ) : null}
       </div>
-    </motion.section>
+    </RevealSection>
   );
 }
 
@@ -851,18 +864,18 @@ export function ProposalStudio({
     setPreview(
       proposal.link
         ? {
-            normalizedUrl: normalizeProposalLink(proposal.link),
-            provider: getProposalProvider(proposal.link),
+          normalizedUrl: normalizeProposalLink(proposal.link),
+          provider: getProposalProvider(proposal.link),
+          title: proposal.name,
+          imageUrl: proposal.imageUrl,
+        }
+        : proposal.imageUrl
+          ? {
+            normalizedUrl: "",
+            provider: null,
             title: proposal.name,
             imageUrl: proposal.imageUrl,
           }
-        : proposal.imageUrl
-          ? {
-              normalizedUrl: "",
-              provider: null,
-              title: proposal.name,
-              imageUrl: proposal.imageUrl,
-            }
           : null
     );
     setOpen(true);
@@ -904,16 +917,10 @@ export function ProposalStudio({
   };
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
-      className="rounded-[2.2rem] border border-white/10 bg-[#111111] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.32)] sm:p-6"
-    >
+    <RevealSection className="rounded-[2.2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] p-5 sm:p-6">
       <div>
         <p className="section-kicker">Proposals</p>
-        <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-white">
+        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
           What the group likes
         </h2>
       </div>
@@ -940,9 +947,9 @@ export function ProposalStudio({
       </div>
 
       {activeChosenProposal ? (
-        <div className="mt-5 overflow-hidden rounded-[1.6rem] border border-amber-300/30 bg-[#1b1710]">
+        <div className="mt-5 overflow-hidden rounded-[1.6rem] border border-[#4b5740] bg-[#17251d]">
           <div className="grid gap-0 sm:grid-cols-[5.5rem_minmax(0,1fr)]">
-            <div className="relative min-h-[5.5rem] bg-white/[0.05]">
+            <div className="relative min-h-[5.5rem] bg-[#13231d]">
               {activeChosenProposal.imageUrl ? (
                 <Image
                   src={activeChosenProposal.imageUrl}
@@ -952,7 +959,7 @@ export function ProposalStudio({
                   className="object-cover"
                 />
               ) : (
-                <div className="flex h-full items-center justify-center text-stone-400">
+                <div className="flex h-full items-center justify-center text-[#7f9086]">
                   <BedDouble className="h-5 w-5" />
                 </div>
               )}
@@ -960,7 +967,7 @@ export function ProposalStudio({
 
             <div className="flex flex-col justify-center gap-2 px-4 py-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="section-kicker text-[0.56rem] text-amber-100/72">Chosen pick</span>
+                <span className="section-kicker text-[0.56rem] text-[#dbe6cf]">Chosen pick</span>
                 <span
                   className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.58rem] font-semibold uppercase tracking-[0.14em] ${getCategoryMeta(activeChosenProposal.category).tone}`}
                 >
@@ -972,7 +979,7 @@ export function ProposalStudio({
                 <p className="text-base font-semibold tracking-[-0.03em] text-white">
                   {activeChosenProposal.name}
                 </p>
-                <p className="mt-1 text-sm text-white/52">
+                <p className="mt-1 text-sm text-[#9fb0a3]">
                   {activeChosenProposal.locationName || "Address will appear here after you set a place."}
                 </p>
               </div>
@@ -1015,7 +1022,7 @@ export function ProposalStudio({
                 className={`overflow-hidden rounded-[1.8rem] border transition-colors ${rankClasses.card}`}
               >
                 <div className="grid gap-0 md:grid-cols-[18rem_minmax(0,1fr)]">
-                  <div className="relative min-h-[12rem] bg-white/[0.05] md:min-h-full">
+                  <div className="relative min-h-[12rem] bg-[#13231d] md:min-h-full">
                     {proposal.imageUrl ? (
                       <Image
                         src={proposal.imageUrl}
@@ -1035,7 +1042,7 @@ export function ProposalStudio({
 
                     {rank <= 3 ? (
                       <div
-                        className={`absolute left-4 top-4 flex h-12 w-12 items-center justify-center rounded-[1rem] border font-serif text-[1.8rem] tracking-[-0.08em] backdrop-blur-sm ${rankClasses.rank}`}
+                        className={`absolute left-4 top-4 flex h-12 w-12 items-center justify-center rounded-[1rem] border text-[1.25rem] font-semibold tracking-[-0.05em] backdrop-blur-sm ${rankClasses.rank}`}
                       >
                         {rank}
                       </div>
@@ -1063,7 +1070,7 @@ export function ProposalStudio({
                               href={proposal.link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="trip-glass-icon-button h-9 w-9 text-white/64 hover:text-white"
+                              className="trip-glass-icon-button h-9 w-9 text-[#cfd8cd] hover:text-white"
                               title={provider ? getProviderLabel(provider) : "Open link"}
                             >
                               {siteIcon}
@@ -1071,25 +1078,24 @@ export function ProposalStudio({
                           ) : null}
                         </div>
 
-                        <h3 className="mt-3 font-serif text-[clamp(1.65rem,2vw,2.35rem)] leading-[1] tracking-[-0.05em] text-white">
+                        <h3 className="mt-3 text-[clamp(1.4rem,2vw,2rem)] font-semibold leading-[1.05] tracking-[-0.04em] text-white">
                           {proposal.name}
                         </h3>
                         {proposal.locationName ? (
-                          <p className="mt-2 inline-flex items-center gap-2 text-sm text-white/52">
+                          <p className="mt-2 inline-flex items-center gap-2 text-sm text-[#9fb0a3]">
                             <MapPin className="h-4 w-4" />
                             {proposal.locationName}
                           </p>
                         ) : null}
                       </div>
 
-                <div className="flex flex-wrap items-start gap-2 lg:justify-end">
+                      <div className="flex flex-wrap items-start gap-2 lg:justify-end">
                         {canManageSelections ? (
                           <button
                             type="button"
                             onClick={() => void handleToggleSelection(proposal)}
-                            className={`editorial-button-secondary justify-center px-3.5 py-2.5 text-[0.58rem] ${
-                              isSelected ? "border-amber-300/30 bg-amber-300/14 text-amber-100" : "bg-white/[0.06]"
-                            }`}
+                            className={`editorial-button-secondary justify-center px-3.5 py-2.5 text-[0.58rem] ${isSelected ? "border-[#dbe887]/36 bg-[#213229] text-[#eef5d0]" : "bg-[#14251e]"
+                              }`}
                           >
                             <Pin className={`h-4 w-4 ${isSelected ? "fill-current" : ""}`} />
                             {isSelected ? "Pinned" : "Pin pick"}
@@ -1101,7 +1107,7 @@ export function ProposalStudio({
                             <button
                               type="button"
                               onClick={() => handleEditProposal(proposal)}
-                              className="trip-glass-icon-button h-10 w-10 text-white/64 hover:text-white"
+                              className="trip-glass-icon-button h-10 w-10 text-[#cfd8cd] hover:text-white"
                               title="Edit proposal"
                             >
                               <Pencil className="h-4 w-4" />
@@ -1111,7 +1117,7 @@ export function ProposalStudio({
                               onClick={() =>
                                 void handleRemoveProposal(proposal._id as Id<"accommodations">)
                               }
-                              className="trip-glass-icon-button h-10 w-10 text-white/64 hover:text-rose-300"
+                              className="trip-glass-icon-button h-10 w-10 text-[#cfd8cd] hover:text-[#f3b4a3]"
                               title="Delete proposal"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -1125,14 +1131,13 @@ export function ProposalStudio({
                             onClick={() =>
                               void voteProposal({ accommodationId: proposal._id as Id<"accommodations"> })
                             }
-                            className={`editorial-button-secondary justify-center px-3.5 py-2.5 text-[0.58rem] ${
-                              proposal.isVotedByMe ? "border-white/20 bg-white/14 text-white" : "bg-white/[0.06]"
-                            }`}
+                            className={`editorial-button-secondary justify-center px-3.5 py-2.5 text-[0.58rem] ${proposal.isVotedByMe ? "border-[#dbe887]/36 bg-[#213229] text-white" : "bg-[#14251e]"
+                              }`}
                           >
                             <ThumbsUp className={`h-4 w-4 ${proposal.isVotedByMe ? "fill-current" : ""}`} />
                             Vote
                           </button>
-                          <p className="text-sm text-white/48">
+                          <p className="text-sm text-[#9fb0a3]">
                             {proposal.votes} vote{proposal.votes === 1 ? "" : "s"}
                           </p>
                         </div>
@@ -1237,11 +1242,10 @@ export function ProposalStudio({
                   key={id}
                   type="button"
                   onClick={() => setCategory(id as ProposalCategory)}
-                  className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] transition-colors ${
-                    category === id
-                      ? meta.softTone
-                      : "border-white/10 bg-white/[0.05] text-white/56 hover:border-white/18 hover:text-white"
-                  }`}
+                  className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] transition-colors ${category === id
+                    ? meta.softTone
+                    : "border-white/10 bg-white/[0.05] text-white/56 hover:border-white/18 hover:text-white"
+                    }`}
                 >
                   {meta.icon}
                   <span className="text-[0.58rem] tracking-[0.14em]">{meta.label}</span>
@@ -1302,7 +1306,7 @@ export function ProposalStudio({
           ) : null}
         </form>
       </EditorDrawer>
-    </motion.section>
+    </RevealSection>
   );
 }
 
@@ -1354,25 +1358,19 @@ export function BudgetStudio({
   };
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
-      className="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[#111111] shadow-[0_24px_70px_rgba(0,0,0,0.32)]"
-    >
+    <RevealSection className="h-full overflow-hidden rounded-[2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] ">
       <div className="border-b border-white/10 bg-white/[0.04] px-5 py-5 sm:px-6">
         <div>
           <p className="section-kicker">Budget</p>
-          <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-white">
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
             Money snapshot
           </h2>
-            <div className="mt-5">
-              <p className="section-kicker text-[0.56rem]">Total</p>
-              <p className="editorial-metric mt-2 text-[clamp(2.1rem,4vw,3.4rem)] text-white">
-                {currencyFormatter.format(totalBudget)}
-              </p>
-            </div>
+          <div className="mt-5">
+            <p className="section-kicker text-[0.56rem]">Total</p>
+            <p className="editorial-metric mt-2 text-[clamp(2.1rem,4vw,3.4rem)] text-white">
+              {currencyFormatter.format(totalBudget)}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -1389,7 +1387,7 @@ export function BudgetStudio({
             {expenses.map((expense) => (
               <article
                 key={expense._id}
-                className="flex items-center justify-between gap-3 rounded-[1.4rem] border border-white/10 bg-white/[0.05] px-4 py-4"
+                className="flex items-center justify-between gap-3 rounded-[1.5rem] border border-[#23372e] bg-[#14251e] px-4 py-4"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-white">{expense.title}</p>
@@ -1400,7 +1398,7 @@ export function BudgetStudio({
                       seed={expense.payerUserId || expense.payerName}
                       size={28}
                     />
-                    <p className="truncate text-xs uppercase tracking-[0.14em] text-white/48">
+                    <p className="truncate text-xs uppercase tracking-[0.14em] text-[#9fb0a3]">
                       {expense.payerName}
                     </p>
                   </div>
@@ -1415,7 +1413,7 @@ export function BudgetStudio({
                       setAmount(String(expense.amount));
                       setOpen(true);
                     }}
-                    className="trip-glass-icon-button h-10 w-10 text-white/64 hover:text-white"
+                    className="trip-glass-icon-button h-10 w-10 text-[#cfd8cd] hover:text-white"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
@@ -1425,7 +1423,7 @@ export function BudgetStudio({
                   <button
                     type="button"
                     onClick={() => void removeExpense({ expenseId: expense._id as Id<"expenses"> })}
-                    className="trip-glass-icon-button h-10 w-10 text-white/64 hover:text-rose-300"
+                    className="trip-glass-icon-button h-10 w-10 text-[#cfd8cd] hover:text-[#f3b4a3]"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -1471,7 +1469,7 @@ export function BudgetStudio({
           <Input placeholder="Amount" value={amount} onChange={setAmount} type="number" />
         </form>
       </EditorDrawer>
-    </motion.section>
+    </RevealSection>
   );
 }
 
@@ -1498,10 +1496,10 @@ export function MapStudio({
       meta:
         marker.category === "general"
           ? {
-              label: "Base",
-              icon: <MapPin className="h-4 w-4" />,
-              tone: "border border-white/12 bg-white/10 text-white/78",
-            }
+            label: "Base",
+            icon: <MapPin className="h-4 w-4" />,
+            tone: "border border-white/12 bg-white/10 text-white/78",
+          }
           : getCategoryMeta(marker.category),
     }))
     .sort((left, right) => Number(Boolean(right.selected)) - Number(Boolean(left.selected)));
@@ -1523,21 +1521,15 @@ export function MapStudio({
   }, [activeMarkerId, categorizedMarkers]);
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
-      className="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[#111111] shadow-[0_24px_70px_rgba(0,0,0,0.32)]"
-    >
-      <div className="border-b border-white/10 px-5 py-5 sm:px-6">
+    <RevealSection className="overflow-hidden rounded-[2.2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] ">
+      <div className="border-b border-[#23372e] px-5 py-5 sm:px-6">
         <p className="section-kicker">Map</p>
         <div className="mt-3 flex items-end justify-between gap-4">
           <div>
             <h2 className="text-2xl font-semibold tracking-[-0.04em] text-white">
               Around {trip.destination}
             </h2>
-            <p className="mt-2 text-sm text-white/52">
+            <p className="mt-2 text-sm text-[#a8b8ad]">
               {proposalCount > 0
                 ? `${proposalCount} saved places around the base pin`
                 : "The base destination is pinned and ready"}
@@ -1547,7 +1539,7 @@ export function MapStudio({
       </div>
 
       <div className="grid gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="h-[23rem] overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.05] sm:h-[29rem] lg:h-[32rem]">
+        <div className="h-[23rem] overflow-hidden rounded-[1.5rem] border border-[#23372e] bg-[#13231d] sm:h-[29rem] lg:h-[32rem]">
           <TripMap
             center={trip.lat && trip.lng ? { lat: trip.lat, lng: trip.lng } : undefined}
             markers={markers}
@@ -1556,10 +1548,10 @@ export function MapStudio({
           />
         </div>
 
-        <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-3">
-          <div className="flex items-center justify-between gap-3 border-b border-white/10 px-2 pb-3">
+        <div className="rounded-[1.5rem] border border-[#23372e] bg-[#14251e] p-3">
+          <div className="flex items-center justify-between gap-3 border-b border-[#23372e] px-2 pb-3">
             <p className="section-kicker">Locations</p>
-            <p className="text-xs uppercase tracking-[0.14em] text-white/48">
+            <p className="text-xs uppercase tracking-[0.14em] text-[#9fb0a3]">
               {categorizedMarkers.length} total
             </p>
           </div>
@@ -1572,11 +1564,10 @@ export function MapStudio({
                   key={marker.id}
                   type="button"
                   onClick={() => setActiveMarkerId(marker.id)}
-                  className={`w-full rounded-[1.1rem] border px-3 py-3 text-left transition-all ${
-                    isActive
-                      ? "border-cyan-300/24 bg-white/[0.1] shadow-[0_12px_28px_rgba(0,0,0,0.24)]"
-                      : "border-white/10 bg-white/[0.04] hover:border-white/18 hover:bg-white/[0.08]"
-                  }`}
+                  className={`w-full rounded-[1.1rem] border px-3 py-3 text-left transition-all ${isActive
+                    ? "border-[#dbe887]/36 bg-[#1b3026] shadow-[0_12px_28px_rgba(0,0,0,0.2)]"
+                    : "border-[#23372e] bg-[#13231d] hover:border-[#42584d] hover:bg-[#172920]"
+                    }`}
                 >
                   <div className="flex items-start gap-3">
                     <span
@@ -1586,10 +1577,10 @@ export function MapStudio({
                     </span>
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-white">{marker.name}</p>
-                      <p className="mt-1 truncate text-xs text-white/50">
+                      <p className="mt-1 truncate text-xs text-[#9fb0a3]">
                         {marker.locationName || trip.destination}
                       </p>
-                      <p className="mt-1 text-[0.62rem] uppercase tracking-[0.14em] text-white/44">
+                      <p className="mt-1 text-[0.62rem] uppercase tracking-[0.14em] text-[#7f9086]">
                         {marker.selected ? `Chosen ${marker.meta.label}` : marker.meta.label}
                       </p>
                     </div>
@@ -1600,7 +1591,7 @@ export function MapStudio({
           </div>
         </div>
       </div>
-    </motion.section>
+    </RevealSection>
   );
 }
 
@@ -1615,24 +1606,18 @@ export function GalleryStudio({
   const removePhoto = useMutation(api.photos.remove);
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
-      className="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[#111111]"
-    >
-      <div className="bg-white/[0.04] px-5 py-6 sm:px-6">
+    <RevealSection className="overflow-hidden rounded-[2.2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)]">
+      <div className="bg-[#13231d] px-5 py-6 sm:px-6">
         <p className="section-kicker">Gallery</p>
-        <h2 className="mt-3 font-serif text-4xl tracking-[-0.05em] text-white">
+        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
           Notebook images
         </h2>
-        <p className="mt-3 max-w-md text-sm leading-6 text-white/52">
+        <p className="mt-3 max-w-md text-sm leading-6 text-[#a8b8ad]">
           Add real photos from the trip thread. The grid stays dense and quiet.
         </p>
       </div>
 
-      <div className="border-t border-white/10 bg-transparent">
+      <div className="border-t border-[#23372e] bg-transparent">
         {photos === undefined ? (
           <div className="p-6">
             <Loader />
@@ -1644,13 +1629,13 @@ export function GalleryStudio({
                 folder={`/gather/trips/${tripId}/photos`}
                 onSuccess={(url) => void addPhoto({ tripId, url })}
                 mode="tile"
-               
+
               />
 
               {(photos ?? []).map((photo) => (
                 <div
                   key={photo._id}
-                  className="group relative aspect-[3/4] overflow-hidden bg-white/[0.05]"
+                  className="group relative aspect-[3/4] overflow-hidden bg-[#14251e]"
                 >
                   <Image
                     src={photo.url}
@@ -1681,14 +1666,14 @@ export function GalleryStudio({
             </div>
 
             {photos.length === 0 ? (
-              <div className="mt-3 rounded-[1.2rem] border border-dashed border-white/12 bg-white/[0.04] px-4 py-5 text-sm text-white/52">
+              <div className="mt-3 rounded-[1.2rem] border border-dashed border-[#31463c] bg-[#13231d] px-4 py-5 text-sm text-[#a8b8ad]">
                 No photos yet. Start with the first tile.
               </div>
             ) : null}
           </div>
         )}
       </div>
-    </motion.section>
+    </RevealSection>
   );
 }
 
@@ -1737,14 +1722,8 @@ export function TasksStudio({
   };
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
-      className="h-full overflow-hidden rounded-[2rem] border border-white/10 bg-[#111111] shadow-[0_24px_70px_rgba(0,0,0,0.32)]"
-    >
-      <div className="border-b border-white/10 px-5 py-5 sm:px-6">
+    <RevealSection className="h-full overflow-hidden rounded-[2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] ">
+      <div className="border-b border-[#23372e] px-5 py-5 sm:px-6">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="section-kicker">Tasks</p>
@@ -1765,29 +1744,28 @@ export function TasksStudio({
           ) : (
             <div className="grid gap-3">
               <AddTile
-                title="Add task" 
+                title="Add task"
                 onClick={() => setOpen(true)}
               />
               {tasks.map((taskItem) => (
                 <article
                   key={taskItem._id}
-                  className={`flex items-start gap-3 rounded-[1.4rem] px-4 py-4 text-left transition-colors ${
-                    taskItem.isChecked ? "border border-white/12 bg-white/[0.08]" : "border border-white/10 bg-white/[0.04]"
-                  }`}
+                  className={`flex items-start gap-3 rounded-[1.5rem] px-4 py-4 text-left transition-colors ${taskItem.isChecked ? "border border-[#31453b] bg-[#11211b]" : "border border-[#23372e] bg-[#14251e]"
+                    }`}
                 >
                   <button
                     type="button"
                     onClick={() => void toggleTask({ taskId: taskItem._id })}
-                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${taskItem.isChecked ? "border-white/20 bg-white/14 text-white" : "border-white/14 bg-white/[0.04] text-transparent"}`}
+                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${taskItem.isChecked ? "border-[#dbe887] bg-[#dbe887] text-[#0f1b16]" : "border-[#506257] bg-transparent text-transparent"}`}
                     aria-label={`Toggle ${taskItem.name}`}
                   >
                     <Check className="h-3.5 w-3.5" />
                   </button>
                   <div className="min-w-0 flex-1">
-                    <p className={`w-full break-words whitespace-normal text-sm font-medium ${taskItem.isChecked ? "text-white/42 line-through" : "text-white"}`}>
+                    <p className={`w-full break-words whitespace-normal text-sm font-medium ${taskItem.isChecked ? "text-[#6f7d74] line-through" : "text-white"}`}>
                       {taskItem.name}
                     </p>
-                    <p className="mt-2 text-xs uppercase tracking-[0.14em] text-white/46">
+                    <p className="mt-2 text-xs uppercase tracking-[0.14em] text-[#9fb0a3]">
                       {taskItem.category}
                     </p>
                   </div>
@@ -1800,14 +1778,14 @@ export function TasksStudio({
                         setCategory(taskItem.category);
                         setOpen(true);
                       }}
-                      className="trip-glass-icon-button h-10 w-10 text-white/64 hover:text-white"
+                      className="trip-glass-icon-button h-10 w-10 text-[#cfd8cd] hover:text-white"
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
                       type="button"
                       onClick={() => void removeTask({ taskId: taskItem._id })}
-                      className="trip-glass-icon-button h-10 w-10 text-white/64 hover:text-rose-300"
+                      className="trip-glass-icon-button h-10 w-10 text-[#cfd8cd] hover:text-[#f3b4a3]"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -1859,11 +1837,10 @@ export function TasksStudio({
                 key={item}
                 type="button"
                 onClick={() => setCategory(item)}
-                className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] transition-colors ${
-                  category === item
-                    ? "border-white/20 bg-white/14 text-white"
-                    : "border-white/10 bg-white/[0.05] text-white/56 hover:border-white/18 hover:text-white"
-                }`}
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] transition-colors ${category === item
+                  ? "border-[#dbe887]/36 bg-[#213229] text-white"
+                  : "border-[#23372e] bg-[#14251e] text-[#9fb0a3] hover:border-[#42584d] hover:text-white"
+                  }`}
               >
                 {taskCategoryMeta[item]?.icon || <CheckSquare className="h-3.5 w-3.5" />}
                 <span>{taskCategoryMeta[item]?.shortLabel || item}</span>
@@ -1872,7 +1849,7 @@ export function TasksStudio({
           </div>
         </form>
       </EditorDrawer>
-    </motion.section>
+    </RevealSection>
   );
 }
 
@@ -1901,13 +1878,7 @@ export function PlaylistStudio({
   };
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
-      className="h-full overflow-hidden rounded-[2rem] bg-[#eff0ef]"
-    >
+    <RevealSection className="h-full overflow-hidden rounded-[2rem] bg-[#eff0ef]">
       <div className="px-5 py-5 sm:px-6">
         <div>
           <p className="section-kicker">Playlist</p>
@@ -1986,7 +1957,7 @@ export function PlaylistStudio({
           />
         </form>
       </EditorDrawer>
-    </motion.section>
+    </RevealSection>
   );
 }
 
@@ -2025,9 +1996,8 @@ function AvatarStack({
       ))}
       {users.length > (compact ? 4 : 6) ? (
         <div
-          className={`${
-            users.length > 0 ? "-ml-2.5" : ""
-          } flex h-[30px] w-[30px] items-center justify-center rounded-full bg-stone-950 text-[0.64rem] font-semibold text-white ring-2 ring-white`}
+          className={`${users.length > 0 ? "-ml-2.5" : ""
+            } flex h-[30px] w-[30px] items-center justify-center rounded-full bg-stone-950 text-[0.64rem] font-semibold text-white ring-2 ring-white`}
         >
           +{users.length - (compact ? 4 : 6)}
         </div>
@@ -2051,15 +2021,15 @@ function AddTile({
     <button
       type="button"
       onClick={onClick}
-      className={`group flex min-h-[7.5rem] w-full flex-col items-center justify-center rounded-[1.45rem] border border-dashed border-white/14 bg-white/[0.04] px-4 py-5 text-center transition-colors hover:border-white/22 hover:bg-white/[0.08] ${className}`}
+      className={`group flex min-h-[7.5rem] w-full flex-col items-center justify-center rounded-[1.45rem] border border-dashed border-[#31463c] bg-[#13231d] px-4 py-5 text-center transition-colors hover:border-[#42584d] hover:bg-[#172920] ${className}`}
     >
-      <span className="trip-glass-icon-button h-11 w-11 text-white/62 transition-transform group-hover:scale-[1.03] group-hover:text-white">
+      <span className="trip-glass-icon-button h-11 w-11 text-[#cfd8cd] transition-transform group-hover:scale-[1.03] group-hover:text-white">
         <Plus className="h-4 w-4" />
       </span>
-      <span className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-white/74">
+      <span className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-[#d7e1d3]">
         {title}
       </span>
-      {description ? <span className="mt-1 text-sm text-white/46">{description}</span> : null}
+      {description ? <span className="mt-1 text-sm text-[#9fb0a3]">{description}</span> : null}
     </button>
   );
 }
@@ -2145,8 +2115,8 @@ function EmptyState({
   title: string;
 }) {
   return (
-    <div className="flex min-h-[12rem] flex-col items-center justify-center rounded-[1.5rem] border border-white/10 bg-white/[0.04] text-center text-white/52">
-      <div className="trip-glass-icon-button h-12 w-12 text-white/68">
+    <div className="flex min-h-[12rem] flex-col items-center justify-center rounded-[1.5rem] border border-[#23372e] bg-[#13231d] text-center text-[#9fb0a3]">
+      <div className="trip-glass-icon-button h-12 w-12 text-[#d7e1d3]">
         {icon}
       </div>
       <p className="mt-4 text-sm">{title}</p>
@@ -2157,7 +2127,7 @@ function EmptyState({
 function Loader() {
   return (
     <div className="flex justify-center py-8">
-      <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-900/60" />
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#627168] border-t-[#dbe887]" />
     </div>
   );
 }

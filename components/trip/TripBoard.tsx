@@ -102,6 +102,18 @@ const collisionDetection: CollisionDetection = (args) => {
   return closestCorners(args);
 };
 
+function measureGridRowSpan(element: HTMLElement) {
+  const gridElement = element.closest<HTMLElement>("[data-dashboard-board-grid]");
+  const parentStyles = gridElement
+    ? window.getComputedStyle(gridElement)
+    : null;
+  const rowGap = Number.parseFloat(parentStyles?.rowGap || "16") || 16;
+  const autoRows = Number.parseFloat(parentStyles?.gridAutoRows || "8") || 8;
+  const height = element.getBoundingClientRect().height;
+
+  return Math.max(1, Math.ceil((height + rowGap) / (autoRows + rowGap)));
+}
+
 function SortableBoardCard({
   card,
   isDropTarget,
@@ -125,15 +137,47 @@ function SortableBoardCard({
   } = useSortable({
     id: card._id,
   });
+  const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null);
+  const [contentElement, setContentElement] = useState<HTMLDivElement | null>(null);
+  const [rowSpan, setRowSpan] = useState(1);
+
+  useEffect(() => {
+    if (!containerElement || !contentElement) return;
+
+    const updateRowSpan = () => {
+      const nextRowSpan = measureGridRowSpan(contentElement);
+      setRowSpan((currentRowSpan) =>
+        currentRowSpan === nextRowSpan ? currentRowSpan : nextRowSpan
+      );
+    };
+
+    updateRowSpan();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateRowSpan();
+    });
+
+    resizeObserver.observe(contentElement);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [children, containerElement, contentElement]);
+
+  const setCardNodeRef = (element: HTMLDivElement | null) => {
+    setNodeRef(element);
+    setContainerElement(element);
+  };
 
   const style = {
     // transform: CSS.Transform.toString(transform),
     // transition: transition || "transform 260ms cubic-bezier(0.22, 1, 0.36, 1)",
+    gridRow: `span ${rowSpan} / span ${rowSpan}`,
   };
 
   return (
     <motion.div
-      ref={setNodeRef}
+      ref={setCardNodeRef}
       layout
       style={style}
       data-dashboard-card={card.kind}
@@ -172,7 +216,9 @@ function SortableBoardCard({
         <X className="h-4 w-4" />
       </button>
 
-      {children}
+      <div ref={setContentElement} className="min-w-0">
+        {children}
+      </div>
     </motion.div>
   );
 }
@@ -295,7 +341,10 @@ export default function TripBoard({
       onDragEnd={handleDragEnd}
     >
       <SortableContext items={cardIds} strategy={rectSortingStrategy}>
-        <div className="min-w-0 overflow-x-hidden grid min-w-0 gap-4 lg:grid-cols-12">
+        <div
+          data-dashboard-board-grid
+          className="grid min-w-0 auto-rows-[8px] grid-flow-dense gap-4 overflow-x-hidden lg:grid-cols-12"
+        >
           {orderedCards.map((card) => (
             <SortableBoardCard
               key={card._id}

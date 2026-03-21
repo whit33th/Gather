@@ -147,7 +147,6 @@ export default function TripPage() {
         eyebrow="Trip"
         title="Loading trip"
         description="Syncing proposals, people, and dashboard cards."
-        className="bg-[#050505]"
       />
     );
   }
@@ -158,7 +157,6 @@ export default function TripPage() {
         eyebrow="Trip unavailable"
         title="This trip is not available to you."
         description="You may no longer be a member of this notebook, or the trip was removed."
-        className="bg-[#050505]"
       />
     );
   }

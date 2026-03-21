@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { ImageKitClient } from "imagekitio-next";
+import { Plus } from "lucide-react";
 
 type ImageKitUploadProps = {
   onSuccess: (url: string) => void;
@@ -162,7 +163,7 @@ export default function ImageKitUpload({
           disabled={disabled || uploading}
           onClick={pickFile}
           className={`${mode === "tile"
-              ? `group flex aspect-square h-full w-full items-center justify-center overflow-hidden rounded-none border border-stone-900/8 bg-[#eceae6] transition-colors hover:bg-[#e4e1dc] ${buttonClassName || ""
+            ? `group flex aspect-square h-full w-full items-center justify-center  overflow-hidden rounded-3xl border border-dashed border-[#31463c] bg-[#13231d] transition-colors hover:border-[#42584d] hover:bg-[#172920] ${buttonClassName || ""
               }`
               : `${buttonClassName || defaultButtonClassName}`
             } disabled:cursor-not-allowed disabled:opacity-60`}
@@ -171,8 +172,8 @@ export default function ImageKitUpload({
             uploading ? (
               <Spinner />
             ) : (
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/86 text-xl font-medium text-stone-500 shadow-[0_8px_20px_rgba(15,15,15,0.06)] transition-colors group-hover:text-stone-900">
-                +
+              <span className="trip-glass-icon-button h-11 w-11 text-[#cfd8cd] transition-transform group-hover:scale-[1.03] group-hover:text-white">
+                <Plus className="size-4" />
               </span>
             )
           ) : uploading ? (

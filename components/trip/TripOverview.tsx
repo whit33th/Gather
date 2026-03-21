@@ -1624,7 +1624,7 @@ export function GalleryStudio({
           </div>
         ) : (
           <div className="p-3 sm:p-4">
-            <div className="grid grid-cols-2 gap-[1px] sm:grid-cols-3 xl:grid-cols-5">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
               <ImageKitUpload
                 folder={`/gather/trips/${tripId}/photos`}
                 onSuccess={(url) => void addPhoto({ tripId, url })}
@@ -1635,13 +1635,13 @@ export function GalleryStudio({
               {(photos ?? []).map((photo) => (
                 <div
                   key={photo._id}
-                  className="group relative aspect-[3/4] overflow-hidden bg-[#14251e]"
+                  className="group relative aspect-[3/4] rounded-3xl overflow-hidden bg-[#14251e]"
                 >
                   <Image
                     src={photo.url}
                     alt={photo.uploaderName}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="object-cover transition-transform duration-700"
                   />
                   {photo.canDelete ? (
                     <button

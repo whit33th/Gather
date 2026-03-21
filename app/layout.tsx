@@ -8,7 +8,6 @@ import Navbar from "../components/Navbar";
 import SplashScreen from "../components/SplashScreen";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import "./globals.css";
-import "lenis/dist/lenis.css";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -40,7 +39,7 @@ export default function RootLayout({
           <ConvexClientProvider>
             <SplashScreen />
             <Navbar>{children}</Navbar>
-            
+
           </ConvexClientProvider>
         </body>
       </html>

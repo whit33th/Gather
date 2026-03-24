@@ -73,26 +73,44 @@ export default function TripPage() {
     | undefined;
 
   const [copied, setCopied] = useState(false);
-  const [isAddCardOpen, setIsAddCardOpen] = useState(false);
+  const [isNoteComposerOpen, setIsNoteComposerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchHovered, setSearchHovered] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const activeView = getValidView(searchParams.get("view"));
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const normalizedSearchQuery = normalizeSearch(deferredSearchQuery);
+  const displayedView =
+    normalizedSearchQuery && activeView === "board" ? "search" : activeView;
+  const searchExpanded =
+    searchOpen || searchHovered || searchFocused || Boolean(searchQuery.trim());
 
   const setView = (view: DashboardView) => {
+    if (view === activeView) {
+      return;
+    }
+
     const nextSearchParams = new URLSearchParams(searchParams.toString());
-    nextSearchParams.set("view", view);
+    if (view === "board") {
+      nextSearchParams.delete("view");
+    } else {
+      nextSearchParams.set("view", view);
+    }
+
+    const nextHref = nextSearchParams.toString()
+      ? `${pathname}?${nextSearchParams.toString()}`
+      : pathname;
+
     startTransition(() => {
-      router.replace(`${pathname}?${nextSearchParams.toString()}` as Route, {
+      router.push(nextHref as Route, {
         scroll: false,
       });
     });
-    if (view === "search") {
-      setSearchOpen(true);
-    } else if (!searchQuery.trim()) {
+
+    if (view !== "search" && !searchQuery.trim()) {
       setSearchOpen(false);
     }
   };
@@ -140,6 +158,14 @@ export default function TripPage() {
     [normalizedSearchQuery, travelers]
   );
 
+  const tripDates = useMemo(() => {
+    if (!trip) {
+      return [];
+    }
+
+    return buildTripDates(trip.startDate, trip.endDate);
+  }, [trip?.endDate, trip?.startDate]);
+
   if (trip === undefined) {
     return (
       <AppState
@@ -165,10 +191,6 @@ export default function TripPage() {
   const totalTravelers = travelers?.length || 0;
   const headerTravelers = (travelers || []).slice(0, 3);
   const hiddenTravelerCount = Math.max(totalTravelers - headerTravelers.length, 0);
-  const tripDates = useMemo(
-    () => buildTripDates(trip.startDate, trip.endDate),
-    [trip.endDate, trip.startDate]
-  );
 
   const handleShare = async () => {
     try {
@@ -183,18 +205,15 @@ export default function TripPage() {
   const handleSearchToggle = () => {
     if (searchOpen && !searchQuery.trim()) {
       setSearchOpen(false);
-      if (activeView === "search") {
-        setView("board");
-      }
+      setSearchFocused(false);
       return;
     }
 
     setSearchOpen(true);
-    setView("search");
   };
 
   const renderActiveView = () => {
-    if (activeView === "search") {
+    if (displayedView === "search") {
       return (
         <TripSearchView
           currentViewerRole={currentViewer?.role}
@@ -205,11 +224,11 @@ export default function TripPage() {
       );
     }
 
-    if (activeView === "people") {
-      return <TripPeopleView travelers={visibleTravelers} tripId={tripId} />;
+    if (displayedView === "people") {
+      return <TripPeopleView travelers={visibleTravelers} />;
     }
 
-    if (activeView === "calendar") {
+    if (displayedView === "calendar") {
       return (
         <TripCalendarView
           members={visibleTravelers}
@@ -219,7 +238,7 @@ export default function TripPage() {
       );
     }
 
-    if (activeView === "list") {
+    if (displayedView === "list") {
       return (
         <TripListView normalizedSearchQuery={normalizedSearchQuery} tripId={tripId} />
       );
@@ -228,9 +247,8 @@ export default function TripPage() {
     return (
       <TripBoardView
         currentViewerRole={currentViewer?.role}
-        isAddCardOpen={isAddCardOpen}
-        normalizedSearchQuery={normalizedSearchQuery}
-        onAddCardOpenChange={setIsAddCardOpen}
+        noteComposerOpen={isNoteComposerOpen}
+        onNoteComposerOpenChange={setIsNoteComposerOpen}
         onOpenView={setView}
         sortedProposals={sortedProposals}
         travelers={travelers}
@@ -241,54 +259,62 @@ export default function TripPage() {
   };
 
   return (
-    <div className="relative min-h-full text-white flex flex-col min-h-full gap-4 min-w-0 gap-4 overflow-x-hidden p-4 sm:p-5 lg:p-6">
+    <div className="relative flex min-h-full min-w-0 flex-col gap-4 overflow-x-hidden p-4 text-white sm:p-5 lg:p-6">
       <header className="sticky top-0 z-30">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-
-
-            <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
-              <button
-                type="button"
-                onClick={handleSearchToggle}
-                className={cn(
-                  "trip-glass-icon-button shrink-0",
-                  (activeView === "search" || searchOpen) &&
-                  "border-white/24 bg-white/[0.14] text-white"
-                )}
-                aria-label="Open search"
-              >
-                <Search className="h-4 w-4" />
-              </button>
-
+            <div className="flex min-w-0 flex-1 items-center">
               <div
                 className={cn(
-                  "overflow-hidden transition-[width,opacity,margin] duration-300 ease-out",
-                  searchOpen
-                    ? "ml-1 w-[min(18rem,58vw)] opacity-100 sm:w-[min(24rem,40vw)]"
-                    : "w-0 opacity-0"
+                  "trip-glass-button h-12 overflow-hidden px-0 transition-[width,padding,border-color,background-color,box-shadow] duration-300 ease-out",
+                  searchExpanded
+                    ? "w-[min(19rem,58vw)] pl-0 pr-2 sm:w-[min(24rem,40vw)]"
+                    : "w-12 px-0"
                 )}
+                onMouseEnter={() => setSearchHovered(true)}
+                onMouseLeave={() => {
+                  setSearchHovered(false);
+                  if (!searchOpen && !searchFocused && !searchQuery.trim()) {
+                    setSearchHovered(false);
+                  }
+                }}
               >
-                <div className="flex h-12 items-center rounded-full border border-white/12 bg-white/[0.08] px-4 shadow-[rgba(255,255,255,0.35)_0px_1px_0px_0px_inset,rgba(255,255,255,0.12)_0px_3px_16px_0px_inset,rgba(255,255,255,0.1)_0px_-2px_16px_0px_inset] backdrop-blur-xl">
-                  <Search className="h-4 w-4 shrink-0 text-white/44" />
+                <button
+                  type="button"
+                  onClick={handleSearchToggle}
+                  className={cn(
+                    "flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-white transition-colors"
+                  )}
+                  aria-label={searchOpen ? "Close search" : "Open search"}
+                >
+                  <Search className="h-4 w-4 shrink-0" />
+                </button>
+
+                <div
+                  className={cn(
+                    "flex min-w-0 items-center overflow-hidden transition-[max-width,opacity] duration-300 ease-out",
+                    searchExpanded ? "max-w-[18rem] flex-1 opacity-100" : "max-w-0 opacity-0"
+                  )}
+                >
                   <input
                     ref={searchInputRef}
                     value={searchQuery}
-                    onChange={(event) => {
-                      const nextValue = event.target.value;
-                      setSearchQuery(nextValue);
-                      if (activeView !== "search") {
-                        setView("search");
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    onFocus={() => setSearchFocused(true)}
+                    onBlur={() => {
+                      setSearchFocused(false);
+                      if (!searchOpen && !searchHovered && !searchQuery.trim()) {
+                        setSearchOpen(false);
                       }
                     }}
-                    placeholder="Search cards, proposals, people..."
-                    className="h-full min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none placeholder:text-white/34"
+                    placeholder="Search places, people, notes..."
+                    className="h-full min-w-0 flex-1 bg-transparent pr-2 text-sm text-white outline-none placeholder:text-white/46"
                   />
                   {searchQuery ? (
                     <button
                       type="button"
                       onClick={() => setSearchQuery("")}
-                      className="trip-glass-icon-button h-8 w-8 shrink-0"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/68 transition-colors hover:bg-white/10 hover:text-white"
                       aria-label="Clear search"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -369,7 +395,7 @@ export default function TripPage() {
               type="button"
               onClick={() => {
                 setView("board");
-                setIsAddCardOpen(true);
+                setIsNoteComposerOpen(true);
               }}
               className="trip-glass-button h-12 px-5 text-sm"
             >
@@ -380,7 +406,7 @@ export default function TripPage() {
             <button
               type="button"
               onClick={handleShare}
-              className="trip-glass-button h-12 px-5 text-sm"
+              className="rounded-full flex gap-2 justify-center items-center h-12 border-white bg-white px-5 text-sm text-black hover:border-white hover:bg-[#f4f1e8] hover:text-black"
             >
               <Share2 className="h-4 w-4" />
               <span>{copied ? "Copied" : "Share"}</span>

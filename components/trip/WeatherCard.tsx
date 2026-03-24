@@ -163,7 +163,7 @@ export default function WeatherCard({
 
   if (lat == null || lng == null) {
     return (
-      <div className="rounded-[2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] p-5 text-white shadow-[0_24px_60px_rgba(0,0,0,0.22)]">
+      <div className="h-full rounded-[30px] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] p-5 text-white shadow-[0_24px_60px_rgba(0,0,0,0.22)]">
         <p className="section-kicker">Weather</p>
         <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
           Forecast snapshot
@@ -176,7 +176,7 @@ export default function WeatherCard({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-[2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] text-white shadow-[0_24px_60px_rgba(0,0,0,0.22)]">
+    <div className="relative h-full overflow-hidden rounded-[30px] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] text-white shadow-[0_24px_60px_rgba(0,0,0,0.22)]">
       {theme ? (
         <>
           <div className={`absolute inset-0 bg-gradient-to-br ${theme.shell}`} />
@@ -185,7 +185,7 @@ export default function WeatherCard({
         </>
       ) : null}
 
-      <div className="relative p-5 sm:p-6">
+      <div className="relative flex h-full flex-col p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="section-kicker">Weather</p>
@@ -221,7 +221,7 @@ export default function WeatherCard({
         {error ? <p className="mt-4 text-sm text-rose-400">{error}</p> : null}
 
         {data ? (
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
+          <div className="mt-auto grid grid-cols-2 gap-3 pt-5 sm:grid-cols-5">
             {data.daily.time.slice(0, 5).map((day, index) => (
               <div
                 key={day}

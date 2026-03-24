@@ -1,19 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useMutation } from "convex/react";
-import { format, parseISO } from "date-fns";
-import Image from "next/image";
+import { useMemo } from "react";
+import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import {
-  CalendarDays,
   Check,
   ChevronRight,
-  Pencil,
+  FileText,
+  MoreHorizontal,
   Plus,
-  Trash2,
-  UsersRound,
 } from "lucide-react";
-import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import UserAvatar from "../UserAvatar";
 
@@ -22,8 +17,6 @@ type ExpenseCard = {
   title: string;
   amount: number;
   payerName: string;
-  payerImage?: string;
-  payerUserId?: string;
 };
 
 type TaskCard = {
@@ -56,23 +49,23 @@ type DashboardCardRecord = {
   _id: Id<"dashboardCards">;
   tripId: Id<"trips">;
   kind:
-  | "hero"
-  | "arrival"
-  | "stay"
-  | "weather"
-  | "map"
-  | "travelers"
-  | "tripNotes"
-  | "budgetSummary"
-  | "spots"
-  | "packingSummary"
-  | "budget"
-  | "packing"
-  | "gallery"
-  | "proposals"
-  | "availability"
-  | "chat"
-  | "note";
+    | "hero"
+    | "arrival"
+    | "stay"
+    | "weather"
+    | "map"
+    | "travelers"
+    | "tripNotes"
+    | "budgetSummary"
+    | "spots"
+    | "packingSummary"
+    | "budget"
+    | "packing"
+    | "gallery"
+    | "proposals"
+    | "availability"
+    | "chat"
+    | "note";
   title?: string;
   content?: string;
   order: number;
@@ -80,52 +73,65 @@ type DashboardCardRecord = {
 
 type ScheduleItem = Doc<"tripScheduleItems">;
 
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "EUR",
+  maximumFractionDigits: 0,
+});
+
 function surface(extra = "") {
-  return `rounded-[30px]  border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] text-[#f7f4ea] shadow-[0_24px_60px_rgba(0,0,0,0.22)] ${extra}`;
+  return `h-full rounded-[30px] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] text-[#f7f4ea] shadow-[0_24px_60px_rgba(0,0,0,0.22)] ${extra}`;
 }
 
-function EmptyAddState({
+function SummaryActionButton({
   label,
-  description,
   onClick,
+  variant = "more",
+  contrast = "dark",
 }: {
   label: string;
-  description: string;
   onClick: () => void;
+  variant?: "more" | "plus";
+  contrast?: "dark" | "light";
 }) {
+  const Icon = variant === "plus" ? Plus : MoreHorizontal;
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className=" flex min-h-[8rem] w-full flex-col items-center justify-center rounded-[24px] border border-dashed border-[#31463c] bg-[#12241d] p-4 text-center transition hover:border-[#42584d] hover:bg-[#162a22]"
-    >
-      <span className="trip-glass-icon-button">
-        <Plus className="h-4 w-4" />
-      </span>
-      <span className="mt-3 text-sm font-medium">{label}</span>
-      <span className="mt-1 max-w-xs text-sm text-[#9fb0a3]">{description}</span>
-    </button>
-  );
-}
-
-function CardAction({
-  icon: Icon,
-  label,
-  onClick,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="trip-glass-icon-button border-[#2b4035] bg-[#152720] text-[#f7f4ea]"
+      className={
+        contrast === "light"
+          ? "flex h-10 w-10 items-center justify-center rounded-full border border-[#0f6a5b]/16 bg-white/36 text-[#0f5d50] backdrop-blur transition hover:border-[#0f6a5b]/28 hover:bg-white/54 sm:h-11 sm:w-11"
+          : "flex h-10 w-10 items-center justify-center rounded-full border border-[#2b4035] bg-[#14251e]/88 text-[#d7e1d3] backdrop-blur transition hover:border-[#465b50] hover:text-white sm:h-11 sm:w-11"
+      }
       aria-label={label}
     >
       <Icon className="h-4 w-4" />
     </button>
+  );
+}
+
+function SummaryEyebrow({ children }: { children: string }) {
+  return (
+    <p className="text-[0.78rem] font-medium uppercase tracking-[0.22em] text-[#9fb0a3]">
+      {children}
+    </p>
+  );
+}
+
+function SummaryEmpty({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-[22px] border border-dashed border-[#31463c] bg-[#12241d] px-4 py-4 sm:rounded-[24px] sm:py-5">
+      <p className="text-sm font-medium text-[#f7f4ea]">{title}</p>
+      <p className="mt-2 text-sm leading-6 text-[#9fb0a3]">{description}</p>
+    </div>
   );
 }
 
@@ -141,26 +147,37 @@ export function HeroSummaryCard({
   const duration = useMemo(() => {
     const start = parseISO(trip.startDate);
     const end = parseISO(trip.endDate);
-    const nights = Math.max(Math.round((end.getTime() - start.getTime()) / 86400000), 1);
+    const nights = Math.max(differenceInCalendarDays(end, start), 1);
     return `${nights + 1}D / ${nights}N`;
   }, [trip.endDate, trip.startDate]);
 
   return (
     <section className={surface("overflow-hidden p-3")}>
       <div
-        className="relative h-[19rem] overflow-hidden rounded-[24px] bg-cover bg-center sm:h-[21rem]"
+        className="relative min-h-[15.5rem] overflow-hidden rounded-[24px] bg-cover bg-center sm:min-h-[20rem]"
         style={{ backgroundImage: `url("${heroImage}")` }}
       >
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.18)_50%,rgba(0,0,0,0.58)_100%)]" />
-        <div className="absolute bottom-0 left-0 right-0 p-5">
-          <p className="text-sm uppercase tracking-[0.18em] text-[#dbe6cf]">{trip.destination}</p>
-          <h1 className="mt-2 text-[2.35rem] font-semibold tracking-[-0.07em]">{trip.title}</h1>
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,7,6,0.04)_0%,rgba(2,7,6,0.18)_38%,rgba(2,7,6,0.78)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
+          <SummaryEyebrow>{trip.destination}</SummaryEyebrow>
+          <h2 className="mt-3 max-w-3xl text-[1.9rem] font-semibold tracking-[-0.07em] text-white sm:text-[2.45rem]">
+            {trip.title}
+          </h2>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-white/72">
+            Shared trip overview with selected stay, live weather, budget, notes, and
+            readiness.
+          </p>
           <div className="mt-4 flex flex-wrap gap-2 text-sm text-white/82">
-            {[duration, `${Math.max(travelerCount, 1)} travelers`, "Shared dashboard"].map((item) => (
-              <span key={item} className="trip-glass-button px-3.5 py-2 text-[0.8rem]">
-                {item}
-              </span>
-            ))}
+            {[duration, `${Math.max(travelerCount, 1)} travelers`, "Summary-first board"].map(
+              (item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-white/12 bg-white/[0.08] px-3.5 py-2 backdrop-blur"
+                >
+                  {item}
+                </span>
+              )
+            )}
           </div>
         </div>
       </div>
@@ -178,29 +195,29 @@ export function StaySummaryCard({
   onOpenSearch: () => void;
 }) {
   return (
-    <section className={surface("p-3")}>
-      <article className="grid h-full gap-4 md:grid-cols-[190px_minmax(0,1fr)]">
+    <section className={surface("overflow-hidden p-4")}>
+      <div className="grid gap-4 md:grid-cols-[minmax(8rem,10rem)_minmax(0,1fr)]">
         <div
-          className="min-h-[14rem] rounded-[22px] bg-cover bg-center"
-          style={{ backgroundImage: `url("${image}")` }}
+          className="min-h-[9.5rem] rounded-[22px] bg-cover bg-center md:min-h-[11rem]"
+          style={{ backgroundImage: `url("${proposal?.imageUrl || image}")` }}
         />
-        <div className="flex flex-col justify-between py-2 pr-2">
-          <div>
-            <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">Stay</p>
-            <h2 className="my-2 text-[1.85rem] font-semibold tracking-[-0.05em]">
-              {proposal?.name || "Choose your stay"}
-            </h2>
-            <p className="mt-3 text-[1.02rem] leading-7 text-[#9fb0a3]">
-              {proposal?.locationName || "Select the shared stay and keep the group aligned on one place."}
-            </p>
+        <div className="flex flex-col">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <SummaryEyebrow>Stay</SummaryEyebrow>
+              <h2 className="mt-3 text-[1.7rem] font-semibold tracking-[-0.05em] sm:text-[1.95rem]">
+                {proposal?.name || "Choose your stay"}
+              </h2>
+            </div>
+            <SummaryActionButton label="Open stay details" onClick={onOpenSearch} />
           </div>
-
-          <button type="button" onClick={onOpenSearch} className="trip-glass-button mt-5 w-fit px-5 py-3">
-            <span>Open proposals</span>
-            <ChevronRight className="h-4 w-4" />
-          </button>
+          <p className="mt-4 text-[1rem] leading-7 text-[#9fb0a3]">
+            {proposal?.locationName ||
+              "Open the proposals panel to choose the shared stay and lock the group on one place."}
+          </p>
+         
         </div>
-      </article>
+      </div>
     </section>
   );
 }
@@ -216,17 +233,20 @@ export function TravelersSummaryCard({
 
   return (
     <section className={surface("p-5")}>
-      <div className="flex h-full flex-col justify-between gap-6">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">People</p>
-          <h2 className="my-2 text-[1.85rem] font-semibold tracking-[-0.05em]">
+          <SummaryEyebrow>People</SummaryEyebrow>
+          <h2 className="mt-3 text-[1.65rem] font-semibold tracking-[-0.05em] sm:text-[1.9rem]">
             {travelers?.length || 0} travelers
           </h2>
         </div>
+        <SummaryActionButton label="Open people details" onClick={onOpenPeople} />
+      </div>
 
-        <div className="space-y-3">
-          {visibleTravelers.map((traveler) => (
-            <div
+      <div className="mt-5 space-y-3">
+        {visibleTravelers.length > 0 ? (
+          visibleTravelers.map((traveler) => (
+            <article
               key={traveler.memberId}
               className="flex items-center gap-3 rounded-[22px] border border-[#22372e] bg-[#14251e] px-4 py-3"
             >
@@ -234,20 +254,22 @@ export function TravelersSummaryCard({
                 name={traveler.name}
                 image={traveler.image}
                 seed={traveler.userId}
-                size={40}
+                size={38}
               />
               <div className="min-w-0">
                 <p className="truncate text-base font-medium">{traveler.name}</p>
-                <p className="text-sm text-[#9fb0a3]">{traveler.isCurrentUser ? "You" : traveler.role}</p>
+                <p className="text-sm text-[#9fb0a3]">
+                  {traveler.isCurrentUser ? "You" : traveler.role}
+                </p>
               </div>
-            </div>
-          ))}
-        </div>
-
-        <button type="button" onClick={onOpenPeople} className="trip-glass-button w-fit px-5 py-3">
-          <UsersRound className="h-4 w-4" />
-          <span>Open people</span>
-        </button>
+            </article>
+          ))
+        ) : (
+          <SummaryEmpty
+            title="No travelers synced yet"
+            description="Once people join the trip, this card will show the shared crew."
+          />
+        )}
       </div>
     </section>
   );
@@ -255,66 +277,88 @@ export function TravelersSummaryCard({
 
 export function TripNotesSummaryCard({
   card,
+  extraNotesCount,
+  onEdit,
 }: {
-  card: DashboardCardRecord;
+  card?: DashboardCardRecord | null;
+  extraNotesCount?: number;
+  onEdit: () => void;
 }) {
-  const updateCard = useMutation(api.dashboardCards.update);
-  const [isEditing, setIsEditing] = useState(false);
-  const [title, setTitle] = useState(card.title || "Trip Notes");
-  const [content, setContent] = useState(card.content || "");
+  return (
+    <section className={surface("flex flex-col p-6")}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <SummaryEyebrow>Trip Notes</SummaryEyebrow>
+          <h2 className="mt-3 truncate text-[1.65rem] font-semibold tracking-[-0.05em] sm:text-[1.85rem]">
+            {card?.title || "Shared notes"}
+          </h2>
+        </div>
+        <SummaryActionButton label="Edit trip notes" onClick={onEdit} />
+      </div>
 
-  const handleSave = async () => {
-    await updateCard({
-      cardId: card._id,
-      title: title.trim() || "Trip Notes",
-      content: content.trim(),
-    });
-    setIsEditing(false);
-  };
+      <p className="mt-5 line-clamp-4 whitespace-pre-wrap text-[1rem] leading-7 text-[#a8b8ad]">
+        {card?.content ||
+          "Use one shared note for itinerary anchors, meeting point, booking references, and reminders everyone needs."}
+      </p>
+
+      <div className="mt-auto pt-5">
+        <div className="inline-flex items-center gap-2 rounded-full border border-[#31463c] bg-[#152720] px-3 py-2 text-[0.72rem] uppercase tracking-[0.16em] text-[#d7e1d3]">
+          <FileText className="h-3.5 w-3.5" />
+          <span>{extraNotesCount || 0} extra note{extraNotesCount === 1 ? "" : "s"}</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function CustomNoteSummaryCard({
+  card,
+  noteCount,
+  onCreate,
+  onEdit,
+}: {
+  card?: DashboardCardRecord | null;
+  noteCount: number;
+  onCreate: () => void;
+  onEdit: () => void;
+}) {
+  const hasNote = Boolean(card);
 
   return (
     <section className={surface("p-6")}>
-      <div className="flex h-full flex-col justify-between gap-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">Trip Notes</p>
-            <h2 className="mt-3 truncate text-[1.85rem] font-semibold tracking-[-0.05em]">
-              {title}
-            </h2>
-          </div>
-          <CardAction icon={Pencil} label="Edit trip notes" onClick={() => setIsEditing((value) => !value)} />
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <SummaryEyebrow>{hasNote ? "Saved Note" : "Add Note"}</SummaryEyebrow>
+          <h2 className="mt-3 truncate text-[1.85rem] font-semibold tracking-[-0.05em]">
+            {card?.title || "Capture an extra note"}
+          </h2>
         </div>
-
-        {isEditing ? (
-          <div className="space-y-3">
-            <input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              className="editorial-input"
-              placeholder="Trip Notes"
-            />
-            <textarea
-              value={content}
-              onChange={(event) => setContent(event.target.value)}
-              rows={6}
-              className="editorial-input editorial-textarea"
-              placeholder="Write the shared notes here"
-            />
-            <div className="flex gap-2">
-              <button type="button" onClick={handleSave} className="trip-glass-button px-4 py-3">
-                Save
-              </button>
-              <button type="button" onClick={() => setIsEditing(false)} className="trip-glass-button px-4 py-3">
-                Cancel
-              </button>
-            </div>
-          </div>
-        ) : (
-          <p className="whitespace-pre-wrap text-[1.02rem] leading-8 text-[#a8b8ad]">
-            {content || "Add the high-level itinerary, meeting point, and any shared reminders here."}
-          </p>
-        )}
+        <SummaryActionButton
+          label={hasNote ? "Edit note" : "Create note"}
+          onClick={hasNote ? onEdit : onCreate}
+          variant={hasNote ? "more" : "plus"}
+        />
       </div>
+
+      {hasNote ? (
+        <>
+          <p className="mt-5 whitespace-pre-wrap text-[1rem] leading-7 text-[#a8b8ad]">
+            {card?.content}
+          </p>
+          <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[#31463c] bg-[#152720] px-3 py-2 text-[0.72rem] uppercase tracking-[0.16em] text-[#d7e1d3]">
+            <FileText className="h-3.5 w-3.5" />
+            <span>{noteCount} saved note{noteCount === 1 ? "" : "s"}</span>
+          </div>
+        </>
+      ) : (
+        <div className="mt-5 rounded-[24px] border border-dashed border-[#31463c] bg-[#12241d] px-4 py-5">
+          <p className="text-sm font-medium text-[#f7f4ea]">No quick note yet</p>
+          <p className="mt-2 text-sm leading-6 text-[#9fb0a3]">
+            Add transport details, booking references, emergency contacts, or any small
+            detail that should stay visible from the main trip page.
+          </p>
+        </div>
+      )}
     </section>
   );
 }
@@ -336,48 +380,57 @@ export function SpotsSummaryCard({
     <section className={surface("overflow-hidden p-4")}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">Spots</p>
-          <h2 className="my-2 text-[1.85rem] font-semibold tracking-[-0.05em]">Saved highlights</h2>
+          <SummaryEyebrow>Spots</SummaryEyebrow>
+          <h2 className="mt-3 text-[1.7rem] font-semibold tracking-[-0.05em] sm:text-[1.95rem]">
+            Saved highlights
+          </h2>
         </div>
-        <button type="button" onClick={onOpenSearch} className="trip-glass-icon-button" aria-label="Add spot">
-          <Plus className="h-4 w-4" />
-        </button>
+        <SummaryActionButton label="Open places and proposals" onClick={onOpenSearch} />
       </div>
 
       {featured.length === 0 ? (
-        <EmptyAddState
-          label="Add first spot"
-          description="Open proposals and start adding places the group likes."
-          onClick={onOpenSearch}
-        />
+        <div className="mt-5">
+          <SummaryEmpty
+            title="No saved highlights yet"
+            description="Use the proposals view to collect places the group wants to keep on the shortlist."
+          />
+        </div>
       ) : (
-        <div className="mt-4 grid gap-3 md:grid-cols-[0.9fr_1.1fr]">
-          <div className="flex flex-col gap-3">
+        <div className="mt-5 grid gap-3 md:grid-cols-[0.95fr_1.05fr]">
+          <div className="grid gap-3">
             {featured.slice(0, 2).map((spot, index) => (
               <article
                 key={spot._id}
-                className={`relative overflow-hidden rounded-[24px] bg-cover bg-center ${index === 0 ? "min-h-[11rem]" : "min-h-[10rem]"
-                  }`}
-                style={{ backgroundImage: `url("${spot.imageUrl || images[index] || images[0]}")` }}
+                className="relative min-h-[10.5rem] overflow-hidden rounded-[24px] bg-cover bg-center"
+                style={{
+                  backgroundImage: `url("${spot.imageUrl || images[index] || images[0]}")`,
+                }}
               >
-                <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.82))] p-4">
-                  <p className="text-[1.55rem] font-medium tracking-[-0.04em]">{spot.name}</p>
-                  <p className="mt-1 text-sm text-white/60">{spot.locationName || destination}</p>
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.06),rgba(0,0,0,0.78))]" />
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                  <p className="text-[1.25rem] font-medium tracking-[-0.03em]">{spot.name}</p>
+                  <p className="mt-1 text-sm text-white/62">
+                    {spot.locationName || destination}
+                  </p>
                 </div>
               </article>
             ))}
           </div>
+
           <article
-            className="relative min-h-[21rem] overflow-hidden rounded-[26px] bg-cover bg-center"
-            style={{ backgroundImage: `url("${featured[2]?.imageUrl || images[2] || images[0]}")` }}
+            className="relative min-h-[22rem] overflow-hidden rounded-[28px] bg-cover bg-center"
+            style={{
+              backgroundImage: `url("${featured[2]?.imageUrl || images[2] || images[0]}")`,
+            }}
           >
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.44)_60%,rgba(0,0,0,0.86))]" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.44)_54%,rgba(0,0,0,0.88))]" />
             <div className="absolute bottom-5 left-5 right-5">
-              <p className="text-[2rem] font-medium tracking-[-0.05em]">
+              <p className="text-[1.9rem] font-medium tracking-[-0.05em]">
                 {featured[2]?.name || destination}
               </p>
-              <p className="mt-2 text-white/62">
-                {featured[2]?.locationName || "Selected stops and saved places stay grouped together here."}
+              <p className="mt-2 text-sm leading-6 text-white/64">
+                {featured[2]?.locationName ||
+                  "Open the proposals workspace to pin the best stops, food spots, and must-do activities."}
               </p>
             </div>
           </article>
@@ -388,423 +441,434 @@ export function SpotsSummaryCard({
 }
 
 export function ArrivalSummaryCard({
-  tripId,
   arrivalDate,
   items,
+  onManage,
 }: {
-  tripId: Id<"trips">;
   arrivalDate: string;
   items: ScheduleItem[] | undefined;
+  onManage: () => void;
 }) {
-  const addItem = useMutation(api.tripScheduleItems.add);
-  const updateItem = useMutation(api.tripScheduleItems.update);
-  const removeItem = useMutation(api.tripScheduleItems.remove);
-  const [draft, setDraft] = useState({
-    title: "",
-    startsAt: "10:00",
-    endsAt: "11:00",
-    tone: "purple" as "purple" | "green" | "neutral",
-  });
-  const [isAdding, setIsAdding] = useState(false);
-  const [editingId, setEditingId] = useState<Id<"tripScheduleItems"> | null>(null);
-
-  const editingItem = items?.find((item) => item._id === editingId);
-
-  const toneClasses = {
-    purple: "border border-[#3e4a44] bg-[#18231f] text-[#f0eadc]",
-    green: "border border-[#47614a] bg-[#15261d] text-[#d4e8cf]",
-    neutral: "border border-[#2b3c34] bg-[#13211c] text-[#f7f4ea]",
-  };
-
-  const resetDraft = () => {
-    setDraft({
-      title: "",
-      startsAt: "10:00",
-      endsAt: "11:00",
-      tone: "purple",
-    });
-    setEditingId(null);
-    setIsAdding(false);
-  };
-
-  const handleSubmit = async () => {
-    if (!draft.title.trim()) return;
-
-    if (editingId) {
-      await updateItem({
-        itemId: editingId,
-        title: draft.title.trim(),
-        startsAt: draft.startsAt,
-        endsAt: draft.endsAt,
-        tone: draft.tone,
-      });
-    } else {
-      await addItem({
-        tripId,
-        title: draft.title.trim(),
-        startsAt: draft.startsAt,
-        endsAt: draft.endsAt,
-        tone: draft.tone,
-      });
-    }
-
-    resetDraft();
-  };
+  const visibleItems = items?.slice(0, 3) || [];
 
   return (
-    <section className={surface("p-5")}>
+    <section className={surface("flex flex-col p-5")}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-lg text-[#9fb0a3]">Arrival</p>
-          <p className="my-2 text-[2rem] font-semibold tracking-[-0.06em]">{arrivalDate}</p>
+          <SummaryEyebrow>Arrival</SummaryEyebrow>
+          <p className="mt-3 text-[1.7rem] font-semibold tracking-[-0.06em] sm:text-[2rem]">
+            {arrivalDate}
+          </p>
         </div>
-        <CardAction
-          icon={Plus}
-          label="Add schedule item"
-          onClick={() => {
-            setIsAdding(true);
-            setEditingId(null);
-          }}
-        />
+        <SummaryActionButton label="Manage arrival plan" onClick={onManage} />
       </div>
 
-      {items && items.length > 0 ? (
-        <div className="mt-6 space-y-3">
-          {items.map((item) => (
-            <article key={item._id} className={`rounded-[18px] px-4 py-3 ${toneClasses[item.tone || "neutral"]}`}>
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-lg">{item.title}</p>
-                  <p className="mt-1 text-lg text-[#b9c5bb]">
+      {visibleItems.length > 0 ? (
+        <div className="mt-6 flex-1 space-y-3">
+          {visibleItems.map((item, index) => (
+            <article
+              key={item._id}
+              className="rounded-[22px] border border-[#23372e] bg-[#14251e] px-4 py-4"
+            >
+              <div className="flex items-start gap-3">
+                <span className="rounded-full border border-[#31463c] bg-[#152720] px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.14em] text-[#d7e1d3]">
+                  Day {index + 1}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-base font-medium">{item.title}</p>
+                  <p className="mt-2 text-sm text-[#9fb0a3]">
                     {item.startsAt} - {item.endsAt}
                   </p>
-                </div>
-                <div className="flex gap-2">
-                  <CardAction
-                    icon={Pencil}
-                    label="Edit schedule item"
-                    onClick={() => {
-                      setEditingId(item._id);
-                      setDraft({
-                        title: item.title,
-                        startsAt: item.startsAt,
-                        endsAt: item.endsAt,
-                        tone: item.tone || "neutral",
-                      });
-                      setIsAdding(false);
-                    }}
-                  />
-                  <CardAction
-                    icon={Trash2}
-                    label="Remove schedule item"
-                    onClick={() => void removeItem({ itemId: item._id })}
-                  />
                 </div>
               </div>
             </article>
           ))}
         </div>
       ) : (
-        <EmptyAddState
-          label="Add arrival plan"
-          description="Create check-in, transfer, and first-stop rows for the group."
-          onClick={() => setIsAdding(true)}
-        />
-      )}
-
-      {isAdding || editingItem ? (
-        <div className="mt-4 grid gap-3 rounded-[24px] border border-[#23372e] bg-[#13231d] p-4">
-          <input
-            value={draft.title}
-            onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
-            placeholder="Check in at villa"
-            className="editorial-input"
+        <div className="mt-6">
+          <SummaryEmpty
+            title="No arrival blocks yet"
+            description="Keep this card clean and summary-only. Add check-in, transfer, and first-day anchors from the planner drawer."
           />
-          <div className="grid gap-3 sm:grid-cols-2">
-            <input
-              value={draft.startsAt}
-              onChange={(event) => setDraft((current) => ({ ...current, startsAt: event.target.value }))}
-              type="time"
-              className="editorial-input [color-scheme:dark]"
-            />
-            <input
-              value={draft.endsAt}
-              onChange={(event) => setDraft((current) => ({ ...current, endsAt: event.target.value }))}
-              type="time"
-              className="editorial-input [color-scheme:dark]"
-            />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {(["purple", "green", "neutral"] as const).map((tone) => (
-              <button
-                key={tone}
-                type="button"
-                onClick={() => setDraft((current) => ({ ...current, tone }))}
-                className={`trip-glass-button px-4 py-2 capitalize ${draft.tone === tone ? "border-[#dbe887]/40 bg-[#213229]" : ""}`}
-              >
-                {tone}
-              </button>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <button type="button" onClick={handleSubmit} className="trip-glass-button px-4 py-3">
-              Save
-            </button>
-            <button type="button" onClick={resetDraft} className="trip-glass-button px-4 py-3">
-              Cancel
-            </button>
-          </div>
         </div>
-      ) : null}
+      )}
     </section>
   );
 }
 
 export function BudgetSummaryCard({
-  tripId,
   expenses,
   totalBudget,
+  onOpenDetails,
 }: {
-  tripId: Id<"trips">;
   expenses: ExpenseCard[] | undefined;
   totalBudget: number;
+  onOpenDetails: () => void;
 }) {
-  const addExpense = useMutation(api.expenses.add);
-  const updateExpense = useMutation(api.expenses.update);
-  const removeExpense = useMutation(api.expenses.remove);
-  const [title, setTitle] = useState("");
-  const [amount, setAmount] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [isAdding, setIsAdding] = useState(false);
-
-  const handleSave = async () => {
-    const parsedAmount = Number(amount);
-    if (!title.trim() || Number.isNaN(parsedAmount)) return;
-
-    if (editingId) {
-      await updateExpense({
-        expenseId: editingId as Id<"expenses">,
-        title: title.trim(),
-        amount: parsedAmount,
-      });
-    } else {
-      await addExpense({ tripId, title: title.trim(), amount: parsedAmount });
-    }
-
-    setTitle("");
-    setAmount("");
-    setEditingId(null);
-    setIsAdding(false);
-  };
+  const visibleExpenses = expenses?.slice(0, 4) || [];
 
   return (
     <section className={surface("p-5")}>
-      <div className="grid gap-4 md:grid-cols-[180px_minmax(0,1fr)]">
-        <div className="rounded-[24px] border border-[#23372e] bg-[#13241d] px-5 py-6 text-center">
-          <p className="text-[2.35rem] font-semibold tracking-[-0.06em]">
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "EUR",
-              maximumFractionDigits: 0,
-            }).format(totalBudget)}
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <SummaryEyebrow>Budget</SummaryEyebrow>
+          <p className="mt-3 text-[2.2rem] font-semibold tracking-[-0.06em]">
+            {currencyFormatter.format(totalBudget)}
           </p>
-          <p className="mt-2 text-[#9fb0a3]">Total</p>
-
         </div>
+        <SummaryActionButton label="Open budget details" onClick={onOpenDetails} />
+      </div>
 
-        <div className="space-y-3">
-          {expenses && expenses.length > 0 ? (
-            expenses.slice(0, 4).map((expense) => (
-              <article
-                key={expense._id}
-                className="rounded-[22px] border border-[#23372e] bg-[#14251e] px-4 py-4"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-lg font-medium">{expense.title}</p>
-                    <p className="mt-1 text-sm text-[#9fb0a3]">{expense.payerName}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-medium">
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "EUR",
-                        maximumFractionDigits: 0,
-                      }).format(expense.amount)}
-                    </span>
-                    <CardAction
-                      icon={Pencil}
-                      label="Edit expense"
-                      onClick={() => {
-                        setEditingId(expense._id);
-                        setTitle(expense.title);
-                        setAmount(String(expense.amount));
-                        setIsAdding(true);
-                      }}
-                    />
-                    <CardAction
-                      icon={Trash2}
-                      label="Remove expense"
-                      onClick={() => void removeExpense({ expenseId: expense._id as Id<"expenses"> })}
-                    />
-                  </div>
-                </div>
-              </article>
-            ))
-          ) : (
-            <EmptyAddState
-              label="Add first expense"
-              description="Track the first shared cost directly from the summary card."
-              onClick={() => setIsAdding(true)}
-            />
-          )}
+      {visibleExpenses.length > 0 ? (
+        <div className="mt-6 space-y-3">
+          {visibleExpenses.map((expense) => (
+            <div
+              key={expense._id}
+              className="flex items-center justify-between gap-4 rounded-[20px] border border-[#23372e] bg-[#14251e] px-4 py-3"
+            >
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-white">{expense.title}</p>
+                <p className="mt-1 truncate text-xs uppercase tracking-[0.14em] text-[#7f9086]">
+                  {expense.payerName}
+                </p>
+              </div>
+              <span className="shrink-0 text-sm font-medium text-white">
+                {currencyFormatter.format(expense.amount)}
+              </span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-6">
+          <SummaryEmpty
+            title="No shared spend yet"
+            description="Track the detailed budget in the planner tab. The board will stay focused on totals and recent items."
+          />
+        </div>
+      )}
+    </section>
+  );
+}
+
+export function BudgetOverviewCard({
+  totalBudget,
+  expenseCount,
+  budgetTarget,
+  onOpenDetails,
+}: {
+  totalBudget: number;
+  expenseCount: number;
+  budgetTarget: number;
+  onOpenDetails: () => void;
+}) {
+  const progress = Math.max(8, Math.min(100, Math.round((totalBudget / budgetTarget) * 100)));
+  const circleRadius = 46;
+  const circumference = 2 * Math.PI * circleRadius;
+  const dashOffset = circumference - (progress / 100) * circumference;
+
+  return (
+    <section className={surface("flex flex-col p-5")}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <SummaryEyebrow>Budget</SummaryEyebrow>
+          <p className="mt-3 text-[1.7rem] font-semibold tracking-[-0.06em] sm:text-[2rem]">
+            {currencyFormatter.format(totalBudget)}
+          </p>
+        </div>
+        <SummaryActionButton label="Open budget details" onClick={onOpenDetails} />
+      </div>
+
+      <div className="relative mx-auto mt-3 h-[9.4rem] w-[9.4rem] sm:mt-4 sm:h-[10.5rem] sm:w-[10.5rem]">
+        <svg className="h-full w-full -rotate-90" viewBox="0 0 120 120">
+          <circle
+            cx="60"
+            cy="60"
+            r={circleRadius}
+            fill="none"
+            stroke="rgba(219,232,135,0.14)"
+            strokeWidth="14"
+          />
+          <circle
+            cx="60"
+            cy="60"
+            r={circleRadius}
+            fill="none"
+            stroke="#dbe887"
+            strokeLinecap="round"
+            strokeWidth="14"
+            strokeDasharray={circumference}
+            strokeDashoffset={dashOffset}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[#9fb0a3]">
+            tracking
+          </p>
+          <p className="mt-2 text-[1.55rem] font-semibold tracking-[-0.05em] sm:text-[1.8rem]">
+            {progress}%
+          </p>
         </div>
       </div>
 
-      {isAdding ? (
-        <div className="mt-4 grid gap-3 rounded-[24px] border border-[#23372e] bg-[#13231d] p-4 md:grid-cols-[1fr_180px_auto_auto]">
-          <input value={title} onChange={(event) => setTitle(event.target.value)} className="editorial-input" placeholder="Flights" />
-          <input value={amount} onChange={(event) => setAmount(event.target.value)} className="editorial-input" placeholder="920" inputMode="decimal" />
-          <button type="button" onClick={handleSave} className="trip-glass-button justify-center px-4 py-3">
-            Save
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setIsAdding(false);
-              setEditingId(null);
-              setTitle("");
-              setAmount("");
-            }}
-            className="trip-glass-button justify-center px-4 py-3"
-          >
-            Cancel
-          </button>
+      <div className="mt-auto grid grid-cols-2 gap-2 pt-4">
+        <div className="rounded-[18px] border border-[#23372e] bg-[#14251e] px-3 py-3">
+          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[#7f9086]">Tracked</p>
+          <p className="mt-2 text-sm font-medium text-white">
+            {currencyFormatter.format(totalBudget)}
+          </p>
         </div>
-      ) : null}
+        <div className="rounded-[18px] border border-[#23372e] bg-[#14251e] px-3 py-3">
+          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[#7f9086]">Target</p>
+          <p className="mt-2 text-sm font-medium text-white">
+            {currencyFormatter.format(budgetTarget)}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function ExpensesSummaryCard({
+  expenses,
+  onOpenDetails,
+}: {
+  expenses: ExpenseCard[] | undefined;
+  onOpenDetails: () => void;
+}) {
+  const visibleExpenses = expenses?.slice(0, 4) || [];
+
+  return (
+    <section className={surface("flex flex-col p-5")}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <SummaryEyebrow>Expenses</SummaryEyebrow>
+          <h2 className="mt-3 text-[1.45rem] font-semibold tracking-[-0.05em] sm:text-[1.6rem]">
+            Recent log
+          </h2>
+        </div>
+        <SummaryActionButton label="Open expenses details" onClick={onOpenDetails} />
+      </div>
+
+      {visibleExpenses.length > 0 ? (
+        <div className="mt-5 flex-1 space-y-3">
+          {visibleExpenses.map((expense) => (
+            <div
+              key={expense._id}
+              className="flex items-center justify-between gap-3 rounded-[18px] border border-[#23372e] bg-[#14251e] px-3 py-3"
+            >
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-white">{expense.title}</p>
+                <p className="mt-1 truncate text-xs text-[#9fb0a3]">{expense.payerName}</p>
+              </div>
+              <span className="shrink-0 text-sm font-medium text-white">
+                {currencyFormatter.format(expense.amount)}
+              </span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-5 flex-1">
+          <SummaryEmpty
+            title="No expenses yet"
+            description="The first recorded spend will appear here as a compact summary list."
+          />
+        </div>
+      )}
+
+      <div className="mt-auto pt-4">
+        <button
+          type="button"
+          onClick={onOpenDetails}
+          className="inline-flex items-center gap-2 rounded-full border border-[#31463c] bg-[#152720] px-4 py-2.5 text-sm text-[#f7f4ea] transition hover:border-[#42584d] hover:bg-[#182c23]"
+        >
+          <Plus className="h-4 w-4" />
+          <span>Record</span>
+        </button>
+      </div>
     </section>
   );
 }
 
 export function PackingSummaryCard({
-  tripId,
   tasks,
+  onOpenDetails,
 }: {
-  tripId: Id<"trips">;
   tasks: TaskCard[] | undefined;
+  onOpenDetails: () => void;
 }) {
-  const addTask = useMutation(api.tasks.add);
-  const updateTask = useMutation(api.tasks.update);
-  const removeTask = useMutation(api.tasks.remove);
-  const toggleTask = useMutation(api.tasks.toggle);
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("Packing");
-  const [editingId, setEditingId] = useState<Id<"packingItems"> | null>(null);
-  const [isAdding, setIsAdding] = useState(false);
-
-  const handleSave = async () => {
-    if (!name.trim()) return;
-
-    if (editingId) {
-      await updateTask({ taskId: editingId, name: name.trim(), category });
-    } else {
-      await addTask({ tripId, name: name.trim(), category });
-    }
-
-    setName("");
-    setCategory("Packing");
-    setEditingId(null);
-    setIsAdding(false);
-  };
+  const totalTasks = tasks?.length || 0;
+  const completedTasks = tasks?.filter((task) => task.isChecked).length || 0;
+  const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+  const visibleTasks = tasks?.slice(0, 4) || [];
 
   return (
-    <section className={surface("p-6")}>
-      <header className="flex items-center justify-between gap-3">
+    <section className={surface("flex flex-col p-5")}>
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">Packing</p>
-          <h2 className="my-2 text-[1.85rem] font-medium tracking-[-0.04em]">Mandatory essentials</h2>
+          <SummaryEyebrow>Packing</SummaryEyebrow>
+          <h2 className="mt-3 text-[1.65rem] font-semibold tracking-[-0.05em] sm:text-[1.9rem]">
+            Mandatory essentials
+          </h2>
         </div>
-        <CardAction icon={Plus} label="Add packing item" onClick={() => setIsAdding(true)} />
-      </header>
+        <SummaryActionButton label="Open packing details" onClick={onOpenDetails} />
+      </div>
 
-      {tasks && tasks.length > 0 ? (
-        <ul className="mt-6 space-y-3">
-          {tasks.slice(0, 5).map((task) => (
-            <li key={task._id}>
-              <article
-                className={`flex items-start gap-4 rounded-[22px] border px-4 py-4 ${task.isChecked
-                  ? "border-[#31453b] bg-[#11211b]"
-                  : "border-[#23372e] bg-[#14251e]"
-                  }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => void toggleTask({ taskId: task._id })}
-                  className={`mt-1 flex h-5 w-5 items-center justify-center rounded-full border ${task.isChecked
+      <div className="mt-5 rounded-[24px] border border-[#23372e] bg-[#13231d] p-4">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="text-sm text-[#9fb0a3]">Checklist progress</p>
+            <p className="mt-2 text-[1.75rem] font-semibold tracking-[-0.05em]">
+              {completedTasks}/{totalTasks}
+            </p>
+          </div>
+          <span className="rounded-full border border-[#31463c] bg-[#152720] px-3 py-2 text-[0.7rem] uppercase tracking-[0.16em] text-[#d7e1d3]">
+            {progress}% ready
+          </span>
+        </div>
+        <div className="mt-4 h-2 rounded-full bg-[#20342b]">
+          <div
+            className="h-full rounded-full bg-[linear-gradient(90deg,#dbe887,#93b38d)]"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
+      {visibleTasks.length > 0 ? (
+        <ul className="mt-5 flex-1 space-y-3">
+          {visibleTasks.map((task) => (
+            <li
+              key={task._id}
+              className="flex items-start gap-3 rounded-[20px] border border-[#23372e] bg-[#14251e] px-4 py-3"
+            >
+              <span
+                className={`mt-1 flex h-5 w-5 items-center justify-center rounded-full border ${
+                  task.isChecked
                     ? "border-[#dbe887] bg-[#dbe887] text-[#0f1b16]"
                     : "border-[#506257] bg-transparent text-transparent"
-                    }`}
+                }`}
+              >
+                <Check className="h-3.5 w-3.5" />
+              </span>
+              <div className="min-w-0">
+                <p
+                  className={`text-sm font-medium ${
+                    task.isChecked ? "text-[#6f7d74] line-through" : "text-white"
+                  }`}
                 >
-                  <Check className="h-3.5 w-3.5" />
-                </button>
-                <div className="min-w-0 flex-1">
-                  <p className={`text-[1.12rem] font-medium tracking-[-0.03em] ${task.isChecked ? "text-[#6f7d74] line-through" : "text-white"}`}>
-                    {task.name}
-                  </p>
-                  <p className={`mt-1 text-sm ${task.isChecked ? "text-[#5f6d65] line-through" : "text-[#9fb0a3]"}`}>
-                    {task.category}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <CardAction
-                    icon={Pencil}
-                    label="Edit packing item"
-                    onClick={() => {
-                      setEditingId(task._id);
-                      setName(task.name);
-                      setCategory(task.category);
-                      setIsAdding(true);
-                    }}
-                  />
-                  <CardAction
-                    icon={Trash2}
-                    label="Remove packing item"
-                    onClick={() => void removeTask({ taskId: task._id })}
-                  />
-                </div>
-              </article>
+                  {task.name}
+                </p>
+                <p className="mt-1 text-xs uppercase tracking-[0.14em] text-[#7f9086]">
+                  {task.category}
+                </p>
+              </div>
             </li>
           ))}
         </ul>
       ) : (
-        <EmptyAddState
-          label="Add first packing item"
-          description="Start the list right from the summary card."
-          onClick={() => setIsAdding(true)}
-        />
-      )}
-
-      {isAdding ? (
-        <div className="mt-4 grid gap-3 rounded-[24px] border border-[#23372e] bg-[#13231d] p-4">
-          <input value={name} onChange={(event) => setName(event.target.value)} className="editorial-input" placeholder="Passport" />
-          <input value={category} onChange={(event) => setCategory(event.target.value)} className="editorial-input" placeholder="Documents" />
-          <div className="flex gap-2">
-            <button type="button" onClick={handleSave} className="trip-glass-button px-4 py-3">Save</button>
-            <button
-              type="button"
-              onClick={() => {
-                setIsAdding(false);
-                setEditingId(null);
-                setName("");
-                setCategory("Packing");
-              }}
-              className="trip-glass-button px-4 py-3"
-            >
-              Cancel
-            </button>
-          </div>
+        <div className="mt-5 flex-1">
+          <SummaryEmpty
+            title="Checklist not started"
+            description="Open the planner drawer or detail view to add the first pre-trip tasks."
+          />
         </div>
-      ) : null}
+      )}
+    </section>
+  );
+}
+
+export function ReadinessSummaryCard({
+  daysLeft,
+  readinessScore,
+  checklistLabel,
+  scheduleLabel,
+  peopleLabel,
+  onOpenDetails,
+}: {
+  daysLeft: number;
+  readinessScore: number;
+  checklistLabel: string;
+  scheduleLabel: string;
+  peopleLabel: string;
+  onOpenDetails: () => void;
+}) {
+  const circleRadius = 54;
+  const circumference = 2 * Math.PI * circleRadius;
+  const progress = Math.max(0, Math.min(100, readinessScore));
+  const dashOffset = circumference - (progress / 100) * circumference;
+
+  return (
+    <section className="relative flex h-full flex-col overflow-hidden rounded-[30px] border border-[#31463c] bg-[radial-gradient(circle_at_top_left,#243a31_0%,#192b24_38%,#0d1714_100%)] px-5 py-5 text-[#f7f4ea] shadow-[0_24px_60px_rgba(0,0,0,0.22)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(219,232,135,0.12),transparent_20%),radial-gradient(circle_at_18%_0%,rgba(255,255,255,0.05),transparent_24%)]" />
+      <div className="flex items-start justify-between gap-3">
+        <div className="relative z-10">
+          <p className="text-[0.82rem] font-semibold uppercase tracking-[0.2em] text-[#b7c7bb]">
+            Readiness
+          </p>
+          <p className="mt-3 text-[1.7rem] font-semibold tracking-[-0.05em] sm:text-[1.9rem]">
+            {progress}% set
+          </p>
+          <p className="mt-2 text-sm text-[#9fb0a3]">
+            Shared trip readiness across checklists, planning blocks, and team sync.
+          </p>
+        </div>
+        <div className="relative z-10">
+          <SummaryActionButton label="Open readiness details" onClick={onOpenDetails} />
+        </div>
+      </div>
+
+      <div className="relative z-10 mx-auto mt-6 h-[11rem] w-[11rem] sm:h-[13rem] sm:w-[13rem]">
+        <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(219,232,135,0.22),transparent_62%)] blur-xl" />
+        <div className="absolute inset-[0.9rem] rounded-full border border-white/8 bg-[radial-gradient(circle_at_top,#22372e,#13211b_72%)] backdrop-blur-sm" />
+        <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 140 140">
+          <circle
+            cx="70"
+            cy="70"
+            r={circleRadius}
+            fill="none"
+            stroke="rgba(219,232,135,0.12)"
+            strokeWidth="12"
+          />
+          <circle
+            cx="70"
+            cy="70"
+            r={circleRadius}
+            fill="none"
+            stroke="#dbe887"
+            strokeLinecap="round"
+            strokeWidth="12"
+            strokeDasharray={circumference}
+            strokeDashoffset={dashOffset}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+          <p className="text-sm font-medium text-[#b7c7bb]">Days left</p>
+          <p className="mt-1 text-[2.45rem] font-semibold leading-none tracking-[-0.08em] sm:text-[3rem]">
+            {daysLeft}
+          </p>
+         
+        </div>
+      </div>
+
+      <div className="relative z-10 mt-5 grid grid-cols-3 gap-2">
+        <div className="rounded-[20px] border border-white/8 bg-white/[0.06] px-3 py-3">
+          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[#9fb0a3]">
+            Checklist
+          </p>
+          <p className="mt-2 text-sm font-medium text-white">{checklistLabel}</p>
+        </div>
+        <div className="rounded-[20px] border border-white/8 bg-white/[0.06] px-3 py-3">
+          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[#9fb0a3]">
+            Plan
+          </p>
+          <p className="mt-2 text-sm font-medium text-white">{scheduleLabel}</p>
+        </div>
+        <div className="rounded-[20px] border border-white/8 bg-white/[0.06] px-3 py-3">
+          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[#9fb0a3]">
+            People
+          </p>
+          <p className="mt-2 text-sm font-medium text-white">{peopleLabel}</p>
+        </div>
+      </div>
     </section>
   );
 }

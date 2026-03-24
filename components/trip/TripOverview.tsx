@@ -2057,7 +2057,7 @@ function EditorDrawer({
           <DrawerTitle>{title}</DrawerTitle>
           {description ? <DrawerDescription>{description}</DrawerDescription> : null}
         </DrawerHeader>
-        <div className="overflow-y-auto px-5 pb-2 sm:px-6">{children}</div>
+        <div className=" px-5 pb-2 sm:px-6 h-full">{children}</div>
         <DrawerFooter>{footer}</DrawerFooter>
       </DrawerContent>
     </Drawer>

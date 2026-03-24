@@ -30,9 +30,7 @@ export default function SettingsPage() {
           <div className="border-b border-white/10 bg-white/[0.04] px-6 py-6 sm:px-7">
             <p className="section-kicker">Settings</p>
             <div className="mt-3 flex items-center gap-3">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white">
-                <Settings2 className="h-5 w-5" />
-              </span>
+
               <div>
                 <h1 className="text-4xl font-semibold tracking-[-0.05em] text-white">
                   Account
@@ -46,7 +44,7 @@ export default function SettingsPage() {
 
           <div className="grid gap-6 px-6 py-6 sm:px-7">
             {currentUser ? (
-              <div className="rounded-[1.7rem] border border-white/10 bg-white/[0.04] p-5">
+              <div className="">
                 <div className="flex items-center gap-4">
                   <UserAvatar
                     name={currentUser.name || "Traveler"}

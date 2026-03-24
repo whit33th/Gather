@@ -3,14 +3,19 @@
 import { useMemo } from "react";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import {
+  CalendarDays,
   Check,
   ChevronRight,
   FileText,
+  MapPin,
   MoreHorizontal,
   Plus,
+  Sparkles,
+  Users,
 } from "lucide-react";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import UserAvatar from "../UserAvatar";
+import Image from "next/image";
 
 type ExpenseCard = {
   _id: string;
@@ -49,23 +54,23 @@ type DashboardCardRecord = {
   _id: Id<"dashboardCards">;
   tripId: Id<"trips">;
   kind:
-    | "hero"
-    | "arrival"
-    | "stay"
-    | "weather"
-    | "map"
-    | "travelers"
-    | "tripNotes"
-    | "budgetSummary"
-    | "spots"
-    | "packingSummary"
-    | "budget"
-    | "packing"
-    | "gallery"
-    | "proposals"
-    | "availability"
-    | "chat"
-    | "note";
+  | "hero"
+  | "arrival"
+  | "stay"
+  | "weather"
+  | "map"
+  | "travelers"
+  | "tripNotes"
+  | "budgetSummary"
+  | "spots"
+  | "packingSummary"
+  | "budget"
+  | "packing"
+  | "gallery"
+  | "proposals"
+  | "availability"
+  | "chat"
+  | "note";
   title?: string;
   content?: string;
   order: number;
@@ -148,36 +153,114 @@ export function HeroSummaryCard({
     const start = parseISO(trip.startDate);
     const end = parseISO(trip.endDate);
     const nights = Math.max(differenceInCalendarDays(end, start), 1);
-    return `${nights + 1}D / ${nights}N`;
+    return `${nights + 1} Days Trip`;
   }, [trip.endDate, trip.startDate]);
+  const tripWindow = useMemo(() => {
+    const start = parseISO(trip.startDate);
+    const end = parseISO(trip.endDate);
+    return `${format(start, "MMM d")} - ${format(end, "MMM d")}`;
+  }, [trip.endDate, trip.startDate]);
+  const tripYear = useMemo(() => format(parseISO(trip.startDate), "yyyy"), [trip.startDate]);
 
   return (
-    <section className={surface("overflow-hidden p-3")}>
+    <section className={surface("overflow-hidden p-3 h-full")}>
       <div
-        className="relative min-h-[15.5rem] overflow-hidden rounded-[24px] bg-cover bg-center sm:min-h-[20rem]"
+        className="group relative h-full min-h-[19rem] overflow-hidden rounded-[28px] bg-cover bg-center sm:min-h-[23rem]"
         style={{ backgroundImage: `url("${heroImage}")` }}
       >
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(2,7,6,0.04)_0%,rgba(2,7,6,0.18)_38%,rgba(2,7,6,0.78)_100%)]" />
-        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
-          <SummaryEyebrow>{trip.destination}</SummaryEyebrow>
-          <h2 className="mt-3 max-w-3xl text-[1.9rem] font-semibold tracking-[-0.07em] text-white sm:text-[2.45rem]">
-            {trip.title}
-          </h2>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-white/72">
-            Shared trip overview with selected stay, live weather, budget, notes, and
-            readiness.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2 text-sm text-white/82">
-            {[duration, `${Math.max(travelerCount, 1)} travelers`, "Summary-first board"].map(
-              (item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-white/12 bg-white/[0.08] px-3.5 py-2 backdrop-blur"
-                >
-                  {item}
+        <Image
+          src={heroImage}
+          alt={trip.title}
+          fill
+          className="absolute inset-0 bg-cover bg-center object-cover blur-xl"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,8,7,0.1)_0%,rgba(3,8,7,0.3)_28%,rgba(3,8,7,0.7)_70%,rgba(3,8,7,0.88)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,10,8,0.82)_0%,rgba(4,10,8,0.34)_46%,rgba(4,10,8,0.18)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(219,232,135,0.14),transparent_20%),radial-gradient(circle_at_78%_18%,rgba(166,208,195,0.12),transparent_18%)]" />
+        <div className="absolute left-5 top-5 h-24 w-24 rounded-full bg-[radial-gradient(circle,rgba(219,232,135,0.22),transparent_72%)] blur-2xl sm:left-7 sm:top-7" />
+
+        <div className="relative flex h-full min-h-[19rem] flex-col justify-between p-5 sm:min-h-[23rem] sm:p-7">
+          <div className="flex mb-4 items-start justify-between gap-4">
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/14 bg-black/26 px-3.5 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/88 backdrop-blur-md">
+              <MapPin className="h-3.5 w-3.5 text-[#dbe887]" />
+              <span>{trip.destination}</span>
+            </div>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-end">
+            <div className="max-w-3xl rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,18,15,0.72),rgba(10,18,15,0.28))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-6">
+              
+              <h2 className="mt-4 max-w-2xl text-[2.7rem] font-semibold leading-[0.9] tracking-[-0.09em] text-white sm:text-[4.15rem]">
+                {trip.title}
+              </h2>
+              <p className="mt-2 text-[1.45rem] font-semibold tracking-[-0.06em] text-white">
+                  {tripWindow} // {tripYear}
+                </p>
+              {/* <p className="mt-4 max-w-2xl text-sm leading-7 text-white/72 sm:text-[1rem]">
+                The place everyone returns to for the chosen stay, live weather, budget,
+                trip notes, and the readiness pulse before departure.
+              </p> */}
+
+              <div className="mt-4 flex flex-wrap gap-2.5 text-sm text-white/88">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/[0.09] px-3.5 py-2.5 backdrop-blur-md">
+                  <CalendarDays className="h-4 w-4 text-[#dbe887]" />
+                  <span>{duration}</span>
                 </span>
-              )
-            )}
+
+
+              </div>
+            </div>
+
+            <div className="grid gap-3">
+              {/* <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(12,20,17,0.76),rgba(12,20,17,0.48))] p-4 shadow-[0_18px_40px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+              
+               
+
+              </div> */}
+
+              <div className="rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(12,20,17,0.82),rgba(12,20,17,0.54))] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+
+                
+
+                <div className=" grid grid-cols-2 gap-2.5">
+                  <div className="rounded-[18px] border border-white/10 bg-white/[0.05] px-3 py-3">
+                    <p className="text-[0.58rem] uppercase tracking-[0.16em] text-white/40">
+                      People
+                    </p>
+                    <p className="mt-2 text-sm font-medium text-white">
+                      {Math.max(travelerCount, 1)} travelers
+                    </p>
+                  </div>
+                  <div className="rounded-[18px] border border-white/10 bg-white/[0.05] px-3 py-3">
+                    <p className="text-[0.58rem] uppercase tracking-[0.16em] text-white/40">
+                      Mode
+                    </p>
+                    <p className="mt-2 text-sm font-medium text-white">Lit</p>
+                  </div>
+                </div>
+
+                <div className="mt-5 space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between text-[0.68rem] uppercase tracking-[0.16em] text-white/46">
+                      <span>Trip mood</span>
+                      <span>Curated</span>
+                    </div>
+                    <div className="mt-2 h-1.5 rounded-full bg-white/10">
+                      <div className="h-full w-[82%] rounded-full bg-[linear-gradient(90deg,#dbe887,#8cc8ba)]" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-[0.68rem] uppercase tracking-[0.16em] text-white/46">
+                      <span>Overview fit</span>
+                      <span>Strong</span>
+                    </div>
+                    <div className="mt-2 h-1.5 rounded-full bg-white/10">
+                      <div className="h-full w-[91%] rounded-full bg-[linear-gradient(90deg,#c7b0ff,#dbe887)]" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -195,13 +278,20 @@ export function StaySummaryCard({
   onOpenSearch: () => void;
 }) {
   return (
-    <section className={surface("overflow-hidden p-4")}>
-      <div className="grid gap-4 md:grid-cols-[minmax(8rem,10rem)_minmax(0,1fr)]">
-        <div
-          className="min-h-[9.5rem] rounded-[22px] bg-cover bg-center md:min-h-[11rem]"
-          style={{ backgroundImage: `url("${proposal?.imageUrl || image}")` }}
-        />
-        <div className="flex flex-col">
+    <section className={surface("overflow-hidden p-4 h-full")}>
+      <div className="grid h-full gap-4 md:grid-cols-[minmax(10rem,14rem)_minmax(0,1fr)]">
+        <div className="relative h-full w-full">
+          <Image
+            src={proposal?.imageUrl || image}
+            alt={proposal?.name || "Choose your stay"}
+            fill
+            sizes="(min-width: 768px) 14rem, 100vw"
+            className="rounded-[22px] object-cover object-center h-full w-full min-h-[10rem] md:min-h-[14rem]"
+            style={{ backgroundColor: "#232" }}
+            priority={true}
+          />
+        </div>
+        <div className="flex flex-col h-full min-h-[10rem]">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <SummaryEyebrow>Stay</SummaryEyebrow>
@@ -215,7 +305,8 @@ export function StaySummaryCard({
             {proposal?.locationName ||
               "Open the proposals panel to choose the shared stay and lock the group on one place."}
           </p>
-         
+          {/* Optional: add spacer so description never hugs bottom, but ensure stretch */}
+          <div className="flex-1" />
         </div>
       </div>
     </section>
@@ -741,19 +832,17 @@ export function PackingSummaryCard({
               className="flex items-start gap-3 rounded-[20px] border border-[#23372e] bg-[#14251e] px-4 py-3"
             >
               <span
-                className={`mt-1 flex h-5 w-5 items-center justify-center rounded-full border ${
-                  task.isChecked
+                className={`mt-1 flex h-5 w-5 items-center justify-center rounded-full border ${task.isChecked
                     ? "border-[#dbe887] bg-[#dbe887] text-[#0f1b16]"
                     : "border-[#506257] bg-transparent text-transparent"
-                }`}
+                  }`}
               >
                 <Check className="h-3.5 w-3.5" />
               </span>
               <div className="min-w-0">
                 <p
-                  className={`text-sm font-medium ${
-                    task.isChecked ? "text-[#6f7d74] line-through" : "text-white"
-                  }`}
+                  className={`text-sm font-medium ${task.isChecked ? "text-[#6f7d74] line-through" : "text-white"
+                    }`}
                 >
                   {task.name}
                 </p>
@@ -845,7 +934,7 @@ export function ReadinessSummaryCard({
           <p className="mt-1 text-[2.45rem] font-semibold leading-none tracking-[-0.08em] sm:text-[3rem]">
             {daysLeft}
           </p>
-         
+
         </div>
       </div>
 

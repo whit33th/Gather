@@ -31,6 +31,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "r-xx.bstatic.com",
       },
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
     ],
   },
   reactStrictMode: false,

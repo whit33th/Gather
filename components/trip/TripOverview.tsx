@@ -1070,7 +1070,7 @@ export function ProposalStudio({
                               href={proposal.link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="trip-glass-icon-button h-9 w-9 text-[#cfd8cd] hover:text-white"
+                              className="trip-glass-icon-button h-9 w-9 bg-[color:var(--control-bg)] text-[#cfd8cd] hover:bg-[color:var(--control-bg-hover)] hover:text-white"
                               title={provider ? getProviderLabel(provider) : "Open link"}
                             >
                               {siteIcon}
@@ -1107,7 +1107,7 @@ export function ProposalStudio({
                             <button
                               type="button"
                               onClick={() => handleEditProposal(proposal)}
-                              className="trip-glass-icon-button h-10 w-10 text-[#cfd8cd] hover:text-white"
+                              className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] text-[#cfd8cd] hover:bg-[color:var(--control-bg-hover)] hover:text-white"
                               title="Edit proposal"
                             >
                               <Pencil className="h-4 w-4" />
@@ -1117,7 +1117,7 @@ export function ProposalStudio({
                               onClick={() =>
                                 void handleRemoveProposal(proposal._id as Id<"accommodations">)
                               }
-                              className="trip-glass-icon-button h-10 w-10 text-[#cfd8cd] hover:text-[#f3b4a3]"
+                              className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] text-[#cfd8cd] hover:bg-[color:var(--control-bg-hover)] hover:text-[#f3b4a3]"
                               title="Delete proposal"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -1413,7 +1413,7 @@ export function BudgetStudio({
                       setAmount(String(expense.amount));
                       setOpen(true);
                     }}
-                    className="trip-glass-icon-button h-10 w-10 text-[#cfd8cd] hover:text-white"
+                    className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] text-[#cfd8cd] hover:bg-[color:var(--control-bg-hover)] hover:text-white"
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
@@ -1423,7 +1423,7 @@ export function BudgetStudio({
                   <button
                     type="button"
                     onClick={() => void removeExpense({ expenseId: expense._id as Id<"expenses"> })}
-                    className="trip-glass-icon-button h-10 w-10 text-[#cfd8cd] hover:text-[#f3b4a3]"
+                    className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] text-[#cfd8cd] hover:bg-[color:var(--control-bg-hover)] hover:text-[#f3b4a3]"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -1564,7 +1564,7 @@ export function MapStudio({
                   key={marker.id}
                   type="button"
                   onClick={() => setActiveMarkerId(marker.id)}
-                  className={`w-full rounded-[1.1rem] border px-3 py-3 text-left transition-all ${isActive
+                  className={`w-full rounded-[1.1rem] border px-3 py-3 text-left transition-[background-color,border-color,box-shadow] ${isActive
                     ? "border-[#dbe887]/36 bg-[#1b3026] shadow-[0_12px_28px_rgba(0,0,0,0.2)]"
                     : "border-[#23372e] bg-[#13231d] hover:border-[#42584d] hover:bg-[#172920]"
                     }`}
@@ -1778,14 +1778,14 @@ export function TasksStudio({
                         setCategory(taskItem.category);
                         setOpen(true);
                       }}
-                      className="trip-glass-icon-button h-10 w-10 text-[#cfd8cd] hover:text-white"
+                      className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] text-[#cfd8cd] hover:bg-[color:var(--control-bg-hover)] hover:text-white"
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
                       type="button"
                       onClick={() => void removeTask({ taskId: taskItem._id })}
-                      className="trip-glass-icon-button h-10 w-10 text-[#cfd8cd] hover:text-[#f3b4a3]"
+                      className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] text-[#cfd8cd] hover:bg-[color:var(--control-bg-hover)] hover:text-[#f3b4a3]"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -2023,7 +2023,7 @@ function AddTile({
       onClick={onClick}
       className={`group flex min-h-[7.5rem] w-full flex-col items-center justify-center rounded-[1.45rem] border border-dashed border-[#31463c] bg-[#13231d] px-4 py-5 text-center transition-colors hover:border-[#42584d] hover:bg-[#172920] ${className}`}
     >
-      <span className="trip-glass-icon-button h-11 w-11 text-[#cfd8cd] transition-transform group-hover:scale-[1.03] group-hover:text-white">
+      <span className="trip-glass-icon-button h-11 w-11 bg-[color:var(--control-bg)] text-[#cfd8cd] transition-transform group-hover:scale-[1.03] group-hover:bg-[color:var(--control-bg-hover)] group-hover:text-white">
         <Plus className="h-4 w-4" />
       </span>
       <span className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-[#d7e1d3]">
@@ -2116,7 +2116,7 @@ function EmptyState({
 }) {
   return (
     <div className="flex min-h-[12rem] flex-col items-center justify-center rounded-[1.5rem] border border-[#23372e] bg-[#13231d] text-center text-[#9fb0a3]">
-      <div className="trip-glass-icon-button h-12 w-12 text-[#d7e1d3]">
+      <div className="trip-glass-icon-button h-12 w-12 bg-[color:var(--control-bg)] text-[#d7e1d3]">
         {icon}
       </div>
       <p className="mt-4 text-sm">{title}</p>

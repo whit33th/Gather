@@ -87,7 +87,7 @@ type TripMarker = {
 };
 
 function surface(extra = "") {
-  return `rounded-[30px] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] text-[#f7f4ea] shadow-[0_24px_60px_rgba(0,0,0,0.22)] ${extra}`;
+  return `trip-theme-card rounded-[30px] text-[#f7f4ea] ${extra}`;
 }
 
 function buildTripDates(startDate: string, endDate: string) {
@@ -229,7 +229,7 @@ export function TripPeopleView({
         </div>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <article className="rounded-[24px] border border-white/10 bg-white/[0.05] px-4 py-4">
+          <article className="trip-theme-muted rounded-[24px] px-4 py-4">
             <p className="text-[0.65rem] uppercase tracking-[0.18em] text-white/42">
               Travelers
             </p>
@@ -237,13 +237,13 @@ export function TripPeopleView({
               {syncedTravelers.length}
             </p>
           </article>
-          <article className="rounded-[24px] border border-white/10 bg-white/[0.05] px-4 py-4">
+          <article className="trip-theme-muted rounded-[24px] px-4 py-4">
             <p className="text-[0.65rem] uppercase tracking-[0.18em] text-white/42">Owners</p>
             <p className="mt-3 text-[1.8rem] font-semibold tracking-[-0.06em] text-white">
               {ownerCount}
             </p>
           </article>
-          <article className="col-span-2 rounded-[24px] border border-white/10 bg-white/[0.05] px-4 py-4 sm:col-span-1">
+          <article className="trip-theme-muted col-span-2 rounded-[24px] px-4 py-4 sm:col-span-1">
             <p className="text-[0.65rem] uppercase tracking-[0.18em] text-white/42">
               Synced
             </p>
@@ -259,7 +259,7 @@ export function TripPeopleView({
           {syncedTravelers.map((traveler) => (
             <article
               key={traveler.memberId}
-              className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(21,37,30,0.96),rgba(14,24,20,0.92))] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.18)]"
+              className="trip-theme-card rounded-[28px] p-5"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-4">
@@ -277,13 +277,13 @@ export function TripPeopleView({
                   </div>
                 </div>
 
-                <span className="rounded-full border border-[#31463c] bg-[#152720] px-3 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-[#d7e1d3]">
+                <span className="trip-theme-chip rounded-full px-3 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em]">
                   {traveler.role}
                 </span>
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-3">
-                <div className="rounded-[20px] border border-white/8 bg-white/[0.04] px-4 py-3">
+                <div className="trip-theme-muted rounded-[20px] px-4 py-3">
                   <p className="text-[0.62rem] uppercase tracking-[0.16em] text-white/42">
                     Availability
                   </p>
@@ -291,7 +291,7 @@ export function TripPeopleView({
                     {traveler.availabilities.length} days marked
                   </p>
                 </div>
-                <div className="rounded-[20px] border border-white/8 bg-white/[0.04] px-4 py-3">
+                <div className="trip-theme-muted rounded-[20px] px-4 py-3">
                   <p className="text-[0.62rem] uppercase tracking-[0.16em] text-white/42">
                     Presence
                   </p>
@@ -304,7 +304,7 @@ export function TripPeopleView({
           ))}
         </div>
       ) : (
-        <div className="mt-8 rounded-[28px] border border-dashed border-[#31463c] bg-[#12241d] px-5 py-6">
+        <div className="trip-theme-subsurface-solid mt-8 rounded-[28px] border border-dashed px-5 py-6">
           <p className="text-base font-medium text-white">No people synced yet</p>
           <p className="mt-2 text-sm leading-6 text-[#9fb0a3]">
             Once members join this trip, the roster will fill the whole view instead of

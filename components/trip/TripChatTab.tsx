@@ -40,9 +40,9 @@ export default function TripChatTab({ tripId }: { tripId: Id<"trips"> }) {
   };
 
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] text-white shadow-[0_24px_60px_rgba(0,0,0,0.22)]">
+    <div className="trip-theme-card overflow-hidden rounded-[2rem] text-white">
       <div className="flex h-[clamp(32rem,62vh,40rem)] flex-col">
-        <div className="border-b border-[#23372e] px-5 py-4 sm:px-6">
+        <div className="trip-theme-divider border-b px-5 py-4 sm:px-6">
           <p className="section-kicker">Chat</p>
         </div>
 
@@ -53,7 +53,7 @@ export default function TripChatTab({ tripId }: { tripId: Id<"trips"> }) {
             </div>
           ) : messages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
-              <div className="trip-glass-icon-button flex h-14 w-14 items-center justify-center text-white">
+              <div className="trip-glass-icon-button flex h-14 w-14 items-center justify-center bg-[color:var(--control-bg)] text-white">
                 <MessageSquare className="h-6 w-6" />
               </div>
               <p className="mt-4 text-2xl font-semibold tracking-[-0.04em] text-white">
@@ -65,7 +65,7 @@ export default function TripChatTab({ tripId }: { tripId: Id<"trips"> }) {
               {messages.map((message) => (
                 <article
                   key={message._id}
-                  className="grid grid-cols-[auto_1fr] gap-3 rounded-[1.5rem] border border-[#23372e] bg-[#14251e] px-4 py-4"
+                  className="trip-theme-subsurface-solid grid grid-cols-[auto_1fr] gap-3 rounded-[1.5rem] px-4 py-4"
                 >
                   <UserAvatar
                     name={message.senderName}
@@ -79,12 +79,12 @@ export default function TripChatTab({ tripId }: { tripId: Id<"trips"> }) {
                       <p className="text-sm font-semibold text-white">
                         {message.senderName}
                       </p>
-                      <span className="text-xs uppercase tracking-[0.14em] text-[#7f9086]">
+                      <span className="text-xs uppercase tracking-[0.14em] text-[color:var(--trip-card-muted-text)]">
                         {format(new Date(message._creationTime), "HH:mm")}
                       </span>
                     </div>
 
-                     <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-[#a8b8ad]">
+                     <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-[color:var(--trip-card-muted-text)]">
                       {message.text}
                     </p>
                   </div>
@@ -95,7 +95,7 @@ export default function TripChatTab({ tripId }: { tripId: Id<"trips"> }) {
           )}
         </div>
 
-        <div className="border-t border-[#23372e] bg-[#13231d] p-4 sm:p-5">
+        <div className="trip-theme-divider border-t bg-[color:var(--trip-card-subsurface-solid)] p-4 sm:p-5">
           <form
             onSubmit={(event) => {
               event.preventDefault();
@@ -122,7 +122,7 @@ export default function TripChatTab({ tripId }: { tripId: Id<"trips"> }) {
             <button
               type="submit"
               disabled={isSending}
-              className="trip-glass-button h-[3.5rem] justify-center self-end px-5 py-3 text-[0.68rem] disabled:cursor-not-allowed disabled:opacity-60"
+              className="trip-glass-button h-[3.5rem] justify-center self-end bg-[color:var(--control-bg)] px-5 py-3 text-[0.68rem] hover:bg-[color:var(--control-bg-hover)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSending ? "Sending..." : "Send"}
               <Send className="h-4 w-4" />

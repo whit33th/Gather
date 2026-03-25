@@ -4,15 +4,16 @@ import {
   startTransition,
   useDeferredValue,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { addDays, differenceInCalendarDays, parseISO } from "date-fns";
 import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Route } from "next";
-import { CalendarDays, List, Plus, Search, Share2, UsersRound, X } from "lucide-react";
+import { CalendarDays, Plus, Search, Settings2, Share2, UsersRound, X } from "lucide-react";
 import {
   TripBoardView,
   TripCalendarView,
@@ -27,6 +28,8 @@ import UserAvatar from "../../../components/UserAvatar";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { cn } from "../../../lib/utils";
+import Image from "next/image";
+import BackdropEdge from "@/components/ui/BackdropEdge";
 
 type DashboardView = "board" | "search" | "people" | "calendar" | "list";
 
@@ -65,12 +68,14 @@ export default function TripPage() {
   const tripId = params.id as Id<"trips">;
 
   const trip = useQuery(api.trips.get, { tripId });
+  const currentUser = useQuery(api.users.current);
   const proposals = useQuery(api.proposals.listAccommodations, { tripId }) as
     | ProposalCard[]
     | undefined;
   const travelers = useQuery(api.availabilities.list, { tripId }) as
     | AvailabilityMember[]
     | undefined;
+  const setLastActiveTrip = useMutation(api.users.setLastActiveTrip);
 
   const [copied, setCopied] = useState(false);
   const [isNoteComposerOpen, setIsNoteComposerOpen] = useState(false);
@@ -78,7 +83,12 @@ export default function TripPage() {
   const [searchHovered, setSearchHovered] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [headerPinned, setHeaderPinned] = useState(false);
+  const [headerMetrics, setHeaderMetrics] = useState({ height: 0, left: 0, width: 0 });
+  const pageShellRef = useRef<HTMLDivElement | null>(null);
+  const headerRef = useRef<HTMLElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const syncedBackgroundTripRef = useRef<string | null>(null);
 
   const activeView = getValidView(searchParams.get("view"));
   const deferredSearchQuery = useDeferredValue(searchQuery);
@@ -120,6 +130,73 @@ export default function TripPage() {
       searchInputRef.current?.focus();
     }
   }, [searchOpen]);
+
+  useEffect(() => {
+    if (!currentUser?.useTripCoverBackground) {
+      return;
+    }
+
+    if (currentUser.lastActiveTripId === tripId || syncedBackgroundTripRef.current === tripId) {
+      return;
+    }
+
+    syncedBackgroundTripRef.current = tripId;
+
+    void setLastActiveTrip({ tripId }).catch(() => {
+      syncedBackgroundTripRef.current = null;
+    });
+  }, [
+    currentUser?.lastActiveTripId,
+    currentUser?.useTripCoverBackground,
+    setLastActiveTrip,
+    tripId,
+  ]);
+
+  useEffect(() => {
+    if (!currentUser?.useTripCoverBackground || !trip?.coverUrl || typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem("gather:lastTripCover", trip.coverUrl);
+    window.dispatchEvent(new Event("gather:lastTripCoverChanged"));
+  }, [currentUser?.useTripCoverBackground, trip?.coverUrl]);
+
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const wrapper = document.querySelector<HTMLElement>("[data-lenis-wrapper='true']");
+    const pageShell = pageShellRef.current;
+    const header = headerRef.current;
+    if (!wrapper || !pageShell || !header) {
+      return;
+    }
+
+    const topOffset = 16;
+
+    const syncHeader = () => {
+      const pageRect = pageShell.getBoundingClientRect();
+      const headerRect = header.getBoundingClientRect();
+      const shouldPin = pageRect.top <= topOffset;
+
+      setHeaderPinned(shouldPin);
+      setHeaderMetrics({
+        height: headerRect.height,
+        left: pageRect.left,
+        width: pageRect.width,
+      });
+    };
+
+    syncHeader();
+    wrapper.addEventListener("scroll", syncHeader, { passive: true });
+    window.addEventListener("resize", syncHeader);
+
+    return () => {
+      wrapper.removeEventListener("scroll", syncHeader);
+      window.removeEventListener("resize", syncHeader);
+    };
+  }, [displayedView, searchExpanded, tripId]);
 
   const sortedProposals = useMemo(
     () =>
@@ -259,14 +336,32 @@ export default function TripPage() {
   };
 
   return (
-    <div className="relative flex min-h-full min-w-0 flex-col gap-4 overflow-x-hidden p-4 text-white sm:p-5 lg:p-6">
-      <header className="sticky top-0 z-30">
+    <div
+      ref={pageShellRef}
+      className="relative flex min-h-full min-w-0 flex-col gap-4 overflow-x-hidden p-4 text-white sm:p-5 lg:p-6"
+    >
+      <header
+        ref={headerRef}
+        className={cn(
+          "trip-dashboard-header z-30",
+          headerPinned ? "fixed" : "sticky top-0"
+        )}
+        style={
+          headerPinned
+            ? {
+                top: "16px",
+                left: `${headerMetrics.left}px`,
+                width: `${headerMetrics.width}px`,
+              }
+            : undefined
+        }
+        >
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
             <div className="flex min-w-0 flex-1 items-center">
               <div
                 className={cn(
-                  "trip-glass-button h-12 overflow-hidden px-0 transition-[width,padding,border-color,background-color,box-shadow] duration-300 ease-out",
+                  "trip-glass-button h-12 overflow-hidden bg-[color:var(--control-bg)] px-0 transition-[width,padding,border-color,background-color,box-shadow] duration-300 ease-out hover:bg-[color:var(--control-bg-hover)]",
                   searchExpanded
                     ? "w-[min(19rem,58vw)] pl-0 pr-2 sm:w-[min(24rem,40vw)]"
                     : "w-12 px-0"
@@ -330,9 +425,9 @@ export default function TripPage() {
               type="button"
               onClick={() => setView("board")}
               className={cn(
-                "trip-glass-button h-12 px-2 text-sm",
+                "trip-glass-button h-12 bg-[color:var(--control-bg)] px-2 text-sm hover:bg-[color:var(--control-bg-hover)]",
                 activeView === "board" &&
-                "border-white/24 bg-white/[0.14] text-white"
+                "trip-header-button-active border-white/24 bg-white/[0.14] text-white"
               )}
             >
               <div className="flex items-center">
@@ -356,9 +451,9 @@ export default function TripPage() {
               type="button"
               onClick={() => setView("people")}
               className={cn(
-                "trip-glass-icon-button",
+                "trip-glass-icon-button bg-[color:var(--control-bg)] hover:bg-[color:var(--control-bg-hover)]",
                 activeView === "people" &&
-                "border-white/24 bg-white/[0.14] text-white"
+                "trip-header-button-active border-white/24 bg-white/[0.14] text-white"
               )}
               aria-label="Open people"
             >
@@ -369,9 +464,9 @@ export default function TripPage() {
               type="button"
               onClick={() => setView("calendar")}
               className={cn(
-                "trip-glass-icon-button",
+                "trip-glass-icon-button bg-[color:var(--control-bg)] hover:bg-[color:var(--control-bg-hover)]",
                 activeView === "calendar" &&
-                "border-white/24 bg-white/[0.14] text-white"
+                "trip-header-button-active border-white/24 bg-white/[0.14] text-white"
               )}
               aria-label="Open calendar"
             >
@@ -380,15 +475,11 @@ export default function TripPage() {
 
             <button
               type="button"
-              onClick={() => setView("list")}
-              className={cn(
-                "trip-glass-icon-button",
-                activeView === "list" &&
-                "border-white/24 bg-white/[0.14] text-white"
-              )}
-              aria-label="Open lists"
+              onClick={() => router.push(`/trip/${tripId}/settings` as Route)}
+              className="trip-glass-icon-button bg-[color:var(--control-bg)] hover:bg-[color:var(--control-bg-hover)]"
+              aria-label="Open trip settings"
             >
-              <List className="h-4 w-4" />
+              <Settings2 className="h-4 w-4" />
             </button>
 
             <button
@@ -397,7 +488,7 @@ export default function TripPage() {
                 setView("board");
                 setIsNoteComposerOpen(true);
               }}
-              className="trip-glass-button h-12 px-5 text-sm"
+              className="trip-glass-button h-12 bg-[color:var(--control-bg)] px-5 text-sm hover:bg-[color:var(--control-bg-hover)]"
             >
               <Plus className="h-4 w-4" />
               <span>Add Notes</span>
@@ -415,7 +506,13 @@ export default function TripPage() {
         </div>
       </header>
 
-      <section className="min-w-0 overflow-x-hidden ">{renderActiveView()}</section>
+      <section
+        className="relative min-w-0 overflow-x-hidden"
+        style={headerPinned ? { paddingTop: `${headerMetrics.height}px` } : undefined}
+      >
+        {renderActiveView()}
+        <BackdropEdge position="bottom" containerRef={pageShellRef} />
+      </section>
     </div>
   );
 }

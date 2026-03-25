@@ -45,69 +45,76 @@ function codeToLabel(code: number) {
 function getWeatherTheme(code: number) {
   if (code === 0) {
     return {
-      shell: "from-[#12231d] via-[#162c24] to-[#1d3329]",
-      tint: "bg-[#152720]/80",
-      orb: "bg-[#dbe887]/30",
-      accent: "text-[#eef5d0]",
+      shell:
+        "bg-[linear-gradient(135deg,color-mix(in_srgb,var(--paper)_96%,transparent),color-mix(in_srgb,var(--paper-strong)_92%,black_8%)_58%,color-mix(in_srgb,var(--accent-soft)_88%,var(--paper)_12%)_100%)]",
+      tint: "bg-[color:var(--trip-card-subsurface-solid)]",
+      orb: "bg-[color:var(--accent-soft)]",
+      accent: "text-[color:var(--accent-strong)]",
       icon: <SunMedium className="h-12 w-12" strokeWidth={1.7} />,
     };
   }
 
   if (code <= 3) {
     return {
-      shell: "from-[#12231d] via-[#172a22] to-[#20342b]",
-      tint: "bg-[#172921]/80",
-      orb: "bg-[#cfd8cd]/20",
-      accent: "text-[#dbe6cf]",
+      shell:
+        "bg-[linear-gradient(135deg,color-mix(in_srgb,var(--paper)_96%,transparent),color-mix(in_srgb,var(--paper-strong)_94%,black_6%)_58%,color-mix(in_srgb,var(--foreground)_10%,transparent)_100%)]",
+      tint: "bg-[color:var(--trip-card-subsurface-solid)]",
+      orb: "bg-[color:color-mix(in_srgb,var(--foreground)_14%,transparent)]",
+      accent: "text-[color:var(--foreground)]",
       icon: <CloudSun className="h-12 w-12" strokeWidth={1.7} />,
     };
   }
 
   if (code <= 48) {
     return {
-      shell: "from-[#11201a] via-[#152720] to-[#1a2e25]",
-      tint: "bg-[#172921]/84",
-      orb: "bg-[#cfd8cd]/16",
-      accent: "text-[#d7e1d3]",
+      shell:
+        "bg-[linear-gradient(135deg,color-mix(in_srgb,var(--paper)_96%,transparent),color-mix(in_srgb,var(--paper-strong)_96%,black_4%)_62%,color-mix(in_srgb,var(--foreground)_8%,transparent)_100%)]",
+      tint: "bg-[color:var(--trip-card-subsurface-solid)]",
+      orb: "bg-[color:color-mix(in_srgb,var(--foreground)_10%,transparent)]",
+      accent: "text-[color:var(--foreground)]",
       icon: <CloudFog className="h-12 w-12" strokeWidth={1.7} />,
     };
   }
 
   if (code <= 82) {
     return {
-      shell: "from-[#10201a] via-[#162921] to-[#1b3127]",
-      tint: "bg-[#162820]/84",
-      orb: "bg-[#9fb0a3]/18",
-      accent: "text-[#d7e1d3]",
+      shell:
+        "bg-[linear-gradient(135deg,color-mix(in_srgb,var(--paper)_96%,transparent),color-mix(in_srgb,var(--paper-strong)_94%,black_6%)_58%,color-mix(in_srgb,var(--accent-soft)_42%,transparent)_100%)]",
+      tint: "bg-[color:var(--trip-card-subsurface-solid)]",
+      orb: "bg-[color:color-mix(in_srgb,var(--accent-soft)_72%,transparent)]",
+      accent: "text-[color:var(--foreground)]",
       icon: <CloudRain className="h-12 w-12" strokeWidth={1.7} />,
     };
   }
 
   if (code <= 86) {
     return {
-      shell: "from-[#10201a] via-[#152720] to-[#1a2e25]",
-      tint: "bg-[#172921]/84",
-      orb: "bg-[#cfd8cd]/16",
-      accent: "text-[#d7e1d3]",
+      shell:
+        "bg-[linear-gradient(135deg,color-mix(in_srgb,var(--paper)_96%,transparent),color-mix(in_srgb,var(--paper-strong)_96%,black_4%)_62%,color-mix(in_srgb,var(--foreground)_8%,transparent)_100%)]",
+      tint: "bg-[color:var(--trip-card-subsurface-solid)]",
+      orb: "bg-[color:color-mix(in_srgb,var(--foreground)_10%,transparent)]",
+      accent: "text-[color:var(--foreground)]",
       icon: <CloudSnow className="h-12 w-12" strokeWidth={1.7} />,
     };
   }
 
   if (code <= 99) {
     return {
-      shell: "from-[#0f1c17] via-[#152720] to-[#1a2d24]",
-      tint: "bg-[#162820]/84",
-      orb: "bg-[#d48d7a]/16",
+      shell:
+        "bg-[linear-gradient(135deg,color-mix(in_srgb,var(--paper)_96%,transparent),color-mix(in_srgb,var(--paper-strong)_94%,black_6%)_58%,color-mix(in_srgb,#d48d7a_18%,transparent)_100%)]",
+      tint: "bg-[color:var(--trip-card-subsurface-solid)]",
+      orb: "bg-[color:color-mix(in_srgb,#d48d7a_20%,transparent)]",
       accent: "text-[#f3d0c5]",
       icon: <CloudLightning className="h-12 w-12" strokeWidth={1.7} />,
     };
   }
 
   return {
-    shell: "from-[#10201a] via-[#152720] to-[#1a2e25]",
-    tint: "bg-[#172921]/84",
-    orb: "bg-[#cfd8cd]/16",
-    accent: "text-[#d7e1d3]",
+    shell:
+      "bg-[linear-gradient(135deg,color-mix(in_srgb,var(--paper)_96%,transparent),color-mix(in_srgb,var(--paper-strong)_96%,black_4%)_62%,color-mix(in_srgb,var(--foreground)_8%,transparent)_100%)]",
+    tint: "bg-[color:var(--trip-card-subsurface-solid)]",
+    orb: "bg-[color:color-mix(in_srgb,var(--foreground)_10%,transparent)]",
+    accent: "text-[color:var(--foreground)]",
     icon: <Cloud className="h-12 w-12" strokeWidth={1.7} />,
   };
 }
@@ -163,7 +170,7 @@ export default function WeatherCard({
 
   if (lat == null || lng == null) {
     return (
-      <div className="h-full rounded-[30px] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] p-5 text-white shadow-[0_24px_60px_rgba(0,0,0,0.22)]">
+      <div className="trip-theme-card trip-dashboard-surface h-full rounded-[30px] p-5 text-white">
         <p className="section-kicker">Weather</p>
         <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
           Forecast snapshot
@@ -176,12 +183,12 @@ export default function WeatherCard({
   }
 
   return (
-    <div className="relative h-full overflow-hidden rounded-[30px] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] text-white shadow-[0_24px_60px_rgba(0,0,0,0.22)]">
+    <div className="trip-theme-card trip-dashboard-surface weather-card-shell relative h-full overflow-hidden rounded-[30px] text-white">
       {theme ? (
         <>
-          <div className={`absolute inset-0 bg-gradient-to-br ${theme.shell}`} />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.05),transparent_34%),radial-gradient(circle_at_85%_18%,rgba(219,232,135,0.06),transparent_20%)]" />
-          <div className={`absolute right-6 top-6 h-28 w-28 rounded-full ${theme.orb} blur-2xl`} />
+          <div className={`weather-card-overlay absolute inset-0 ${theme.shell}`} />
+          <div className="weather-card-overlay absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.05),transparent_34%),radial-gradient(circle_at_85%_18%,rgba(219,232,135,0.06),transparent_20%)]" />
+          <div className={`weather-card-orb absolute right-6 top-6 h-28 w-28 rounded-full ${theme.orb} blur-2xl`} />
         </>
       ) : null}
 
@@ -198,7 +205,7 @@ export default function WeatherCard({
           {data && theme ? (
             <div className="flex items-center gap-4 sm:text-right">
               <div
-                className={`hidden  aspect-square p-4 items-center justify-center rounded-[2rem] border border-[#31463c] ${theme.tint} ${theme.accent} shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_20px_40px_rgba(0,0,0,0.16)] sm:flex`}
+                className={`trip-dashboard-subsurface trip-theme-subsurface hidden aspect-square items-center justify-center rounded-[2rem] p-4 ${theme.tint} ${theme.accent} shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_20px_40px_rgba(0,0,0,0.16)] sm:flex`}
               >
                 {theme.icon}
               </div>
@@ -225,7 +232,7 @@ export default function WeatherCard({
             {data.daily.time.slice(0, 5).map((day, index) => (
               <div
                 key={day}
-                className="rounded-[1.25rem] border border-[#23372e] bg-[#14251e] p-3 text-center shadow-[0_10px_22px_rgba(0,0,0,0.16)] backdrop-blur-sm"
+                className="trip-dashboard-subsurface trip-theme-subsurface-solid rounded-[1.25rem] p-3 text-center"
               >
                 <p className="section-kicker text-[0.58rem]">{format(new Date(day), "EEE")}</p>
                 <p className="mt-2 text-sm font-semibold text-white">

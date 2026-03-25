@@ -49,8 +49,8 @@ export default function LenisProvider({
   }, []);
 
   return (
-    <div ref={wrapperRef} className={className}>
-      <div ref={contentRef} className="min-h-full">
+    <div ref={wrapperRef} className={className} data-lenis-wrapper="true">
+      <div ref={contentRef} className="min-h-full" data-lenis-content="true">
         {children}
       </div>
     </div>

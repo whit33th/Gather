@@ -172,7 +172,7 @@ export default function ImageKitUpload({
             uploading ? (
               <Spinner />
             ) : (
-              <span className="trip-glass-icon-button h-11 w-11 text-[#cfd8cd] transition-transform group-hover:scale-[1.03] group-hover:text-white">
+              <span className="trip-glass-icon-button h-11 w-11 bg-[color:var(--control-bg)] text-[#cfd8cd] transition-transform group-hover:scale-[1.03] group-hover:bg-[color:var(--control-bg-hover)] group-hover:text-white">
                 <Plus className="size-4" />
               </span>
             )

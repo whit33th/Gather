@@ -164,9 +164,9 @@ export default function LocationSearch({
                 onSelect?.(option);
                 setShowOptions(false);
               }}
-              className="flex w-full items-center gap-3 rounded-[1rem] px-4 py-3 text-left text-sm text-stone-700 transition-colors hover:bg-stone-900/[0.04] hover:text-stone-950"
+              className="flex w-full items-center gap-3 rounded-[1rem] px-4 py-3 text-left text-sm text-[#f7f4ea] transition-colors hover:bg-white/[0.06] hover:text-white"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#fff2eb] text-[#df5b3e]">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/8 bg-[#152720] text-[#dbe887]">
                 <MapPin className="h-4 w-4" />
               </div>
               <span className="truncate">{option.place_name}</span>
@@ -176,7 +176,7 @@ export default function LocationSearch({
       ) : null}
 
       {!hasToken ? (
-        <p className="mt-2 text-xs text-stone-500" role="status" aria-live="polite">
+        <p className="mt-2 text-xs text-white/44" role="status" aria-live="polite">
           Mapbox is not configured (missing `NEXT_PUBLIC_MAPBOX_TOKEN`), so suggestions are disabled.
           You can still type a destination.
         </p>

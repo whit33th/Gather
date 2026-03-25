@@ -14,9 +14,12 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "../convex/_generated/api";
+import type { ThemePreset } from "../lib/theme";
 import { cn } from "../lib/utils";
+import AppShellBackground from "./AppShellBackground";
+import { AppThemeProvider } from "./AppThemeProvider";
 import LenisProvider from "./LenisProvider";
 import UserAvatar from "./UserAvatar";
 
@@ -68,6 +71,51 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
   const { signIn } = useAuthActions();
   const currentUser = useQuery(api.users.current);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [backgroundFallbackUrl, setBackgroundFallbackUrl] = useState<string | null>(null);
+  const themePreset = (currentUser?.themePreset || "forest") as ThemePreset;
+  const backgroundImageUrl =
+    currentUser?.useTripCoverBackground
+      ? currentUser.backgroundTrip
+        ? currentUser.backgroundTrip.coverUrl ?? null
+        : backgroundFallbackUrl
+      : null;
+
+  useEffect(() => {
+    const syncFallback = () => {
+      try {
+        setBackgroundFallbackUrl(window.localStorage.getItem("gather:lastTripCover"));
+      } catch {
+        setBackgroundFallbackUrl(null);
+      }
+    };
+
+    syncFallback();
+    window.addEventListener("storage", syncFallback);
+    window.addEventListener("gather:lastTripCoverChanged", syncFallback);
+
+    return () => {
+      window.removeEventListener("storage", syncFallback);
+      window.removeEventListener("gather:lastTripCoverChanged", syncFallback);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const root = document.documentElement;
+    const body = document.body;
+
+    if (!currentUser) {
+      root.removeAttribute("data-theme-preset");
+      body.removeAttribute("data-theme-preset");
+      return;
+    }
+
+    root.setAttribute("data-theme-preset", themePreset);
+    body.setAttribute("data-theme-preset", themePreset);
+  }, [currentUser, themePreset]);
 
   const navItems = useMemo<AppNavItem[]>(
     () => [
@@ -101,11 +149,11 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
   ));
 
   const authPanel = isLoading || currentUser === undefined ? (
-    <div className="rounded-[1.55rem] border border-white/10  p-4">
+    <div className="rounded-[1.55rem] border border-white/10  p-4 z-51">
       <div className="h-12 animate-pulse rounded-[1rem] bg-white/6" />
     </div>
   ) : currentUser ? (
-    <div className="rounded-[1.55rem] border border-white/10  p-4">
+    <div className="rounded-[1.55rem] border border-white/10  p-4 z-51">
       <div className="flex items-center gap-3">
         <UserAvatar
           name={currentUser.name || "Traveler"}
@@ -124,7 +172,7 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
         <Link
           href={"/settings" as Route}
           onClick={() => setMobileNavOpen(false)}
-          className="trip-glass-icon-button h-10 w-10"
+          className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] hover:bg-[color:var(--control-bg-hover)]"
           aria-label="Open account settings"
         >
           <Settings2 className="h-4 w-4" />
@@ -135,7 +183,7 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
     <button
       type="button"
       onClick={() => void signIn("google", { redirectTo: pathname })}
-      className="trip-glass-button w-full justify-center rounded-[1.35rem] px-4 py-3.5 text-sm"
+      className="trip-glass-button w-full justify-center rounded-[1.35rem] bg-[color:var(--control-bg)] px-4 py-3.5 text-sm hover:bg-[color:var(--control-bg-hover)]"
     >
       <ArrowUpRight className="h-4 w-4" />
       <span>Continue with Google</span>
@@ -143,7 +191,17 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="flex h-full min-h-0 min-w-0 overflow-hidden">
+    <AppThemeProvider
+      className={cn(
+        "flex h-full min-h-0 min-w-0 overflow-hidden",
+        currentUser ? "app-theme-shell" : ""
+      )}
+      enabled={Boolean(currentUser)}
+      themePreset={currentUser ? themePreset : undefined}
+      backgroundImageUrl={currentUser ? backgroundImageUrl : null}
+    >
+      {currentUser ? <AppShellBackground /> : null}
+
       {mobileNavOpen ? (
         <button
           type="button"
@@ -164,7 +222,7 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex h-full min-h-0 w-[18rem] shrink-0 flex-col overflow-y-auto border-r border-white/8  transition-transform duration-300 md:static md:z-auto md:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex h-full min-h-0 w-[18rem] shrink-0 flex-col overflow-y-auto border-r border-white/8 bg-[color:transparent] transition-transform duration-300 md:static md:relative md:z-10 md:translate-x-0",
           mobileNavOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -183,9 +241,9 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <LenisProvider className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+      <LenisProvider className="relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
         <main className="min-h-full min-w-0">{children}</main>
       </LenisProvider>
-    </div>
+    </AppThemeProvider>
   );
 }

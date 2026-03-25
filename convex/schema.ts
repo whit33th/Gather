@@ -2,8 +2,33 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
 
+const { users: _authUsers, ...restAuthTables } = authTables;
+
+const themePreset = v.union(
+  v.literal("forest"),
+  v.literal("blush"),
+  v.literal("earth"),
+  v.literal("obsidian"),
+  v.literal("white"),
+  v.literal("babyBlue")
+);
+
 export default defineSchema({
-  ...authTables,
+  users: defineTable({
+    name: v.optional(v.string()),
+    image: v.optional(v.string()),
+    email: v.optional(v.string()),
+    emailVerificationTime: v.optional(v.number()),
+    phone: v.optional(v.string()),
+    phoneVerificationTime: v.optional(v.number()),
+    isAnonymous: v.optional(v.boolean()),
+    themePreset: v.optional(themePreset),
+    useTripCoverBackground: v.optional(v.boolean()),
+    lastActiveTripId: v.optional(v.id("trips")),
+  })
+    .index("email", ["email"])
+    .index("phone", ["phone"]),
+  ...restAuthTables,
 
   trips: defineTable({
     title: v.string(),

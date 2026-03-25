@@ -147,7 +147,7 @@ function getScheduleToneClasses(tone: ScheduleTone) {
 }
 
 function surface(extra = "") {
-  return `rounded-[30px] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] text-[#f7f4ea] shadow-[0_24px_60px_rgba(0,0,0,0.22)] ${extra}`;
+  return `trip-theme-card trip-dashboard-surface rounded-[30px] text-[#f7f4ea] ${extra}`;
 }
 
 export default function TripSummaryBoard({
@@ -384,8 +384,8 @@ export default function TripSummaryBoard({
 
   return (
     <>
-      <div className="grid min-w-0 gap-4 md:grid-cols-6 xl:grid-cols-12">
-        <div className="md:col-span-6 xl:col-span-7">
+      <div className="grid min-w-0 gap-4 md:grid-cols-6 md:grid-flow-row-dense">
+        <div className="md:col-span-3">
           <HeroSummaryCard
             trip={trip}
             heroImage={heroImage}
@@ -393,7 +393,7 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        <div className="md:col-span-6 xl:col-span-5">
+        <div className="md:col-span-3">
           <ReadinessSummaryCard
             daysLeft={daysLeft}
             readinessScore={readinessScore}
@@ -404,7 +404,7 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        <div className="md:col-span-3 xl:col-span-4">
+        <div className="md:col-span-1">
           <ArrivalSummaryCard
             arrivalDate={arrivalDateLabel}
             items={scheduleItems}
@@ -412,7 +412,7 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        <div className="md:col-span-3 xl:col-span-3">
+        <div className="md:col-span-2">
           <StaySummaryCard
             proposal={sortedProposals?.[0]}
             image={gallery[1] || heroImage}
@@ -420,7 +420,7 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        <div className="md:col-span-6 xl:col-span-5">
+        <div className="md:col-span-3">
           <WeatherCard
             lat={trip.lat}
             lng={trip.lng}
@@ -428,7 +428,7 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        <div className="md:col-span-6 xl:col-span-5">
+        <div className="md:col-span-2">
           <SpotsSummaryCard
             proposals={sortedProposals || []}
             destination={trip.destination}
@@ -437,7 +437,7 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        <div className="md:col-span-3 xl:col-span-4">
+        <div className="md:col-span-2">
           <TripNotesSummaryCard
             card={tripNotesCard}
             extraNotesCount={customNotes.length}
@@ -445,15 +445,16 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        <div className="md:col-span-3 xl:col-span-3">
+        <div className="md:col-span-2">
           <TravelersSummaryCard
             travelers={travelers}
             onOpenPeople={() => onOpenView("people")}
           />
         </div>
 
-        <div className="md:col-span-3 xl:col-span-3">
+        <div className="md:col-span-2">
           <BudgetOverviewCard
+            expenses={expenses}
             totalBudget={totalBudget}
             expenseCount={expenses?.length || 0}
             budgetTarget={budgetTarget}
@@ -461,14 +462,14 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        <div className="md:col-span-3 xl:col-span-4">
+        <div className="md:col-span-2">
           <ExpensesSummaryCard
             expenses={expenses}
             onOpenDetails={() => onOpenView("list")}
           />
         </div>
 
-        <div className="md:col-span-6 xl:col-span-5">
+        <div className="md:col-span-2">
           <PackingSummaryCard tasks={tasks} onOpenDetails={() => onOpenView("list")} />
         </div>
       </div>
@@ -515,14 +516,14 @@ export default function TripSummaryBoard({
               <button
                 type="button"
                 onClick={closeNoteEditor}
-                className="trip-glass-button px-4 py-3 text-sm"
+                className="trip-glass-button bg-[color:var(--control-bg)] px-4 py-3 text-sm hover:bg-[color:var(--control-bg-hover)]"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={() => void handleSaveNote()}
-                className="trip-glass-button px-5 py-3 text-sm"
+                className="trip-glass-button bg-[color:var(--control-bg)] px-5 py-3 text-sm hover:bg-[color:var(--control-bg-hover)]"
               >
                 Save note
               </button>
@@ -563,7 +564,7 @@ export default function TripSummaryBoard({
                 <button
                   type="button"
                   onClick={resetScheduleDraft}
-                  className="trip-glass-button px-4 py-3 text-sm"
+                  className="trip-glass-button bg-[color:var(--control-bg)] px-4 py-3 text-sm hover:bg-[color:var(--control-bg-hover)]"
                 >
                   <Plus className="h-4 w-4" />
                   <span>New block</span>
@@ -599,7 +600,7 @@ export default function TripSummaryBoard({
                               tone: (item.tone as ScheduleTone | undefined) || "neutral",
                             });
                           }}
-                          className="trip-glass-icon-button h-10 w-10"
+                          className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] hover:bg-[color:var(--control-bg-hover)]"
                           aria-label="Edit arrival block"
                         >
                           <FileText className="h-4 w-4" />
@@ -607,7 +608,7 @@ export default function TripSummaryBoard({
                         <button
                           type="button"
                           onClick={() => void removeScheduleItem({ itemId: item._id })}
-                          className="trip-glass-icon-button h-10 w-10 text-[#f3b4a3] hover:text-[#ffd2c8]"
+                          className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] text-[#f3b4a3] hover:bg-[color:var(--control-bg-hover)] hover:text-[#ffd2c8]"
                           aria-label="Delete arrival block"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -683,7 +684,7 @@ export default function TripSummaryBoard({
                           tone,
                         }))
                       }
-                      className={`trip-glass-button px-4 py-2 capitalize ${
+                      className={`trip-glass-button bg-[color:var(--control-bg)] px-4 py-2 capitalize hover:bg-[color:var(--control-bg-hover)] ${
                         scheduleDraft.tone === tone
                           ? "border-[#dbe887]/40 bg-[#213229]"
                           : ""
@@ -702,14 +703,14 @@ export default function TripSummaryBoard({
               <button
                 type="button"
                 onClick={resetScheduleDraft}
-                className="trip-glass-button px-4 py-3 text-sm"
+                className="trip-glass-button bg-[color:var(--control-bg)] px-4 py-3 text-sm hover:bg-[color:var(--control-bg-hover)]"
               >
                 Reset
               </button>
               <button
                 type="button"
                 onClick={() => void handleSaveSchedule()}
-                className="trip-glass-button px-5 py-3 text-sm"
+                className="trip-glass-button bg-[color:var(--control-bg)] px-5 py-3 text-sm hover:bg-[color:var(--control-bg-hover)]"
               >
                 Save block
               </button>

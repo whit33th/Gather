@@ -7,15 +7,19 @@ import {
   Check,
   ChevronRight,
   FileText,
+  Hotel,
   MapPin,
   MoreHorizontal,
+  Plane,
   Plus,
   Sparkles,
+  Ticket,
+  UtensilsCrossed,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import UserAvatar from "../UserAvatar";
-import Image from "next/image";
 
 type ExpenseCard = {
   _id: string;
@@ -84,8 +88,72 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
+const budgetBuckets = [
+  {
+    id: "flights",
+    label: "Flights",
+    icon: Plane,
+    keywords: ["flight", "plane", "air", "airport", "train", "rail", "bus", "transport"],
+    barClass: "bg-[linear-gradient(90deg,#dbe887,#b7d56a)]",
+  },
+  {
+    id: "stay",
+    label: "Resort",
+    icon: Hotel,
+    keywords: [
+      "hotel",
+      "resort",
+      "villa",
+      "stay",
+      "room",
+      "hostel",
+      "booking",
+      "airbnb",
+      "apartment",
+      "accommodation",
+    ],
+    barClass: "bg-[linear-gradient(90deg,#8fd0c0,#5ab8a3)]",
+  },
+  {
+    id: "food",
+    label: "Food & Drinks",
+    icon: UtensilsCrossed,
+    keywords: [
+      "food",
+      "drink",
+      "dinner",
+      "lunch",
+      "breakfast",
+      "restaurant",
+      "cafe",
+      "bar",
+      "coffee",
+      "brunch",
+    ],
+    barClass: "bg-[linear-gradient(90deg,#c7b0ff,#9d84ec)]",
+  },
+  {
+    id: "entertainment",
+    label: "Entertainment",
+    icon: Ticket,
+    keywords: [],
+    barClass: "bg-[linear-gradient(90deg,#f2c98b,#e0a765)]",
+  },
+] as const;
+
+function getBudgetBucket(title: string) {
+  const normalized = title.toLowerCase();
+  return (
+    budgetBuckets.find(
+      (bucket) =>
+        bucket.id !== "entertainment" &&
+        bucket.keywords.some((keyword) => normalized.includes(keyword))
+    )?.id || "entertainment"
+  );
+}
+
 function surface(extra = "") {
-  return `h-full rounded-[30px] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] text-[#f7f4ea] shadow-[0_24px_60px_rgba(0,0,0,0.22)] ${extra}`;
+  return `trip-theme-card trip-dashboard-surface h-full rounded-[30px] ${extra}`;
 }
 
 function SummaryActionButton({
@@ -107,8 +175,8 @@ function SummaryActionButton({
       onClick={onClick}
       className={
         contrast === "light"
-          ? "flex h-10 w-10 items-center justify-center rounded-full border border-[#0f6a5b]/16 bg-white/36 text-[#0f5d50] backdrop-blur transition hover:border-[#0f6a5b]/28 hover:bg-white/54 sm:h-11 sm:w-11"
-          : "flex h-10 w-10 items-center justify-center rounded-full border border-[#2b4035] bg-[#14251e]/88 text-[#d7e1d3] backdrop-blur transition hover:border-[#465b50] hover:text-white sm:h-11 sm:w-11"
+          ? "summary-action-button summary-action-button-light trip-theme-chip flex h-10 w-10 items-center justify-center rounded-full bg-white/36 text-[#0f5d50] transition-[background-color,border-color,color] hover:bg-white/54 sm:h-11 sm:w-11"
+          : "summary-action-button trip-theme-chip flex h-10 w-10 items-center justify-center rounded-full transition-[background-color,border-color,color] hover:text-white sm:h-11 sm:w-11"
       }
       aria-label={label}
     >
@@ -119,7 +187,7 @@ function SummaryActionButton({
 
 function SummaryEyebrow({ children }: { children: string }) {
   return (
-    <p className="text-[0.78rem] font-medium uppercase tracking-[0.22em] text-[#9fb0a3]">
+    <p className="text-[0.78rem] font-medium uppercase tracking-[0.22em] text-[color:var(--trip-card-muted-text)]">
       {children}
     </p>
   );
@@ -133,9 +201,9 @@ function SummaryEmpty({
   description: string;
 }) {
   return (
-    <div className="rounded-[22px] border border-dashed border-[#31463c] bg-[#12241d] px-4 py-4 sm:rounded-[24px] sm:py-5">
+    <div className="trip-theme-subsurface-solid trip-dashboard-subsurface rounded-[22px] border border-dashed px-4 py-4 sm:rounded-[24px] sm:py-5">
       <p className="text-sm font-medium text-[#f7f4ea]">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-[#9fb0a3]">{description}</p>
+      <p className="mt-2 text-sm leading-6 text-[color:var(--trip-card-muted-text)]">{description}</p>
     </div>
   );
 }
@@ -165,44 +233,40 @@ export function HeroSummaryCard({
   return (
     <section className={surface("overflow-hidden p-3 h-full")}>
       <div
-        className="group relative h-full min-h-[19rem] overflow-hidden rounded-[28px] bg-cover bg-center sm:min-h-[23rem]"
-        style={{ backgroundImage: `url("${heroImage}")` }}
+        className="group relative h-full min-h-76 overflow-hidden rounded-[28px] bg-cover bg-center sm:min-h-92"
       >
         <Image
           src={heroImage}
           alt={trip.title}
           fill
-          className="absolute inset-0 bg-cover bg-center object-cover blur-xl"
+          className="absolute inset-0 bg-cover bg-center object-cover "
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,8,7,0.1)_0%,rgba(3,8,7,0.3)_28%,rgba(3,8,7,0.7)_70%,rgba(3,8,7,0.88)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,10,8,0.82)_0%,rgba(4,10,8,0.34)_46%,rgba(4,10,8,0.18)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(219,232,135,0.14),transparent_20%),radial-gradient(circle_at_78%_18%,rgba(166,208,195,0.12),transparent_18%)]" />
-        <div className="absolute left-5 top-5 h-24 w-24 rounded-full bg-[radial-gradient(circle,rgba(219,232,135,0.22),transparent_72%)] blur-2xl sm:left-7 sm:top-7" />
 
-        <div className="relative flex h-full min-h-[19rem] flex-col justify-between p-5 sm:min-h-[23rem] sm:p-7">
+
+        <div className="relative flex h-full min-h-76 flex-col justify-between p-5 sm:min-h-92 sm:p-7">
           <div className="flex mb-4 items-start justify-between gap-4">
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/14 bg-black/26 px-3.5 py-2 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/88 backdrop-blur-md">
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/14 bg-black/26 px-3.5 py-2 text-[0.68rem] font-semibold tracking-[0.18em] text-white/88 backdrop-blur-md">
               <MapPin className="h-3.5 w-3.5 text-[#dbe887]" />
               <span>{trip.destination}</span>
             </div>
           </div>
 
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-end">
-            <div className="max-w-3xl rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,18,15,0.72),rgba(10,18,15,0.28))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:p-6">
-              
+            <div className="max-w-3xl rounded-[30px] border border-white/10 bg-background/20 p-5 shadow backdrop-blur-xl sm:p-6">
+
               <h2 className="mt-4 max-w-2xl text-[2.7rem] font-semibold leading-[0.9] tracking-[-0.09em] text-white sm:text-[4.15rem]">
                 {trip.title}
               </h2>
               <p className="mt-2 text-[1.45rem] font-semibold tracking-[-0.06em] text-white">
-                  {tripWindow} // {tripYear}
-                </p>
+                {tripWindow} // {tripYear}
+              </p>
               {/* <p className="mt-4 max-w-2xl text-sm leading-7 text-white/72 sm:text-[1rem]">
                 The place everyone returns to for the chosen stay, live weather, budget,
                 trip notes, and the readiness pulse before departure.
               </p> */}
 
               <div className="mt-4 flex flex-wrap gap-2.5 text-sm text-white/88">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/[0.09] px-3.5 py-2.5 backdrop-blur-md">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/9 px-3.5 py-2.5 backdrop-blur-md">
                   <CalendarDays className="h-4 w-4 text-[#dbe887]" />
                   <span>{duration}</span>
                 </span>
@@ -211,18 +275,18 @@ export function HeroSummaryCard({
               </div>
             </div>
 
-            <div className="grid gap-3">
+            <div className="grid gap-3 h-full">
               {/* <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(12,20,17,0.76),rgba(12,20,17,0.48))] p-4 shadow-[0_18px_40px_rgba(0,0,0,0.22)] backdrop-blur-xl">
               
                
 
               </div> */}
 
-              <div className="rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(12,20,17,0.82),rgba(12,20,17,0.54))] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+              <div className="rounded-[26px] border border-white/10 bg-background/20 p-4 shadow backdrop-blur-xl">
 
-                
 
-                <div className=" grid grid-cols-2 gap-2.5">
+
+                <div className="grid grid-cols-2 gap-2.5">
                   <div className="rounded-[18px] border border-white/10 bg-white/[0.05] px-3 py-3">
                     <p className="text-[0.58rem] uppercase tracking-[0.16em] text-white/40">
                       People
@@ -301,7 +365,7 @@ export function StaySummaryCard({
             </div>
             <SummaryActionButton label="Open stay details" onClick={onOpenSearch} />
           </div>
-          <p className="mt-4 text-[1rem] leading-7 text-[#9fb0a3]">
+          <p className="mt-4 text-[1rem] leading-7 text-[color:var(--trip-card-muted-text)]">
             {proposal?.locationName ||
               "Open the proposals panel to choose the shared stay and lock the group on one place."}
           </p>
@@ -339,7 +403,7 @@ export function TravelersSummaryCard({
           visibleTravelers.map((traveler) => (
             <article
               key={traveler.memberId}
-              className="flex items-center gap-3 rounded-[22px] border border-[#22372e] bg-[#14251e] px-4 py-3"
+              className="people-card-row trip-theme-subsurface-solid flex items-center gap-3 rounded-[22px] px-4 py-3"
             >
               <UserAvatar
                 name={traveler.name}
@@ -349,7 +413,7 @@ export function TravelersSummaryCard({
               />
               <div className="min-w-0">
                 <p className="truncate text-base font-medium">{traveler.name}</p>
-                <p className="text-sm text-[#9fb0a3]">
+                <p className="text-sm text-[color:var(--trip-card-muted-text)]">
                   {traveler.isCurrentUser ? "You" : traveler.role}
                 </p>
               </div>
@@ -387,13 +451,13 @@ export function TripNotesSummaryCard({
         <SummaryActionButton label="Edit trip notes" onClick={onEdit} />
       </div>
 
-      <p className="mt-5 line-clamp-4 whitespace-pre-wrap text-[1rem] leading-7 text-[#a8b8ad]">
+      <p className="mt-5 line-clamp-4 whitespace-pre-wrap text-[1rem] leading-7 text-[color:var(--trip-card-muted-text)]">
         {card?.content ||
           "Use one shared note for itinerary anchors, meeting point, booking references, and reminders everyone needs."}
       </p>
 
       <div className="mt-auto pt-5">
-        <div className="inline-flex items-center gap-2 rounded-full border border-[#31463c] bg-[#152720] px-3 py-2 text-[0.72rem] uppercase tracking-[0.16em] text-[#d7e1d3]">
+        <div className="trip-theme-chip inline-flex items-center gap-2 rounded-full px-3 py-2 text-[0.72rem] uppercase tracking-[0.16em]">
           <FileText className="h-3.5 w-3.5" />
           <span>{extraNotesCount || 0} extra note{extraNotesCount === 1 ? "" : "s"}</span>
         </div>
@@ -433,18 +497,18 @@ export function CustomNoteSummaryCard({
 
       {hasNote ? (
         <>
-          <p className="mt-5 whitespace-pre-wrap text-[1rem] leading-7 text-[#a8b8ad]">
+          <p className="mt-5 whitespace-pre-wrap text-[1rem] leading-7 text-[color:var(--trip-card-muted-text)]">
             {card?.content}
           </p>
-          <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[#31463c] bg-[#152720] px-3 py-2 text-[0.72rem] uppercase tracking-[0.16em] text-[#d7e1d3]">
+          <div className="trip-theme-chip mt-5 inline-flex items-center gap-2 rounded-full px-3 py-2 text-[0.72rem] uppercase tracking-[0.16em]">
             <FileText className="h-3.5 w-3.5" />
             <span>{noteCount} saved note{noteCount === 1 ? "" : "s"}</span>
           </div>
         </>
       ) : (
-        <div className="mt-5 rounded-[24px] border border-dashed border-[#31463c] bg-[#12241d] px-4 py-5">
+        <div className="trip-theme-subsurface-solid mt-5 rounded-[24px] border border-dashed px-4 py-5">
           <p className="text-sm font-medium text-[#f7f4ea]">No quick note yet</p>
-          <p className="mt-2 text-sm leading-6 text-[#9fb0a3]">
+          <p className="mt-2 text-sm leading-6 text-[color:var(--trip-card-muted-text)]">
             Add transport details, booking references, emergency contacts, or any small
             detail that should stay visible from the main trip page.
           </p>
@@ -562,12 +626,12 @@ export function ArrivalSummaryCard({
               className="rounded-[22px] border border-[#23372e] bg-[#14251e] px-4 py-4"
             >
               <div className="flex items-start gap-3">
-                <span className="rounded-full border border-[#31463c] bg-[#152720] px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.14em] text-[#d7e1d3]">
+                <span className="trip-theme-chip rounded-full px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.14em]">
                   Day {index + 1}
                 </span>
                 <div className="min-w-0">
                   <p className="text-base font-medium">{item.title}</p>
-                  <p className="mt-2 text-sm text-[#9fb0a3]">
+                  <p className="mt-2 text-sm text-[color:var(--trip-card-muted-text)]">
                     {item.startsAt} - {item.endsAt}
                   </p>
                 </div>
@@ -613,13 +677,10 @@ export function BudgetSummaryCard({
       {visibleExpenses.length > 0 ? (
         <div className="mt-6 space-y-3">
           {visibleExpenses.map((expense) => (
-            <div
-              key={expense._id}
-              className="flex items-center justify-between gap-4 rounded-[20px] border border-[#23372e] bg-[#14251e] px-4 py-3"
-            >
+            <div key={expense._id} className="trip-theme-subsurface-solid flex items-center justify-between gap-4 rounded-[20px] px-4 py-3">
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-white">{expense.title}</p>
-                <p className="mt-1 truncate text-xs uppercase tracking-[0.14em] text-[#7f9086]">
+                <p className="mt-1 truncate text-xs uppercase tracking-[0.14em] text-[color:var(--trip-card-muted-text)]">
                   {expense.payerName}
                 </p>
               </div>
@@ -642,77 +703,101 @@ export function BudgetSummaryCard({
 }
 
 export function BudgetOverviewCard({
+  expenses,
   totalBudget,
   expenseCount,
   budgetTarget,
   onOpenDetails,
 }: {
+  expenses: ExpenseCard[] | undefined;
   totalBudget: number;
   expenseCount: number;
   budgetTarget: number;
   onOpenDetails: () => void;
 }) {
-  const progress = Math.max(8, Math.min(100, Math.round((totalBudget / budgetTarget) * 100)));
-  const circleRadius = 46;
-  const circumference = 2 * Math.PI * circleRadius;
-  const dashOffset = circumference - (progress / 100) * circumference;
+  const bucketSummary = useMemo(() => {
+    const totals = new Map<string, number>(budgetBuckets.map((bucket) => [bucket.id, 0]));
+
+    (expenses || []).forEach((expense) => {
+      const bucketId = getBudgetBucket(expense.title);
+      totals.set(bucketId, (totals.get(bucketId) || 0) + expense.amount);
+    });
+
+    const safeTotal = totalBudget || 1;
+
+    return budgetBuckets.map((bucket) => {
+      const amount = totals.get(bucket.id) || 0;
+      const percent = totalBudget > 0 ? Math.round((amount / safeTotal) * 100) : 0;
+
+      return {
+        ...bucket,
+        amount,
+        percent,
+      };
+    });
+  }, [expenses, totalBudget]);
 
   return (
-    <section className={surface("flex flex-col p-5")}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <SummaryEyebrow>Budget</SummaryEyebrow>
-          <p className="mt-3 text-[1.7rem] font-semibold tracking-[-0.06em] sm:text-[2rem]">
+    <section className={surface("p-4")}>
+      <div className="grid gap-3 xl:grid-cols-[11rem_minmax(0,1fr)]">
+        <div className="trip-theme-subsurface rounded-[24px] px-4 py-5 text-center">
+          <p className="mt-3 text-[2.35rem] font-semibold tracking-[-0.08em] text-white">
             {currencyFormatter.format(totalBudget)}
           </p>
-        </div>
-        <SummaryActionButton label="Open budget details" onClick={onOpenDetails} />
-      </div>
+          <p className="mt-2 text-sm text-[color:var(--trip-card-muted-text)]">Total</p>
 
-      <div className="relative mx-auto mt-3 h-[9.4rem] w-[9.4rem] sm:mt-4 sm:h-[10.5rem] sm:w-[10.5rem]">
-        <svg className="h-full w-full -rotate-90" viewBox="0 0 120 120">
-          <circle
-            cx="60"
-            cy="60"
-            r={circleRadius}
-            fill="none"
-            stroke="rgba(219,232,135,0.14)"
-            strokeWidth="14"
-          />
-          <circle
-            cx="60"
-            cy="60"
-            r={circleRadius}
-            fill="none"
-            stroke="#dbe887"
-            strokeLinecap="round"
-            strokeWidth="14"
-            strokeDasharray={circumference}
-            strokeDashoffset={dashOffset}
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[#9fb0a3]">
-            tracking
-          </p>
-          <p className="mt-2 text-[1.55rem] font-semibold tracking-[-0.05em] sm:text-[1.8rem]">
-            {progress}%
-          </p>
+          <button
+            type="button"
+            onClick={onOpenDetails}
+            className="trip-theme-chip mt-6 inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm text-white transition-[background-color,border-color,color]"
+          >
+            Details
+          </button>
         </div>
-      </div>
 
-      <div className="mt-auto grid grid-cols-2 gap-2 pt-4">
-        <div className="rounded-[18px] border border-[#23372e] bg-[#14251e] px-3 py-3">
-          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[#7f9086]">Tracked</p>
-          <p className="mt-2 text-sm font-medium text-white">
-            {currencyFormatter.format(totalBudget)}
-          </p>
-        </div>
-        <div className="rounded-[18px] border border-[#23372e] bg-[#14251e] px-3 py-3">
-          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[#7f9086]">Target</p>
-          <p className="mt-2 text-sm font-medium text-white">
-            {currencyFormatter.format(budgetTarget)}
-          </p>
+        <div className="trip-theme-subsurface rounded-[24px] px-4 py-4">
+          <div className="space-y-2.5">
+            {bucketSummary.map((bucket) => {
+              const Icon = bucket.icon;
+              const width =
+                totalBudget > 0 ? Math.max(bucket.percent, bucket.amount > 0 ? 10 : 0) : 0;
+
+              return (
+                <div key={bucket.id}>
+                  <div className="flex items-center justify-between gap-3 text-sm">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[color:var(--trip-card-muted-text)]">
+                        <Icon className="h-3.5 w-3.5" />
+                      </span>
+                      <span className="truncate text-[#e9eee5]">{bucket.label}</span>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <span className="font-medium text-white">
+                        {currencyFormatter.format(bucket.amount)}
+                      </span>
+                      <span className="ml-1 text-[color:var(--trip-card-muted-text)]">({bucket.percent}%)</span>
+                    </div>
+                  </div>
+                  <div className="trip-theme-track mt-2 h-1.5 rounded-full">
+                    <div
+                      className={`h-full rounded-full ${bucket.barClass}`}
+                      style={{ width: `${width}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="trip-theme-divider mt-4 flex items-center justify-between border-t pt-3 text-sm">
+            <span className="text-[color:var(--trip-card-muted-text)]">Target</span>
+            <div className="text-right">
+              <span className="font-medium text-white">
+                {currencyFormatter.format(budgetTarget)}
+              </span>
+              <span className="ml-2 text-[color:var(--trip-card-muted-text)]">/ {expenseCount} records</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -743,13 +828,10 @@ export function ExpensesSummaryCard({
       {visibleExpenses.length > 0 ? (
         <div className="mt-5 flex-1 space-y-3">
           {visibleExpenses.map((expense) => (
-            <div
-              key={expense._id}
-              className="flex items-center justify-between gap-3 rounded-[18px] border border-[#23372e] bg-[#14251e] px-3 py-3"
-            >
+            <div key={expense._id} className="trip-theme-subsurface-solid flex items-center justify-between gap-3 rounded-[18px] px-3 py-3">
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-white">{expense.title}</p>
-                <p className="mt-1 truncate text-xs text-[#9fb0a3]">{expense.payerName}</p>
+                <p className="mt-1 truncate text-xs text-[color:var(--trip-card-muted-text)]">{expense.payerName}</p>
               </div>
               <span className="shrink-0 text-sm font-medium text-white">
                 {currencyFormatter.format(expense.amount)}
@@ -770,7 +852,7 @@ export function ExpensesSummaryCard({
         <button
           type="button"
           onClick={onOpenDetails}
-          className="inline-flex items-center gap-2 rounded-full border border-[#31463c] bg-[#152720] px-4 py-2.5 text-sm text-[#f7f4ea] transition hover:border-[#42584d] hover:bg-[#182c23]"
+          className="trip-theme-chip inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm text-[#f7f4ea] transition-[background-color,border-color,color]"
         >
           <Plus className="h-4 w-4" />
           <span>Record</span>
@@ -804,21 +886,21 @@ export function PackingSummaryCard({
         <SummaryActionButton label="Open packing details" onClick={onOpenDetails} />
       </div>
 
-      <div className="mt-5 rounded-[24px] border border-[#23372e] bg-[#13231d] p-4">
+      <div className="packing-progress-shell trip-theme-subsurface-solid mt-5 rounded-[24px] p-4">
         <div className="flex items-end justify-between gap-3">
           <div>
-            <p className="text-sm text-[#9fb0a3]">Checklist progress</p>
+            <p className="text-sm text-[color:var(--trip-card-muted-text)]">Checklist progress</p>
             <p className="mt-2 text-[1.75rem] font-semibold tracking-[-0.05em]">
               {completedTasks}/{totalTasks}
             </p>
           </div>
-          <span className="rounded-full border border-[#31463c] bg-[#152720] px-3 py-2 text-[0.7rem] uppercase tracking-[0.16em] text-[#d7e1d3]">
+          <span className="packing-progress-badge trip-theme-chip rounded-full px-3 py-2 text-[0.7rem] uppercase tracking-[0.16em]">
             {progress}% ready
           </span>
         </div>
-        <div className="mt-4 h-2 rounded-full bg-[#20342b]">
+        <div className="packing-progress-track trip-theme-track mt-4 h-2 rounded-full">
           <div
-            className="h-full rounded-full bg-[linear-gradient(90deg,#dbe887,#93b38d)]"
+            className="packing-progress-fill trip-theme-fill h-full rounded-full"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -827,26 +909,23 @@ export function PackingSummaryCard({
       {visibleTasks.length > 0 ? (
         <ul className="mt-5 flex-1 space-y-3">
           {visibleTasks.map((task) => (
-            <li
-              key={task._id}
-              className="flex items-start gap-3 rounded-[20px] border border-[#23372e] bg-[#14251e] px-4 py-3"
-            >
+            <li key={task._id} className="trip-theme-subsurface-solid flex items-start gap-3 rounded-[20px] px-4 py-3">
               <span
                 className={`mt-1 flex h-5 w-5 items-center justify-center rounded-full border ${task.isChecked
-                    ? "border-[#dbe887] bg-[#dbe887] text-[#0f1b16]"
-                    : "border-[#506257] bg-transparent text-transparent"
+                  ? "border-[color:var(--accent)] bg-[color:var(--accent)] text-[color:var(--accent-contrast)]"
+                  : "border-[color:var(--trip-card-border-strong)] bg-transparent text-transparent"
                   }`}
               >
                 <Check className="h-3.5 w-3.5" />
               </span>
               <div className="min-w-0">
                 <p
-                  className={`text-sm font-medium ${task.isChecked ? "text-[#6f7d74] line-through" : "text-white"
+                  className={`text-sm font-medium ${task.isChecked ? "text-[color:var(--trip-card-muted-text)] line-through" : "text-white"
                     }`}
                 >
                   {task.name}
                 </p>
-                <p className="mt-1 text-xs uppercase tracking-[0.14em] text-[#7f9086]">
+                <p className="mt-1 text-xs uppercase tracking-[0.14em] text-[color:var(--trip-card-muted-text)]">
                   {task.category}
                 </p>
               </div>
@@ -886,17 +965,17 @@ export function ReadinessSummaryCard({
   const dashOffset = circumference - (progress / 100) * circumference;
 
   return (
-    <section className="relative flex h-full flex-col overflow-hidden rounded-[30px] border border-[#31463c] bg-[radial-gradient(circle_at_top_left,#243a31_0%,#192b24_38%,#0d1714_100%)] px-5 py-5 text-[#f7f4ea] shadow-[0_24px_60px_rgba(0,0,0,0.22)]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(219,232,135,0.12),transparent_20%),radial-gradient(circle_at_18%_0%,rgba(255,255,255,0.05),transparent_24%)]" />
+    <section className="trip-theme-card trip-dashboard-surface readiness-card-shell relative flex h-full flex-col overflow-hidden rounded-[30px] px-5 py-5 text-[#f7f4ea]">
+      <div className="readiness-card-overlay absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,color-mix(in_srgb,var(--accent)_12%,transparent),transparent_20%),radial-gradient(circle_at_18%_0%,color-mix(in_srgb,var(--foreground)_5%,transparent),transparent_24%)]" />
       <div className="flex items-start justify-between gap-3">
         <div className="relative z-10">
-          <p className="text-[0.82rem] font-semibold uppercase tracking-[0.2em] text-[#b7c7bb]">
+          <p className="text-[0.82rem] font-semibold uppercase tracking-[0.2em] text-[color:var(--trip-card-muted-text)]">
             Readiness
           </p>
           <p className="mt-3 text-[1.7rem] font-semibold tracking-[-0.05em] sm:text-[1.9rem]">
             {progress}% set
           </p>
-          <p className="mt-2 text-sm text-[#9fb0a3]">
+          <p className="mt-2 text-sm text-[color:var(--trip-card-muted-text)]">
             Shared trip readiness across checklists, planning blocks, and team sync.
           </p>
         </div>
@@ -906,15 +985,15 @@ export function ReadinessSummaryCard({
       </div>
 
       <div className="relative z-10 mx-auto mt-6 h-[11rem] w-[11rem] sm:h-[13rem] sm:w-[13rem]">
-        <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(219,232,135,0.22),transparent_62%)] blur-xl" />
-        <div className="absolute inset-[0.9rem] rounded-full border border-white/8 bg-[radial-gradient(circle_at_top,#22372e,#13211b_72%)] backdrop-blur-sm" />
+        <div className="readiness-card-orb absolute inset-0 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--accent)_22%,transparent),transparent_62%)] blur-xl" />
+        <div className="readiness-card-core absolute inset-[0.9rem] rounded-full border border-[color:var(--trip-card-border)] bg-[radial-gradient(circle_at_top,color-mix(in_srgb,var(--paper)_92%,transparent),color-mix(in_srgb,var(--paper-strong)_96%,transparent)_72%)] backdrop-blur-sm" />
         <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 140 140">
           <circle
             cx="70"
             cy="70"
             r={circleRadius}
             fill="none"
-            stroke="rgba(219,232,135,0.12)"
+            stroke="color-mix(in srgb, var(--accent) 16%, transparent)"
             strokeWidth="12"
           />
           <circle
@@ -922,7 +1001,7 @@ export function ReadinessSummaryCard({
             cy="70"
             r={circleRadius}
             fill="none"
-            stroke="#dbe887"
+            stroke="var(--accent)"
             strokeLinecap="round"
             strokeWidth="12"
             strokeDasharray={circumference}
@@ -930,7 +1009,7 @@ export function ReadinessSummaryCard({
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <p className="text-sm font-medium text-[#b7c7bb]">Days left</p>
+          <p className="text-sm font-medium text-[color:var(--trip-card-muted-text)]">Days left</p>
           <p className="mt-1 text-[2.45rem] font-semibold leading-none tracking-[-0.08em] sm:text-[3rem]">
             {daysLeft}
           </p>
@@ -939,20 +1018,20 @@ export function ReadinessSummaryCard({
       </div>
 
       <div className="relative z-10 mt-5 grid grid-cols-3 gap-2">
-        <div className="rounded-[20px] border border-white/8 bg-white/[0.06] px-3 py-3">
-          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[#9fb0a3]">
+        <div className="trip-theme-muted rounded-[20px] px-3 py-3">
+          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--trip-card-muted-text)]">
             Checklist
           </p>
           <p className="mt-2 text-sm font-medium text-white">{checklistLabel}</p>
         </div>
-        <div className="rounded-[20px] border border-white/8 bg-white/[0.06] px-3 py-3">
-          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[#9fb0a3]">
+        <div className="trip-theme-muted rounded-[20px] px-3 py-3">
+          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--trip-card-muted-text)]">
             Plan
           </p>
           <p className="mt-2 text-sm font-medium text-white">{scheduleLabel}</p>
         </div>
-        <div className="rounded-[20px] border border-white/8 bg-white/[0.06] px-3 py-3">
-          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[#9fb0a3]">
+        <div className="trip-theme-muted rounded-[20px] px-3 py-3">
+          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--trip-card-muted-text)]">
             People
           </p>
           <p className="mt-2 text-sm font-medium text-white">{peopleLabel}</p>

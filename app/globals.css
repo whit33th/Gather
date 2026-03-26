@@ -104,38 +104,8 @@ body {
   background-attachment: fixed;
 }
 
-body>div {
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-}
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  opacity: 0.18;
-  pointer-events: none;
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--shell-grid-line) 100%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--shell-grid-line) 76%, transparent) 1px, transparent 1px);
-  background-size: 88px 88px;
-  mask-image: radial-gradient(circle at center, black, transparent 78%);
-}
 
-body::after {
-  content: "";
-  position: fixed;
-  inset: auto auto 6vh 4vw;
-  z-index: -1;
-  width: 22rem;
-  height: 22rem;
-  border-radius: 999px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 12%, transparent), transparent 68%);
-  filter: blur(40px);
-  pointer-events: none;
-}
 
 main {
   position: relative;
@@ -152,10 +122,10 @@ textarea,
 select {
   font: inherit;
 }
-
-img {
-  color: transparent;
+button {
+  cursor: pointer;
 }
+
 
 ::selection {
   background: color-mix(in srgb, var(--accent) 22%, transparent);
@@ -284,9 +254,7 @@ img {
   border-radius: 999px;
   border: 1px solid var(--control-border);
   color: color-mix(in srgb, var(--foreground) 88%, transparent);
-  box-shadow:
-    inset 0 1px 0 rgba(248, 246, 231, 0.06),
-    0 12px 32px rgba(0, 0, 0, 0.14);
+
   backdrop-filter: blur(16px);
   transition:
     background-color 160ms ease,
@@ -560,7 +528,7 @@ img {
   --trip-card-bg: linear-gradient(180deg, rgba(8, 10, 12, 0.12), rgba(8, 10, 12, 0.08));
   --trip-card-bg-soft: linear-gradient(180deg, rgba(8, 10, 12, 0.1), rgba(8, 10, 12, 0.06));
   --trip-card-bg-solid: rgba(8, 10, 12, 0.08);
-  --trip-card-subsurface-bg: linear-gradient(180deg, rgba(8, 10, 12, 0.1), rgba(8, 10, 12, 0.06));
+  --trip-card-subsurface-bg: linear-gradient(180deg, rgba(8, 10, 12, 0.2), rgba(8, 10, 12, 0.06));
   --trip-card-subsurface-solid: rgba(8, 10, 12, 0.07);
   --trip-card-muted-bg: rgba(8, 10, 12, 0.06);
   --trip-card-border: rgba(255, 255, 255, 0.18);
@@ -585,20 +553,15 @@ img {
   display: none;
 }
 
+
+
 .app-theme-shell[data-photo-background="true"] .glass-panel,
 .app-theme-shell[data-photo-background="true"] .glass-panel-dark,
 .app-theme-shell[data-photo-background="true"] .editorial-card,
-.app-theme-shell[data-photo-background="true"] .editorial-card-soft,
-.app-theme-shell[data-photo-background="true"] .trip-glass-button,
-.app-theme-shell[data-photo-background="true"] .trip-glass-icon-button,
-.app-theme-shell[data-photo-background="true"] .trip-theme-card,
-.app-theme-shell[data-photo-background="true"] .trip-theme-subsurface,
-.app-theme-shell[data-photo-background="true"] .trip-theme-subsurface-solid,
-.app-theme-shell[data-photo-background="true"] .trip-theme-muted,
-.app-theme-shell[data-photo-background="true"] .trip-theme-chip {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 14px 36px rgba(0, 0, 0, 0.16);
+.app-theme-shell[data-photo-background="true"] .editorial-card-soft {
+  background-image: none !important;
+  background-color: rgba(8, 10, 12, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
 }
 
 .app-theme-shell[data-photo-background="true"] .trip-theme-card,
@@ -606,7 +569,7 @@ img {
 .app-theme-shell[data-photo-background="true"] .trip-theme-subsurface-solid,
 .app-theme-shell[data-photo-background="true"] .trip-theme-muted {
   background-image: none !important;
-  background-color: rgba(8, 10, 12, 0.08) !important;
+  background-color: rgba(8, 10, 12, 0.12) !important;
   border-color: rgba(255, 255, 255, 0.18) !important;
 }
 
@@ -688,7 +651,6 @@ img {
   background: var(--trip-card-bg);
   border: 1px solid var(--trip-card-border);
   color: var(--foreground);
-  box-shadow: var(--shadow-md);
   backdrop-filter: blur(22px);
 }
 
@@ -742,9 +704,7 @@ img {
   background-image: none !important;
   background-color: rgba(8, 10, 12, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.18) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 18px 46px rgba(0, 0, 0, 0.16) !important;
+
 }
 
 .app-theme-shell[data-photo-background="true"] .trip-dashboard-subsurface {

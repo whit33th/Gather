@@ -163,9 +163,9 @@ export default function ImageKitUpload({
           disabled={disabled || uploading}
           onClick={pickFile}
           className={`${mode === "tile"
-            ? `group flex aspect-square h-full w-full items-center justify-center  overflow-hidden rounded-3xl border border-dashed border-[#31463c] bg-[#13231d] transition-colors hover:border-[#42584d] hover:bg-[#172920] ${buttonClassName || ""
-              }`
-              : `${buttonClassName || defaultButtonClassName}`
+            ? `group flex aspect-square h-full w-full items-center justify-center  overflow-hidden rounded-4xl border border-dashed border-[#31463c] bg-[#13231d] transition-colors hover:border-[#42584d] hover:bg-[#172920] ${buttonClassName || ""
+            }`
+            : `${buttonClassName || defaultButtonClassName}`
             } disabled:cursor-not-allowed disabled:opacity-60`}
         >
           {mode === "tile" ? (

@@ -20,6 +20,7 @@ import {
   THEME_PRESETS,
   type ThemePreset,
 } from "@/lib/theme";
+import { GoogleIcon } from "../login/LoginActions";
 
 type SettingsUser = {
   _id: string;
@@ -52,8 +53,8 @@ function ThemePresetCard({
       type="button"
       onClick={onClick}
       className={`rounded-[1.5rem] border p-4 text-left transition ${active
-          ? "border-[var(--accent)] bg-white/[0.08] shadow-[0_18px_40px_rgba(0,0,0,0.18)]"
-          : "border-white/10 bg-white/[0.04] hover:border-white/18 hover:bg-white/[0.06]"
+        ? "border-[var(--accent)] bg-white/[0.08] shadow-[0_18px_40px_rgba(0,0,0,0.18)]"
+        : "border-white/10 bg-white/[0.04] hover:border-white/18 hover:bg-white/[0.06]"
         }`}
     >
       <div className="flex items-center gap-2">
@@ -127,51 +128,11 @@ export default function SettingsPageClient({
   return (
     <>
       <section className="mx-auto max-w-7xl px-4 pb-10 pt-6 sm:px-6 lg:px-8">
-        <section className="glass-panel mesh-card overflow-hidden rounded-[2.5rem] p-4 sm:p-5">
-          <div className="editorial-hero-panel relative overflow-hidden rounded-[2.2rem] border border-white/10 px-6 py-7 sm:px-8 sm:py-8">
-            <div className="editorial-hero-panel__overlay absolute inset-0" />
-            <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-end">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3 py-2 text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-white/76">
-                  <Settings2 className="h-3.5 w-3.5 text-[var(--accent)]" />
-                  <span>Account settings</span>
-                </div>
-                <h1 className="mt-5 max-w-3xl text-[clamp(2.6rem,6vw,4.8rem)] font-semibold leading-[0.92] tracking-[-0.08em] text-white">
-                  Shape the whole app, not just one page.
-                </h1>
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-white/68 sm:text-base">
-                  Switch global color presets, decide whether trip covers become the app
-                  background, and keep your account controls in the same surface.
-                </p>
-              </div>
 
-              <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-                <article className="rounded-[1.6rem] border border-white/10 bg-white/[0.05] p-4 backdrop-blur-md">
-                  <p className="section-kicker text-[0.55rem]">Current theme</p>
-                  <p className="mt-3 text-lg font-semibold tracking-[-0.05em] text-white">
-                    {THEME_PRESET_META[themePreset].label}
-                  </p>
-                </article>
-                <article className="rounded-[1.6rem] border border-white/10 bg-white/[0.05] p-4 backdrop-blur-md">
-                  <p className="section-kicker text-[0.55rem]">Trip background</p>
-                  <p className="mt-3 text-sm leading-6 text-white/78">
-                    {useTripCoverBackground ? "Enabled" : "Default shell only"}
-                  </p>
-                </article>
-                <article className="rounded-[1.6rem] border border-white/10 bg-white/[0.05] p-4 backdrop-blur-md">
-                  <p className="section-kicker text-[0.55rem]">Background source</p>
-                  <p className="mt-3 text-sm leading-6 text-white/78">
-                    {currentUser?.backgroundTrip?.title || "No trip cover selected yet"}
-                  </p>
-                </article>
-              </div>
-            </div>
-          </div>
-        </section>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="grid gap-6">
-            <section className="glass-panel overflow-hidden rounded-[2.2rem]">
+            <section className="glass-panel overflow-hidden rounded-4xl">
               <div className="border-b border-white/10 bg-white/[0.04] px-6 py-6 sm:px-7">
                 <div className="flex items-start gap-4">
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1.1rem] border border-white/10 bg-white/[0.05] text-[var(--accent)]">
@@ -234,8 +195,8 @@ export default function SettingsPageClient({
                         setIsDirty(true);
                       }}
                       className={`relative inline-flex h-11 w-20 shrink-0 items-center rounded-full border transition ${useTripCoverBackground
-                          ? "border-[var(--accent)] bg-[color:var(--accent-soft)]"
-                          : "border-white/10 bg-white/[0.06]"
+                        ? "border-[var(--accent)] bg-[color:var(--accent-soft)]"
+                        : "border-white/10 bg-white/[0.06]"
                         }`}
                       aria-pressed={useTripCoverBackground}
                     >
@@ -263,7 +224,7 @@ export default function SettingsPageClient({
           </div>
 
           <aside className="grid gap-6">
-            <section className="glass-panel overflow-hidden rounded-[2.2rem]">
+            <section className="glass-panel overflow-hidden rounded-4xl">
               <div className="border-b border-white/10 bg-white/[0.04] px-6 py-6 sm:px-7">
                 <p className="section-kicker">Account</p>
                 <h2 className="mt-3 text-[2rem] font-semibold tracking-[-0.06em] text-white">
@@ -302,39 +263,12 @@ export default function SettingsPageClient({
                   <button
                     type="button"
                     onClick={() => void signIn("google", { redirectTo: "/settings" })}
-                    className="trip-glass-button trip-control-surface w-full justify-center rounded-[1.2rem] px-4 py-3 text-sm"
+                    className="flex min-h-16 w-full items-center justify-center gap-3 rounded-full border border-black/8 bg-white px-6 text-[1.1rem] font-bold tracking-[-0.03em] text-[#171717] shadow-[0_14px_30px_rgba(0,0,0,0.2)] transition hover:-translate-y-0.5 hover:bg-[#f8f8f8]"
                   >
-                    <ArrowUpRight className="h-4 w-4" />
-                    <span>Continue with Google</span>
+                    <GoogleIcon />
+                    <span>Sign in with Google</span>
                   </button>
                 )}
-              </div>
-            </section>
-
-            <section className="glass-panel overflow-hidden rounded-[2.2rem] p-6">
-              <p className="section-kicker">Live summary</p>
-              <h2 className="mt-3 text-[1.6rem] font-semibold tracking-[-0.05em] text-white">
-                Current shell
-              </h2>
-              <div className="mt-5 space-y-3">
-                <article className="rounded-[1.4rem] border border-white/10 bg-white/[0.04] p-4">
-                  <p className="text-[0.62rem] uppercase tracking-[0.16em] text-white/40">
-                    Preset
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-white">
-                    {THEME_PRESET_META[themePreset].label}
-                  </p>
-                </article>
-                <article className="rounded-[1.4rem] border border-white/10 bg-white/[0.04] p-4">
-                  <p className="text-[0.62rem] uppercase tracking-[0.16em] text-white/40">
-                    Background source
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-white">
-                    {useTripCoverBackground
-                      ? currentUser?.backgroundTrip?.title || "Default background fallback"
-                      : "Default background only"}
-                  </p>
-                </article>
               </div>
             </section>
           </aside>

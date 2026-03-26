@@ -1,5 +1,6 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
+import { tripDateRangeSchema } from "../lib/validation/tripDates";
 import { mutation, query } from "./_generated/server";
 // Create a new trip
 export const create = mutation({
@@ -14,6 +15,14 @@ export const create = mutation({
     locationName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const parsedDates = tripDateRangeSchema.safeParse({
+      startDate: args.startDate,
+      endDate: args.endDate,
+    });
+    if (!parsedDates.success) {
+      throw new Error(parsedDates.error.issues[0]?.message ?? "Invalid trip dates");
+    }
+
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       throw new Error("Unauthenticated");
@@ -112,6 +121,14 @@ export const update = mutation({
     locationName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const parsedDates = tripDateRangeSchema.safeParse({
+      startDate: args.startDate,
+      endDate: args.endDate,
+    });
+    if (!parsedDates.success) {
+      throw new Error(parsedDates.error.issues[0]?.message ?? "Invalid trip dates");
+    }
+
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       throw new Error("Unauthenticated");

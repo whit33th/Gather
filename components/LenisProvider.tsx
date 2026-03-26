@@ -10,19 +10,16 @@ export default function LenisProvider({
   children: React.ReactNode;
   className?: string;
 }) {
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const wrapper = wrapperRef.current;
     const content = contentRef.current;
 
-    if (!wrapper || !content) return;
+    if (!content) return;
 
     const lenis = new Lenis({
-      wrapper,
+      wrapper: content,
       content,
-      eventsTarget: wrapper,
       autoResize: true,
       allowNestedScroll: true,
       smoothWheel: true,
@@ -49,10 +46,8 @@ export default function LenisProvider({
   }, []);
 
   return (
-    <div ref={wrapperRef} className={className}>
-      <div ref={contentRef} className="min-h-full">
-        {children}
-      </div>
+    <div ref={contentRef} className={className}>
+      {children}
     </div>
   );
 }

@@ -82,7 +82,7 @@ export default async function InvitePage({
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-            className="editorial-card rounded-[2.2rem] p-6 shadow-[0_32px_90px_rgba(96,58,30,0.16)] sm:p-8"
+            className="editorial-card rounded-4xl p-6 shadow-[0_32px_90px_rgba(96,58,30,0.16)] sm:p-8"
           >
             <p className="section-kicker">You are invited</p>
             <h2 className="balanced mt-3 font-serif text-4xl leading-[0.94] tracking-[-0.05em] text-stone-950 sm:text-5xl">

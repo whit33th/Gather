@@ -493,7 +493,7 @@ export function AvailabilityStudio({
   };
 
   return (
-    <RevealSection className="overflow-hidden rounded-[2.2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] ">
+    <RevealSection className="overflow-hidden rounded-4xl border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] ">
       <div className="border-b border-[#23372e] bg-[#13231d] px-5 py-5 sm:px-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div>
@@ -918,7 +918,7 @@ export function ProposalStudio({
   };
 
   return (
-    <RevealSection className="rounded-[2.2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] p-5 sm:p-6">
+    <RevealSection className="rounded-4xl border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] p-5 sm:p-6">
       <div>
         <p className="section-kicker">Proposals</p>
         <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
@@ -1522,7 +1522,7 @@ export function MapStudio({
   }, [activeMarkerId, categorizedMarkers]);
 
   return (
-    <RevealSection className="overflow-hidden rounded-[2.2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] ">
+    <RevealSection className="overflow-hidden rounded-4xl border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] ">
       <div className="border-b border-[#23372e] px-5 py-5 sm:px-6">
         <p className="section-kicker">Map</p>
         <div className="mt-3 flex items-end justify-between gap-4">
@@ -1607,7 +1607,7 @@ export function GalleryStudio({
   const removePhoto = useMutation(api.photos.remove);
 
   return (
-    <RevealSection className="overflow-hidden rounded-[2.2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)]">
+    <RevealSection className="overflow-hidden rounded-4xl border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)]">
       <div className="bg-[#13231d] px-5 py-6 sm:px-6">
         <p className="section-kicker">Gallery</p>
         <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
@@ -1636,7 +1636,7 @@ export function GalleryStudio({
               {(photos ?? []).map((photo) => (
                 <div
                   key={photo._id}
-                  className="group relative aspect-[3/4] rounded-3xl overflow-hidden bg-[#14251e]"
+                  className="group relative aspect-[3/4] rounded-4xl overflow-hidden bg-[#14251e]"
                 >
                   <Image
                     src={photo.url}

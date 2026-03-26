@@ -7,6 +7,7 @@ import Image from "next/image";
 import { ArrowUpRight, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { api } from "../convex/_generated/api";
+import { tripDateRangeSchema } from "../lib/validation/tripDates";
 import LocationSearch from "./LocationSearch";
 import ImageKitUpload from "./ImageKitUpload";
 
@@ -40,6 +41,16 @@ export default function CreateTripModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError("");
+
+    const dateValidation = tripDateRangeSchema.safeParse({
+      startDate,
+      endDate,
+    });
+    if (!dateValidation.success) {
+      setSubmitError(dateValidation.error.issues[0]?.message ?? "Check the trip dates.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -194,7 +205,10 @@ export default function CreateTripModal({
                       id="startDate"
                       required
                       value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
+                      onChange={(e) => {
+                        setSubmitError("");
+                        setStartDate(e.target.value);
+                      }}
                       className="editorial-input mt-3 [color-scheme:light]"
                     />
                   </div>
@@ -208,7 +222,10 @@ export default function CreateTripModal({
                       id="endDate"
                       required
                       value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
+                      onChange={(e) => {
+                        setSubmitError("");
+                        setEndDate(e.target.value);
+                      }}
                       className="editorial-input mt-3 [color-scheme:light]"
                     />
                   </div>

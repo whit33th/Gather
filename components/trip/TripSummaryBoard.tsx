@@ -14,7 +14,6 @@ import {
   ReadinessSummaryCard,
   SpotsSummaryCard,
   StaySummaryCard,
-  TravelersSummaryCard,
   TripNotesSummaryCard,
 } from "./TripDashboardCards";
 import WeatherCard from "./WeatherCard";
@@ -84,23 +83,23 @@ type DashboardCardRecord = {
   _id: Id<"dashboardCards">;
   tripId: Id<"trips">;
   kind:
-    | "hero"
-    | "arrival"
-    | "stay"
-    | "weather"
-    | "map"
-    | "travelers"
-    | "tripNotes"
-    | "budgetSummary"
-    | "spots"
-    | "packingSummary"
-    | "budget"
-    | "packing"
-    | "gallery"
-    | "proposals"
-    | "availability"
-    | "chat"
-    | "note";
+  | "hero"
+  | "arrival"
+  | "stay"
+  | "weather"
+  | "map"
+  | "travelers"
+  | "tripNotes"
+  | "budgetSummary"
+  | "spots"
+  | "packingSummary"
+  | "budget"
+  | "packing"
+  | "gallery"
+  | "proposals"
+  | "availability"
+  | "chat"
+  | "note";
   title?: string;
   content?: string;
   order: number;
@@ -148,7 +147,7 @@ function getScheduleToneClasses(tone: ScheduleTone) {
 }
 
 function surface(extra = "") {
-  return `trip-theme-card trip-dashboard-surface rounded-[30px] text-[#f7f4ea] ${extra}`;
+  return `trip-theme-card trip-dashboard-surface rounded-4xl text-[#f7f4ea] ${extra}`;
 }
 
 export default function TripSummaryBoard({
@@ -398,7 +397,7 @@ export default function TripSummaryBoard({
 
   return (
     <>
-      <div className="grid min-w-0 gap-4 md:grid-cols-6 md:grid-flow-row-dense">
+      <div className="grid  gap-4 md:grid-cols-6 md:grid-flow-row-dense">
         <div className="md:col-span-3">
           <HeroSummaryCard
             trip={trip}
@@ -459,12 +458,7 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        <div className="md:col-span-2">
-          <TravelersSummaryCard
-            travelers={travelers}
-            onOpenPeople={() => onOpenView("people")}
-          />
-        </div>
+       
 
         <div className="md:col-span-2">
           <BudgetOverviewCard
@@ -502,8 +496,8 @@ export default function TripSummaryBoard({
               {noteEditor?.mode === "edit-trip-notes"
                 ? "Edit trip notes"
                 : noteEditor?.mode === "edit-note"
-                ? "Edit note"
-                : "Add note"}
+                  ? "Edit note"
+                  : "Add note"}
             </DrawerTitle>
             <DrawerDescription>
               Main trip page stays summary-first. Use this drawer to update the note
@@ -591,7 +585,7 @@ export default function TripSummaryBoard({
                 scheduleItems.map((item) => (
                   <article
                     key={item._id}
-                    className={`rounded-[24px] border px-4 py-4 ${getScheduleToneClasses(
+                    className={`rounded-3xl border px-4 py-4 ${getScheduleToneClasses(
                       (item.tone as ScheduleTone | undefined) || "neutral"
                     )}`}
                   >
@@ -698,11 +692,10 @@ export default function TripSummaryBoard({
                           tone,
                         }))
                       }
-                      className={`trip-glass-button bg-[color:var(--control-bg)] px-4 py-2 capitalize hover:bg-[color:var(--control-bg-hover)] ${
-                        scheduleDraft.tone === tone
-                          ? "border-[#dbe887]/40 bg-[#213229]"
-                          : ""
-                      }`}
+                      className={`trip-glass-button bg-[color:var(--control-bg)] px-4 py-2 capitalize hover:bg-[color:var(--control-bg-hover)] ${scheduleDraft.tone === tone
+                        ? "border-[#dbe887]/40 bg-[#213229]"
+                        : ""
+                        }`}
                     >
                       {tone}
                     </button>

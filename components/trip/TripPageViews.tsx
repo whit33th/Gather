@@ -82,23 +82,23 @@ type DashboardCardRecord = {
   _id: Id<"dashboardCards">;
   tripId: Id<"trips">;
   kind:
-    | "hero"
-    | "arrival"
-    | "stay"
-    | "weather"
-    | "map"
-    | "travelers"
-    | "tripNotes"
-    | "budgetSummary"
-    | "spots"
-    | "packingSummary"
-    | "budget"
-    | "packing"
-    | "gallery"
-    | "proposals"
-    | "availability"
-    | "chat"
-    | "note";
+  | "hero"
+  | "arrival"
+  | "stay"
+  | "weather"
+  | "map"
+  | "travelers"
+  | "tripNotes"
+  | "budgetSummary"
+  | "spots"
+  | "packingSummary"
+  | "budget"
+  | "packing"
+  | "gallery"
+  | "proposals"
+  | "availability"
+  | "chat"
+  | "note";
   title?: string;
   content?: string;
   order: number;
@@ -117,7 +117,7 @@ type TripMarker = {
 };
 
 function surface(extra = "") {
-  return `trip-theme-card rounded-[30px] text-[#f7f4ea] ${extra}`;
+  return `trip-theme-card rounded-4xl text-[#f7f4ea] ${extra}`;
 }
 
 function buildTripDates(startDate: string, endDate: string) {
@@ -150,14 +150,14 @@ function buildMarkers(trip: Doc<"trips">, proposals: ProposalCard[] | undefined)
   return [
     ...(trip.lat != null && trip.lng != null
       ? [
-          {
-            id: "destination",
-            name: trip.destination,
-            lat: trip.lat,
-            lng: trip.lng,
-            category: "general" as const,
-          },
-        ]
+        {
+          id: "destination",
+          name: trip.destination,
+          lat: trip.lat,
+          lng: trip.lng,
+          category: "general" as const,
+        },
+      ]
       : []),
     ...((proposals || [])
       .filter((proposal) => proposal.lat != null && proposal.lng != null)
@@ -274,7 +274,7 @@ export function TripPeopleView({
         </div>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <article className="trip-theme-muted rounded-[24px] px-4 py-4">
+          <article className="trip-theme-muted rounded-3xl px-4 py-4">
             <p className="text-[0.65rem] uppercase tracking-[0.18em] text-white/42">
               Travelers
             </p>
@@ -282,13 +282,13 @@ export function TripPeopleView({
               {syncedTravelers.length}
             </p>
           </article>
-          <article className="trip-theme-muted rounded-[24px] px-4 py-4">
+          <article className="trip-theme-muted rounded-3xl px-4 py-4">
             <p className="text-[0.65rem] uppercase tracking-[0.18em] text-white/42">Owners</p>
             <p className="mt-3 text-[1.8rem] font-semibold tracking-[-0.06em] text-white">
               {ownerCount}
             </p>
           </article>
-          <article className="trip-theme-muted col-span-2 rounded-[24px] px-4 py-4 sm:col-span-1">
+          <article className="trip-theme-muted col-span-2 rounded-3xl px-4 py-4 sm:col-span-1">
             <p className="text-[0.65rem] uppercase tracking-[0.18em] text-white/42">
               Synced
             </p>
@@ -396,8 +396,8 @@ export function TripListView({
     () =>
       normalizedSearchQuery
         ? expenses.filter((expense) =>
-            matchesSearch(normalizedSearchQuery, expense.title, expense.payerName),
-          )
+          matchesSearch(normalizedSearchQuery, expense.title, expense.payerName),
+        )
         : expenses,
     [expenses, normalizedSearchQuery],
   );

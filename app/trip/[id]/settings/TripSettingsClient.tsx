@@ -18,6 +18,7 @@ import { useEffect, useMemo, useState } from "react";
 import LocationSearch from "@/components/LocationSearch";
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
+import { tripDateRangeSchema } from "@/lib/validation/tripDates";
 
 type SelectedLocation = {
   place_name: string;
@@ -55,6 +56,7 @@ export default function TripSettingsClient({
   const [locationName, setLocationName] = useState(trip.locationName || trip.destination);
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   const tripLength = useMemo(() => {
     if (!startDate || !endDate) return null;
@@ -85,6 +87,17 @@ export default function TripSettingsClient({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setSaveError("");
+
+    const dateValidation = tripDateRangeSchema.safeParse({
+      startDate,
+      endDate,
+    });
+    if (!dateValidation.success) {
+      setSaveError(dateValidation.error.issues[0]?.message ?? "Check the trip dates.");
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -102,6 +115,7 @@ export default function TripSettingsClient({
       router.refresh();
     } catch (error) {
       console.error(error);
+      setSaveError(error instanceof Error ? error.message : "Could not save trip settings.");
       setIsSaving(false);
     }
   };
@@ -224,6 +238,7 @@ export default function TripSettingsClient({
                     value={startDate}
                     onChange={(event) => {
                       setIsDirty(true);
+                      setSaveError("");
                       setStartDate(event.target.value);
                     }}
                     className="editorial-input mt-3 [color-scheme:dark]"
@@ -237,12 +252,19 @@ export default function TripSettingsClient({
                     value={endDate}
                     onChange={(event) => {
                       setIsDirty(true);
+                      setSaveError("");
                       setEndDate(event.target.value);
                     }}
                     className="editorial-input mt-3 [color-scheme:dark]"
                   />
                 </div>
               </div>
+
+              {saveError ? (
+                <p className="mt-4 rounded-[1rem] bg-rose-500/14 px-4 py-3 text-sm text-rose-100">
+                  {saveError}
+                </p>
+              ) : null}
             </section>
           </div>
 

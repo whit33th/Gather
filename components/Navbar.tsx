@@ -17,6 +17,7 @@ import AppShellBackground from "./AppShellBackground";
 import { AppThemeProvider } from "./AppThemeProvider";
 import LenisProvider from "./LenisProvider";
 import UserAvatar from "./UserAvatar";
+import { GoogleIcon } from "@/app/login/LoginActions";
 
 type AppNavItem = {
   href: Route;
@@ -172,10 +173,10 @@ export default function Navbar({ children }: { children: ReactNode }) {
     <button
       type="button"
       onClick={() => void signIn("google", { redirectTo: pathname })}
-      className="trip-glass-button w-full justify-center rounded-[1.35rem] bg-[color:var(--control-bg)] px-4 py-3.5 text-sm hover:bg-[color:var(--control-bg-hover)]"
+      className="mt-0 flex min-h-16 w-full items-center justify-center gap-3 rounded-full border border-black/8 bg-white px-6 text-[1.1rem] font-bold tracking-[-0.03em] text-[#171717] shadow-[0_14px_30px_rgba(0,0,0,0.2)] transition hover:-translate-y-0.5 hover:bg-[#f8f8f8] lg:mt-10"
     >
-      <ArrowUpRight className="h-4 w-4" />
-      <span>Continue with Google</span>
+      <GoogleIcon />
+      <span>Sign in with Google</span>
     </button>
   );
 
@@ -229,7 +230,7 @@ export default function Navbar({ children }: { children: ReactNode }) {
       </aside>
 
       <LenisProvider className="relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
-        <main className=" relative min-h-full gap-4 p-4 flex flex-col sm:p-5 lg:p-6">{children}</main>
+        <main className=" relative flex-1  min-h-full gap-4 p-4 flex flex-col sm:p-5 lg:p-6">{children}</main>
       </LenisProvider>
     </AppThemeProvider>
   );

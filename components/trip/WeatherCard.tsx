@@ -170,7 +170,7 @@ export default function WeatherCard({
 
   if (lat == null || lng == null) {
     return (
-      <div className="trip-theme-card trip-dashboard-surface h-full rounded-[30px] p-5 text-white">
+      <div className="trip-theme-card trip-dashboard-surface h-full rounded-4xl p-5 text-white">
         <p className="section-kicker">Weather</p>
         <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
           Forecast snapshot
@@ -183,7 +183,7 @@ export default function WeatherCard({
   }
 
   return (
-    <div className="trip-theme-card trip-dashboard-surface weather-card-shell relative h-full overflow-hidden rounded-[30px] text-white">
+    <div className="trip-theme-card trip-dashboard-surface weather-card-shell relative h-full overflow-hidden rounded-4xl text-white">
       {theme ? (
         <>
           <div className={`weather-card-overlay absolute inset-0 ${theme.shell}`} />

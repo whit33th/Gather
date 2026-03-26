@@ -524,21 +524,8 @@ img {
   z-index: -1;
 }
 
-.page-shell {
-  position: relative;
-  isolation: isolate;
-}
 
-.page-shell::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 8%, transparent), transparent 28rem),
-    radial-gradient(circle at 90% 8%, color-mix(in srgb, var(--foreground) 7%, transparent), transparent 22rem);
-}
+
 
 .editorial-hero-panel {
   background: linear-gradient(135deg,
@@ -594,7 +581,6 @@ img {
 
 .app-theme-shell[data-photo-background="true"] .mesh-card::before,
 .app-theme-shell[data-photo-background="true"] .mesh-card::after,
-.app-theme-shell[data-photo-background="true"] .page-shell::before,
 .app-theme-shell[data-photo-background="true"] .app-shell-background__mesh {
   display: none;
 }
@@ -638,6 +624,52 @@ img {
 .app-theme-shell[data-photo-background="true"] .trip-glass-icon-button:hover {
   background-color: rgba(255, 255, 255, 0.06) !important;
   border-color: rgba(255, 255, 255, 0.24) !important;
+}
+
+.app-theme-shell[data-photo-background="true"] .editorial-input,
+.app-theme-shell[data-photo-background="true"] .editorial-pill,
+.app-theme-shell[data-photo-background="true"] .editorial-filter-chip,
+.app-theme-shell[data-photo-background="true"] .editorial-button-secondary,
+.app-theme-shell[data-photo-background="true"] .editorial-button-ghost {
+  background-image: none !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: color-mix(in srgb, var(--foreground) 92%, transparent) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 10px 26px rgba(0, 0, 0, 0.1) !important;
+}
+
+.app-theme-shell[data-photo-background="true"] .editorial-input,
+.app-theme-shell[data-photo-background="true"] .editorial-pill {
+  background-color: rgba(8, 10, 12, 0.08) !important;
+}
+
+.app-theme-shell[data-photo-background="true"] .editorial-filter-chip,
+.app-theme-shell[data-photo-background="true"] .editorial-button-secondary,
+.app-theme-shell[data-photo-background="true"] .editorial-button-ghost {
+  background-color: transparent !important;
+}
+
+.app-theme-shell[data-photo-background="true"] .editorial-input::placeholder {
+  color: color-mix(in srgb, var(--foreground) 42%, transparent) !important;
+}
+
+.app-theme-shell[data-photo-background="true"] .editorial-pill:hover,
+.app-theme-shell[data-photo-background="true"] .editorial-filter-chip:hover,
+.app-theme-shell[data-photo-background="true"] .editorial-button-secondary:hover,
+.app-theme-shell[data-photo-background="true"] .editorial-button-ghost:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.24) !important;
+}
+
+.app-theme-shell[data-photo-background="true"] .editorial-filter-chip[data-active="true"] {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.24) !important;
+  color: var(--foreground) !important;
+}
+
+.app-theme-shell[data-photo-background="true"] .editorial-filter-chip__icon {
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 .trip-dashboard-surface {

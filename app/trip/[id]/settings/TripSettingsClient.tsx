@@ -135,7 +135,7 @@ export default function TripSettingsClient({
           className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_21rem]"
         >
           <div className="grid gap-6">
-            <section className="glass-panel rounded-[2.1rem] p-5 sm:p-6">
+            <section className="glass-panel relative z-20 overflow-visible rounded-[2.1rem] p-5 sm:p-6">
               <div className="flex items-start gap-4">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1.1rem] border border-white/10 bg-white/[0.05] text-[#dbe887]">
                   <Type className="h-5 w-5" />
@@ -199,7 +199,7 @@ export default function TripSettingsClient({
               </div>
             </section>
 
-            <section className="glass-panel rounded-[2.1rem] p-5 sm:p-6">
+            <section className="glass-panel relative z-0 rounded-[2.1rem] p-5 sm:p-6">
               <div className="flex items-start gap-4">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1.1rem] border border-white/10 bg-white/[0.05] text-[#8fd0c0]">
                   <CalendarDays className="h-5 w-5" />
@@ -254,7 +254,7 @@ export default function TripSettingsClient({
               </h2>
 
               <div className="mt-6 space-y-3">
-                <article className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4">
+                <article className="trip-theme-subsurface rounded-[1.5rem] p-4">
                   <div className="flex items-center gap-3">
                     <MapPin className="h-4 w-4 text-[#dbe887]" />
                     <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-white/44">
@@ -266,7 +266,7 @@ export default function TripSettingsClient({
                   </p>
                 </article>
 
-                <article className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4">
+                <article className="trip-theme-subsurface rounded-[1.5rem] p-4">
                   <div className="flex items-center gap-3">
                     <CalendarDays className="h-4 w-4 text-[#8fd0c0]" />
                     <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-white/44">
@@ -283,7 +283,7 @@ export default function TripSettingsClient({
                   ) : null}
                 </article>
 
-                <article className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4">
+                <article className="trip-theme-subsurface rounded-[1.5rem] p-4">
                   <div className="flex items-center gap-3">
                     <Sparkles className="h-4 w-4 text-[#c7b0ff]" />
                     <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-white/44">
@@ -304,7 +304,7 @@ export default function TripSettingsClient({
                 Map status
               </h2>
               <div className="mt-5 grid gap-3">
-                <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.04] px-4 py-3">
+                <div className="trip-theme-subsurface rounded-[1.3rem] px-4 py-3">
                   <p className="text-[0.62rem] uppercase tracking-[0.16em] text-white/40">
                     Latitude
                   </p>
@@ -312,7 +312,7 @@ export default function TripSettingsClient({
                     {lat != null ? lat.toFixed(4) : "Pending"}
                   </p>
                 </div>
-                <div className="rounded-[1.3rem] border border-white/10 bg-white/[0.04] px-4 py-3">
+                <div className="trip-theme-subsurface rounded-[1.3rem] px-4 py-3">
                   <p className="text-[0.62rem] uppercase tracking-[0.16em] text-white/40">
                     Longitude
                   </p>

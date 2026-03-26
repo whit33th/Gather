@@ -51,11 +51,10 @@ function ThemePresetCard({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-[1.5rem] border p-4 text-left transition ${
-        active
+      className={`rounded-[1.5rem] border p-4 text-left transition ${active
           ? "border-[var(--accent)] bg-white/[0.08] shadow-[0_18px_40px_rgba(0,0,0,0.18)]"
           : "border-white/10 bg-white/[0.04] hover:border-white/18 hover:bg-white/[0.06]"
-      }`}
+        }`}
     >
       <div className="flex items-center gap-2">
         {preview.map((color) => (
@@ -126,7 +125,7 @@ export default function SettingsPageClient({
   };
 
   return (
-    <div className="page-shell">
+    <>
       <section className="mx-auto max-w-7xl px-4 pb-10 pt-6 sm:px-6 lg:px-8">
         <section className="glass-panel mesh-card overflow-hidden rounded-[2.5rem] p-4 sm:p-5">
           <div className="editorial-hero-panel relative overflow-hidden rounded-[2.2rem] border border-white/10 px-6 py-7 sm:px-8 sm:py-8">
@@ -234,17 +233,15 @@ export default function SettingsPageClient({
                         setUseTripCoverBackground((value) => !value);
                         setIsDirty(true);
                       }}
-                      className={`relative inline-flex h-11 w-20 shrink-0 items-center rounded-full border transition ${
-                        useTripCoverBackground
+                      className={`relative inline-flex h-11 w-20 shrink-0 items-center rounded-full border transition ${useTripCoverBackground
                           ? "border-[var(--accent)] bg-[color:var(--accent-soft)]"
                           : "border-white/10 bg-white/[0.06]"
-                      }`}
+                        }`}
                       aria-pressed={useTripCoverBackground}
                     >
                       <span
-                        className={`absolute h-8 w-8 rounded-full bg-white shadow-[0_12px_24px_rgba(0,0,0,0.18)] transition-transform ${
-                          useTripCoverBackground ? "translate-x-[2.55rem]" : "translate-x-1.5"
-                        }`}
+                        className={`absolute h-8 w-8 rounded-full bg-white shadow-[0_12px_24px_rgba(0,0,0,0.18)] transition-transform ${useTripCoverBackground ? "translate-x-[2.55rem]" : "translate-x-1.5"
+                          }`}
                       />
                     </button>
                   </div>
@@ -343,6 +340,6 @@ export default function SettingsPageClient({
           </aside>
         </div>
       </section>
-    </div>
+    </>
   );
 }

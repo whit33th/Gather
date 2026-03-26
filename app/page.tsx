@@ -81,9 +81,8 @@ function TripCard({
   return (
     <Link href={href} className="group block">
       <article
-        className={`glass-panel mesh-card overflow-hidden rounded-[2rem] ${
-          featured ? "lg:grid lg:grid-cols-[1.15fr_0.85fr]" : ""
-        }`}
+        className={`glass-panel mesh-card overflow-hidden rounded-[2rem] ${featured ? "lg:grid lg:grid-cols-[1.15fr_0.85fr]" : ""
+          }`}
       >
         <div className={`relative ${featured ? "min-h-[24rem]" : "h-72"}`}>
           <Image
@@ -109,9 +108,8 @@ function TripCard({
           <div>
             <p className="section-kicker">Trip notebook</p>
             <h3
-              className={`mt-4 font-semibold tracking-[-0.05em] text-white ${
-                featured ? "text-4xl sm:text-5xl" : "text-3xl"
-              }`}
+              className={`mt-4 font-semibold tracking-[-0.05em] text-white ${featured ? "text-4xl sm:text-5xl" : "text-3xl"
+                }`}
             >
               {title}
             </h3>
@@ -140,9 +138,8 @@ export default async function HomePage() {
   const uniqueDestinations = new Set(trips.map((trip) => trip.destination)).size;
 
   return (
-    <div className="page-shell">
-      <section className="mx-auto max-w-7xl px-4 pb-8 pt-6 sm:px-6 lg:px-8">
-        <div className="glass-panel mesh-card overflow-hidden rounded-[2.5rem] p-6 sm:p-8">
+    <>
+      <section className="glass-panel mesh-card overflow-hidden rounded-[2.5rem] p-6 sm:p-8 ">
           <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
             <div>
               <p className="section-kicker">Your travel control room</p>
@@ -175,10 +172,9 @@ export default async function HomePage() {
               />
             </div>
           </div>
-        </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+      <section className=" ">
         {trips.length === 0 ? (
           <div className="glass-panel mesh-card rounded-[2.3rem] p-8 sm:p-10">
             <p className="section-kicker">Empty state</p>
@@ -229,7 +225,7 @@ export default async function HomePage() {
         )}
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <section className=" px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid gap-5 lg:grid-cols-3">
           <FeatureCard
             icon={<Map className="h-5 w-5" />}
@@ -249,7 +245,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <section className=" px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
           <div className="glass-panel mesh-card rounded-[2.4rem] p-6 sm:p-8">
             <p className="section-kicker">From scattered to synced</p>
@@ -310,7 +306,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
+      <section className="px-4 pb-20 pt-8 sm:px-6 lg:px-8">
         <div className="glass-panel-dark rounded-[2.4rem] p-6 text-white sm:p-8">
           <p className="section-kicker text-white/58">What this design now promises</p>
           <div className="mt-6 grid gap-4 lg:grid-cols-3">
@@ -335,6 +331,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-    </div>
+    </>
   );
 }

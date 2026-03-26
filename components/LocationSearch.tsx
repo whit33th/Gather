@@ -44,6 +44,7 @@ export default function LocationSearch({
   const [showOptions, setShowOptions] = useState(false);
   const hasToken = Boolean(MAPBOX_TOKEN);
   const suppressOpenRef = useRef(false);
+  const hasInteractedRef = useRef(false);
   const requestIdRef = useRef(0);
 
   useEffect(() => {
@@ -92,7 +93,7 @@ export default function LocationSearch({
 
         if (suppressOpenRef.current) {
           suppressOpenRef.current = false;
-        } else {
+        } else if (hasInteractedRef.current) {
           setShowOptions(true);
         }
       } catch (error) {
@@ -119,6 +120,7 @@ export default function LocationSearch({
           value={query}
           onChange={(e) => {
             const nextValue = e.target.value;
+            hasInteractedRef.current = true;
             if (!isControlled) {
               setQuery(nextValue);
             }
@@ -127,6 +129,7 @@ export default function LocationSearch({
             if (hasToken) setShowOptions(true);
           }}
           onFocus={() => {
+            hasInteractedRef.current = true;
             if (hasToken && options.length > 0 && query.length >= 3) {
               setShowOptions(true);
             }
@@ -148,7 +151,7 @@ export default function LocationSearch({
         <div
           id={`${inputId}-options`}
           role="listbox"
-          className="editorial-card absolute z-50 mt-2 w-full overflow-hidden rounded-[1.4rem] p-2"
+          className="editorial-card absolute z-[70] mt-2 max-h-[18rem] w-full overflow-y-auto rounded-[1.4rem] p-2"
         >
           {options.map((option) => (
             <button

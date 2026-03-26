@@ -2,16 +2,12 @@
 
 import { useMemo } from "react";
 import { useQuery } from "convex-helpers/react/cache/hooks";
-import { addDays, differenceInCalendarDays, parseISO } from "date-fns";
 
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 
-import AppState from "../AppState";
 import UserAvatar from "../UserAvatar";
-import TripSummaryBoard from "./TripSummaryBoard";
 import {
-  AvailabilityStudio,
   BudgetStudio,
   GalleryStudio,
   MapStudio,
@@ -78,34 +74,6 @@ export type TaskCard = {
   assignedTo?: Id<"members">;
 };
 
-type DashboardCardRecord = {
-  _id: Id<"dashboardCards">;
-  tripId: Id<"trips">;
-  kind:
-  | "hero"
-  | "arrival"
-  | "stay"
-  | "weather"
-  | "map"
-  | "travelers"
-  | "tripNotes"
-  | "budgetSummary"
-  | "spots"
-  | "packingSummary"
-  | "budget"
-  | "packing"
-  | "gallery"
-  | "proposals"
-  | "availability"
-  | "chat"
-  | "note";
-  title?: string;
-  content?: string;
-  order: number;
-};
-
-type ScheduleItem = Doc<"tripScheduleItems">;
-
 type TripMarker = {
   id: string;
   name: string;
@@ -118,16 +86,6 @@ type TripMarker = {
 
 function surface(extra = "") {
   return `trip-theme-card rounded-4xl text-[#f7f4ea] ${extra}`;
-}
-
-function buildTripDates(startDate: string, endDate: string) {
-  const start = parseISO(startDate);
-  const totalDays = Math.max(
-    differenceInCalendarDays(parseISO(endDate), parseISO(startDate)) + 1,
-    1,
-  );
-
-  return Array.from({ length: totalDays }, (_, index) => addDays(start, index));
 }
 
 function matchesSearch(query: string, ...values: Array<string | undefined | null>) {
@@ -175,54 +133,6 @@ function buildMarkers(trip: Doc<"trips">, proposals: ProposalCard[] | undefined)
         selected: selectedIds.has(proposal._id),
       })) || []),
   ];
-}
-
-export function TripBoardView({
-  currentViewerRole,
-  initialDashboardCards,
-  initialExpenses,
-  initialPhotos,
-  initialScheduleItems,
-  initialTasks,
-  noteComposerOpen,
-  onNoteComposerOpenChange,
-  onOpenView,
-  sortedProposals,
-  travelers,
-  trip,
-  tripId,
-}: {
-  currentViewerRole?: "owner" | "member";
-  initialDashboardCards: DashboardCardRecord[];
-  initialExpenses: ExpenseCard[];
-  initialPhotos: PhotoCard[];
-  initialScheduleItems: ScheduleItem[];
-  initialTasks: TaskCard[];
-  noteComposerOpen: boolean;
-  onNoteComposerOpenChange: (open: boolean) => void;
-  onOpenView: (view: "board" | "search" | "people" | "calendar" | "list") => void;
-  sortedProposals: ProposalCard[] | undefined;
-  travelers: AvailabilityMember[] | undefined;
-  trip: Doc<"trips">;
-  tripId: Id<"trips">;
-}) {
-  return (
-    <TripSummaryBoard
-      currentViewerRole={currentViewerRole}
-      initialDashboardCards={initialDashboardCards}
-      initialExpenses={initialExpenses}
-      initialPhotos={initialPhotos}
-      initialScheduleItems={initialScheduleItems}
-      initialTasks={initialTasks}
-      noteComposerOpen={noteComposerOpen}
-      onNoteComposerOpenChange={onNoteComposerOpenChange}
-      onOpenView={onOpenView}
-      sortedProposals={sortedProposals}
-      travelers={travelers}
-      trip={trip}
-      tripId={tripId}
-    />
-  );
 }
 
 export function TripSearchView({
@@ -358,18 +268,6 @@ export function TripPeopleView({
   );
 }
 
-export function TripCalendarView({
-  members,
-  tripDates,
-  tripId,
-}: {
-  members: AvailabilityMember[] | undefined;
-  tripDates: Date[];
-  tripId: Id<"trips">;
-}) {
-  return <AvailabilityStudio tripId={tripId} dates={tripDates} members={members} />;
-}
-
 export function TripListView({
   initialExpenses,
   initialPhotos,
@@ -418,16 +316,5 @@ export function TripListView({
       </div>
       <GalleryStudio tripId={tripId} photos={photos} />
     </div>
-  );
-}
-
-export function TripPageLoadingState() {
-  return (
-    <AppState
-      loading
-      eyebrow="Trip"
-      title="Loading trip"
-      description="Syncing proposals, people, and dashboard summaries."
-    />
   );
 }

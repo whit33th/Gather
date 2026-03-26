@@ -843,15 +843,11 @@ export function ReadinessSummaryCard({
       <div className="readiness-card-overlay absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,color-mix(in_srgb,var(--accent)_12%,transparent),transparent_20%),radial-gradient(circle_at_18%_0%,color-mix(in_srgb,var(--foreground)_5%,transparent),transparent_24%)]" />
       <div className="flex items-start justify-between gap-3">
         <div className="relative z-10">
-          <p className="text-[0.82rem] font-semibold uppercase tracking-[0.2em] text-[color:var(--trip-card-muted-text)]">
+          <p className="text-[0.82rem] font-semibold tracking-[0.2em] text-[color:var(--trip-card-muted-text)]">
             Readiness
           </p>
-          <p className="mt-3 text-[1.7rem] font-semibold tracking-[-0.05em] sm:text-[1.9rem]">
-            {progress}% set
-          </p>
-          <p className="mt-2 text-sm text-[color:var(--trip-card-muted-text)]">
-            Shared trip readiness across checklists, planning blocks, and team sync.
-          </p>
+          
+        
         </div>
         <div className="relative z-10">
           <SummaryActionButton label="Open readiness details" onClick={onOpenDetails} />

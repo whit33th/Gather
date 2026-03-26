@@ -9,9 +9,8 @@ import type { Route } from "next";
 import { useRouter } from "next/navigation";
 
 import UserAvatar from "@/components/UserAvatar";
+import TripSummaryBoard from "@/components/trip/TripSummaryBoard";
 import {
-  TripBoardView,
-  TripCalendarView,
   TripListView,
   TripPeopleView,
   TripSearchView,
@@ -21,6 +20,7 @@ import {
   type ProposalCard,
   type TaskCard,
 } from "@/components/trip/TripPageViews";
+import { AvailabilityStudio } from "@/components/trip/TripOverview";
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
@@ -425,7 +425,7 @@ export default function TripDashboardClient({
         {view === "people" ? <TripPeopleView travelers={visibleTravelers} /> : null}
 
         {view === "calendar" ? (
-          <TripCalendarView members={visibleTravelers} tripDates={tripDates} tripId={tripId} />
+          <AvailabilityStudio tripId={tripId} dates={tripDates} members={visibleTravelers} />
         ) : null}
 
         {view === "list" ? (
@@ -439,7 +439,7 @@ export default function TripDashboardClient({
         ) : null}
 
         {view === "board" ? (
-          <TripBoardView
+          <TripSummaryBoard
             currentViewerRole={currentViewer?.role}
             initialDashboardCards={initialDashboardCards}
             initialExpenses={initialExpenses}

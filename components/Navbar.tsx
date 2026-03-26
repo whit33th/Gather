@@ -1,20 +1,15 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useConvexAuth, useQuery } from "convex/react";
-import {
-  ArrowUpRight,
-  Compass,
-  Home,
-  Menu,
-  Search,
-  Settings2,
-  Sparkles,
-} from "lucide-react";
+import { useConvexAuth } from "convex/react";
+import { useQuery } from "convex-helpers/react/cache/hooks";
+import { ArrowUpRight, Home, Menu, Search, Settings2 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+
 import { api } from "../convex/_generated/api";
 import type { ThemePreset } from "../lib/theme";
 import { cn } from "../lib/utils";
@@ -46,10 +41,8 @@ function SidebarLink({
       href={href}
       onClick={onNavigate}
       className={cn(
-        "flex gap-2 w-full rounded-4xl justify-start px-4 py-3.5",
-        active
-          ? "border-white/24 bg-white/[0.07] text-white"
-          : "text-white/72 hover:text-white"
+        "flex w-full justify-start gap-2 rounded-4xl px-4 py-3.5",
+        active ? "border-white/24 bg-white/[0.07] text-white" : "text-white/72 hover:text-white",
       )}
     >
       <span className="flex h-10 w-10 items-center justify-center rounded-[14px] border border-white/10 bg-white/[0.04]">
@@ -65,7 +58,7 @@ function SidebarLink({
   );
 }
 
-export default function Navbar({ children }: { children: React.ReactNode }) {
+export default function Navbar({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { isLoading } = useConvexAuth();
   const { signIn } = useAuthActions();
@@ -137,23 +130,19 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
         active: pathname.startsWith("/discover"),
       },
     ],
-    [pathname]
+    [pathname],
   );
 
   const navLinks = navItems.map((item) => (
-    <SidebarLink
-      key={item.href}
-      {...item}
-      onNavigate={() => setMobileNavOpen(false)}
-    />
+    <SidebarLink key={item.href} {...item} onNavigate={() => setMobileNavOpen(false)} />
   ));
 
   const authPanel = isLoading || currentUser === undefined ? (
-    <div className="rounded-[1.55rem] border border-white/10  p-4 z-51">
+    <div className="z-51 rounded-[1.55rem] border border-white/10 p-4">
       <div className="h-12 animate-pulse rounded-[1rem] bg-white/6" />
     </div>
   ) : currentUser ? (
-    <div className="rounded-[1.55rem] border border-white/10  p-4 z-51">
+    <div className="z-51 rounded-[1.55rem] border border-white/10 p-4">
       <div className="flex items-center gap-3">
         <UserAvatar
           name={currentUser.name || "Traveler"}
@@ -194,7 +183,7 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
     <AppThemeProvider
       className={cn(
         "flex h-full min-h-0 min-w-0 overflow-hidden",
-        currentUser ? "app-theme-shell" : ""
+        currentUser ? "app-theme-shell" : "",
       )}
       enabled={Boolean(currentUser)}
       themePreset={currentUser ? themePreset : undefined}
@@ -223,7 +212,7 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex h-full min-h-0 w-[18rem] shrink-0 flex-col overflow-y-auto border-r border-white/8 bg-[color:transparent] transition-transform duration-300 md:static md:relative md:z-10 md:translate-x-0",
-          mobileNavOpen ? "translate-x-0" : "-translate-x-full"
+          mobileNavOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex min-h-full flex-col p-4 lg:p-5">
@@ -233,8 +222,6 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
             </Link>
           </div>
 
-
-
           <div className="mt-5 grid gap-2">{navLinks}</div>
 
           <div className="mt-auto pt-5">{authPanel}</div>
@@ -242,7 +229,7 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
       </aside>
 
       <LenisProvider className="relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
-        <main className="min-h-full min-w-0">{children}</main>
+        <main className=" relative min-h-full gap-4 p-4 flex flex-col sm:p-5 lg:p-6">{children}</main>
       </LenisProvider>
     </AppThemeProvider>
   );

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
+
 import { useAppTheme } from "./AppThemeProvider";
 
 export default function AppShellBackground() {
@@ -9,7 +10,6 @@ export default function AppShellBackground() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
-      <div className="app-shell-background__base absolute inset-0" />
 
       <AnimatePresence mode="wait">
         {backgroundImageUrl ? (
@@ -29,13 +29,12 @@ export default function AppShellBackground() {
               priority
               fetchPriority="high"
               sizes="100vw"
-              className="absolute inset-0 h-full w-full object-cover blur-3xl scale-110"
+              className="absolute inset-0 h-full w-full scale-110 object-cover blur-3xl brightness-90"
             />
-            <div className="app-shell-background__photo-overlay absolute inset-0" />
+            <div className="inset-0 absolute bg-linear-to-b from-black/5 to-black/35"/>
           </motion.div>
         ) : null}
       </AnimatePresence>
-
     </div>
   );
 }

@@ -1,9 +1,9 @@
 import type { Id } from "@/convex/_generated/dataModel";
 
-import TripDashboardClient from "./TripDashboardClient";
-import { getTripPageData, renderMissingTripState } from "./tripPageData";
+import TripDashboardClient from "../TripDashboardClient";
+import { getTripPageData, renderMissingTripState } from "../tripPageData";
 
-export default async function TripPage({
+export default async function TripSearchPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -29,7 +29,7 @@ export default async function TripPage({
       initialTravelers={travelers}
       initialTrip={trip}
       tripId={tripId}
-      view="board"
+      view="search"
     />
   );
 }

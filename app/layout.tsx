@@ -1,9 +1,8 @@
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import type { Metadata } from "next";
-import {
-  Instrument_Serif,
-  Sora,
-} from "next/font/google";
+import { Instrument_Serif, Sora } from "next/font/google";
+import type { ReactNode } from "react";
+
 import Navbar from "../components/Navbar";
 import SplashScreen from "../components/SplashScreen";
 import { ConvexClientProvider } from "./ConvexClientProvider";
@@ -28,7 +27,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <ConvexAuthNextjsServerProvider>
@@ -39,7 +38,6 @@ export default function RootLayout({
           <ConvexClientProvider>
             <SplashScreen />
             <Navbar>{children}</Navbar>
-
           </ConvexClientProvider>
         </body>
       </html>

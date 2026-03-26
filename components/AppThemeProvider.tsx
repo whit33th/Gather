@@ -1,15 +1,8 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useMemo,
-  type ReactNode,
-} from "react";
-import {
-  DEFAULT_THEME_PRESET,
-  type ThemePreset,
-} from "../lib/theme";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
+
+import { DEFAULT_THEME_PRESET, type ThemePreset } from "../lib/theme";
 
 type AppThemeContextValue = {
   themePreset: ThemePreset;
@@ -45,7 +38,7 @@ export function AppThemeProvider({
       photoBackgroundActive,
       backgroundImageUrl: backgroundImageUrl ?? null,
     }),
-    [backgroundImageUrl, photoBackgroundActive, resolvedThemePreset]
+    [backgroundImageUrl, photoBackgroundActive, resolvedThemePreset],
   );
 
   return (

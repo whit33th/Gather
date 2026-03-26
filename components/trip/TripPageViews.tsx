@@ -1,8 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
-import { useQuery } from "convex/react";
+import { useQuery } from "convex-helpers/react/cache/hooks";
 import { addDays, differenceInCalendarDays, parseISO } from "date-fns";
+
+import { api } from "@/convex/_generated/api";
+import type { Doc, Id } from "@/convex/_generated/dataModel";
+
+import AppState from "../AppState";
+import UserAvatar from "../UserAvatar";
 import TripSummaryBoard from "./TripSummaryBoard";
 import {
   AvailabilityStudio,
@@ -12,10 +18,6 @@ import {
   ProposalStudio,
   TasksStudio,
 } from "./TripOverview";
-import AppState from "../AppState";
-import UserAvatar from "../UserAvatar";
-import { api } from "../../convex/_generated/api";
-import type { Doc, Id } from "../../convex/_generated/dataModel";
 
 export type ProposalCard = {
   _id: string;
@@ -48,7 +50,7 @@ export type AvailabilityMember = {
   }>;
 };
 
-type PhotoCard = {
+export type PhotoCard = {
   _id: string;
   url: string;
   uploaderName: string;
@@ -57,7 +59,7 @@ type PhotoCard = {
   canDelete?: boolean;
 };
 
-type ExpenseCard = {
+export type ExpenseCard = {
   _id: string;
   title: string;
   amount: number;
@@ -66,7 +68,7 @@ type ExpenseCard = {
   payerUserId?: string;
 };
 
-type TaskCard = {
+export type TaskCard = {
   _id: Id<"packingItems">;
   _creationTime: number;
   tripId: Id<"trips">;
@@ -75,6 +77,34 @@ type TaskCard = {
   isChecked: boolean;
   assignedTo?: Id<"members">;
 };
+
+type DashboardCardRecord = {
+  _id: Id<"dashboardCards">;
+  tripId: Id<"trips">;
+  kind:
+    | "hero"
+    | "arrival"
+    | "stay"
+    | "weather"
+    | "map"
+    | "travelers"
+    | "tripNotes"
+    | "budgetSummary"
+    | "spots"
+    | "packingSummary"
+    | "budget"
+    | "packing"
+    | "gallery"
+    | "proposals"
+    | "availability"
+    | "chat"
+    | "note";
+  title?: string;
+  content?: string;
+  order: number;
+};
+
+type ScheduleItem = Doc<"tripScheduleItems">;
 
 type TripMarker = {
   id: string;
@@ -94,7 +124,7 @@ function buildTripDates(startDate: string, endDate: string) {
   const start = parseISO(startDate);
   const totalDays = Math.max(
     differenceInCalendarDays(parseISO(endDate), parseISO(startDate)) + 1,
-    1
+    1,
   );
 
   return Array.from({ length: totalDays }, (_, index) => addDays(start, index));
@@ -114,7 +144,7 @@ function buildMarkers(trip: Doc<"trips">, proposals: ProposalCard[] | undefined)
       trip.selectedFavoriteId,
     ]
       .filter(Boolean)
-      .map((id) => String(id))
+      .map((id) => String(id)),
   );
 
   return [
@@ -149,6 +179,11 @@ function buildMarkers(trip: Doc<"trips">, proposals: ProposalCard[] | undefined)
 
 export function TripBoardView({
   currentViewerRole,
+  initialDashboardCards,
+  initialExpenses,
+  initialPhotos,
+  initialScheduleItems,
+  initialTasks,
   noteComposerOpen,
   onNoteComposerOpenChange,
   onOpenView,
@@ -158,6 +193,11 @@ export function TripBoardView({
   tripId,
 }: {
   currentViewerRole?: "owner" | "member";
+  initialDashboardCards: DashboardCardRecord[];
+  initialExpenses: ExpenseCard[];
+  initialPhotos: PhotoCard[];
+  initialScheduleItems: ScheduleItem[];
+  initialTasks: TaskCard[];
   noteComposerOpen: boolean;
   onNoteComposerOpenChange: (open: boolean) => void;
   onOpenView: (view: "board" | "search" | "people" | "calendar" | "list") => void;
@@ -169,6 +209,11 @@ export function TripBoardView({
   return (
     <TripSummaryBoard
       currentViewerRole={currentViewerRole}
+      initialDashboardCards={initialDashboardCards}
+      initialExpenses={initialExpenses}
+      initialPhotos={initialPhotos}
+      initialScheduleItems={initialScheduleItems}
+      initialTasks={initialTasks}
       noteComposerOpen={noteComposerOpen}
       onNoteComposerOpenChange={onNoteComposerOpenChange}
       onOpenView={onOpenView}
@@ -257,10 +302,7 @@ export function TripPeopleView({
       {syncedTravelers.length > 0 ? (
         <div className="mt-8 grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
           {syncedTravelers.map((traveler) => (
-            <article
-              key={traveler.memberId}
-              className="trip-theme-card rounded-[28px] p-5"
-            >
+            <article key={traveler.memberId} className="trip-theme-card rounded-[28px] p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-4">
                   <UserAvatar
@@ -329,46 +371,49 @@ export function TripCalendarView({
 }
 
 export function TripListView({
+  initialExpenses,
+  initialPhotos,
+  initialTasks,
   normalizedSearchQuery,
   tripId,
 }: {
+  initialExpenses: ExpenseCard[];
+  initialPhotos: PhotoCard[];
+  initialTasks: TaskCard[];
   normalizedSearchQuery: string;
   tripId: Id<"trips">;
 }) {
-  const expenses = useQuery(api.expenses.list, { tripId }) as ExpenseCard[] | undefined;
-  const tasks = useQuery(api.tasks.list, { tripId }) as TaskCard[] | undefined;
-  const photos = useQuery(api.photos.list, { tripId }) as PhotoCard[] | undefined;
+  const liveExpenses = useQuery(api.expenses.list, { tripId }) as ExpenseCard[] | undefined;
+  const liveTasks = useQuery(api.tasks.list, { tripId }) as TaskCard[] | undefined;
+  const livePhotos = useQuery(api.photos.list, { tripId }) as PhotoCard[] | undefined;
 
-  const totalBudget = expenses?.reduce((sum, item) => sum + item.amount, 0) || 0;
+  const expenses = liveExpenses ?? initialExpenses;
+  const tasks = liveTasks ?? initialTasks;
+  const photos = livePhotos ?? initialPhotos;
+  const totalBudget = expenses.reduce((sum, item) => sum + item.amount, 0);
 
   const visibleExpenses = useMemo(
     () =>
       normalizedSearchQuery
-        ? expenses?.filter((expense) =>
-            matchesSearch(normalizedSearchQuery, expense.title, expense.payerName)
+        ? expenses.filter((expense) =>
+            matchesSearch(normalizedSearchQuery, expense.title, expense.payerName),
           )
         : expenses,
-    [expenses, normalizedSearchQuery]
+    [expenses, normalizedSearchQuery],
   );
 
   const visibleTasks = useMemo(
     () =>
       normalizedSearchQuery
-        ? tasks?.filter((task) =>
-            matchesSearch(normalizedSearchQuery, task.name, task.category)
-          )
+        ? tasks.filter((task) => matchesSearch(normalizedSearchQuery, task.name, task.category))
         : tasks,
-    [normalizedSearchQuery, tasks]
+    [normalizedSearchQuery, tasks],
   );
 
   return (
     <div className="min-w-0 space-y-6">
       <div className="grid min-w-0 gap-6 xl:grid-cols-2">
-        <BudgetStudio
-          tripId={tripId}
-          expenses={visibleExpenses}
-          totalBudget={totalBudget}
-        />
+        <BudgetStudio tripId={tripId} expenses={visibleExpenses} totalBudget={totalBudget} />
         <TasksStudio tripId={tripId} tasks={visibleTasks} />
       </div>
       <GalleryStudio tripId={tripId} photos={photos} />

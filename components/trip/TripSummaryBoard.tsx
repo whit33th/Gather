@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "convex-helpers/react/cache/hooks";
 import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
 import { CalendarDays, FileText, Plus, Trash2 } from "lucide-react";
 import {
@@ -152,6 +153,11 @@ function surface(extra = "") {
 
 export default function TripSummaryBoard({
   currentViewerRole,
+  initialDashboardCards,
+  initialExpenses,
+  initialPhotos,
+  initialScheduleItems,
+  initialTasks,
   noteComposerOpen,
   onNoteComposerOpenChange,
   onOpenView,
@@ -161,6 +167,11 @@ export default function TripSummaryBoard({
   tripId,
 }: {
   currentViewerRole?: "owner" | "member";
+  initialDashboardCards: DashboardCardRecord[];
+  initialExpenses: ExpenseCard[];
+  initialPhotos: PhotoCard[];
+  initialScheduleItems: ScheduleItem[];
+  initialTasks: TaskCard[];
   noteComposerOpen: boolean;
   onNoteComposerOpenChange: (open: boolean) => void;
   onOpenView: (view: DashboardView) => void;
@@ -169,15 +180,20 @@ export default function TripSummaryBoard({
   trip: Doc<"trips">;
   tripId: Id<"trips">;
 }) {
-  const photos = useQuery(api.photos.list, { tripId }) as PhotoCard[] | undefined;
-  const expenses = useQuery(api.expenses.list, { tripId }) as ExpenseCard[] | undefined;
-  const tasks = useQuery(api.tasks.list, { tripId }) as TaskCard[] | undefined;
-  const dashboardCards = useQuery(api.dashboardCards.list, { tripId }) as
+  const livePhotos = useQuery(api.photos.list, { tripId }) as PhotoCard[] | undefined;
+  const liveExpenses = useQuery(api.expenses.list, { tripId }) as ExpenseCard[] | undefined;
+  const liveTasks = useQuery(api.tasks.list, { tripId }) as TaskCard[] | undefined;
+  const liveDashboardCards = useQuery(api.dashboardCards.list, { tripId }) as
     | DashboardCardRecord[]
     | undefined;
-  const scheduleItems = useQuery(api.tripScheduleItems.list, { tripId }) as
+  const liveScheduleItems = useQuery(api.tripScheduleItems.list, { tripId }) as
     | ScheduleItem[]
     | undefined;
+  const photos = livePhotos ?? initialPhotos;
+  const expenses = liveExpenses ?? initialExpenses;
+  const tasks = liveTasks ?? initialTasks;
+  const dashboardCards = liveDashboardCards ?? initialDashboardCards;
+  const scheduleItems = liveScheduleItems ?? initialScheduleItems;
 
   const ensureDefaultCards = useMutation(api.dashboardCards.ensureDefaults);
   const addDashboardCard = useMutation(api.dashboardCards.add);
@@ -206,17 +222,17 @@ export default function TripSummaryBoard({
   });
 
   useEffect(() => {
-    if (dashboardCards !== undefined && dashboardCards.length === 0) {
+    if (dashboardCards.length === 0) {
       void ensureDefaultCards({ tripId });
     }
   }, [dashboardCards, ensureDefaultCards, tripId]);
 
   const customNotes = useMemo(
-    () => (dashboardCards || []).filter((card) => card.kind === "note"),
+    () => dashboardCards.filter((card) => card.kind === "note"),
     [dashboardCards]
   );
   const tripNotesCard = useMemo(
-    () => (dashboardCards || []).find((card) => card.kind === "tripNotes") || null,
+    () => dashboardCards.find((card) => card.kind === "tripNotes") || null,
     [dashboardCards]
   );
 
@@ -224,7 +240,7 @@ export default function TripSummaryBoard({
     () =>
       dedupeUrls([
         trip.coverUrl,
-        ...(photos || []).map((photo) => photo.url),
+        ...photos.map((photo) => photo.url),
         ...((sortedProposals || []).map((proposal) => proposal.imageUrl)),
         ...fallbackGallery,
       ]),
@@ -232,7 +248,7 @@ export default function TripSummaryBoard({
   );
 
   const heroImage = gallery[0] || fallbackGallery[0];
-  const totalBudget = expenses?.reduce((sum, item) => sum + item.amount, 0) || 0;
+  const totalBudget = expenses.reduce((sum, item) => sum + item.amount, 0);
   const budgetTarget = useMemo(() => {
     if (totalBudget > 0) {
       return Math.max(Math.ceil((totalBudget / 0.7) / 50) * 50, totalBudget);
@@ -240,8 +256,8 @@ export default function TripSummaryBoard({
 
     return 1800;
   }, [totalBudget]);
-  const totalTasks = tasks?.length || 0;
-  const completedTasks = tasks?.filter((task) => task.isChecked).length || 0;
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter((task) => task.isChecked).length;
   const tripDates = useMemo(
     () => buildTripDates(trip.startDate, trip.endDate),
     [trip.endDate, trip.startDate]
@@ -262,9 +278,7 @@ export default function TripSummaryBoard({
 
   const readinessScore = useMemo(() => {
     const checklistRatio = totalTasks === 0 ? 0 : completedTasks / totalTasks;
-    const planningRatio = scheduleItems?.length
-      ? Math.min(scheduleItems.length / 3, 1)
-      : 0;
+    const planningRatio = scheduleItems.length ? Math.min(scheduleItems.length / 3, 1) : 0;
     const stayRatio = sortedProposals?.[0] ? 1 : 0;
     const peopleRatio = availabilityCompletion;
 
@@ -398,7 +412,7 @@ export default function TripSummaryBoard({
             daysLeft={daysLeft}
             readinessScore={readinessScore}
             checklistLabel={`${completedTasks}/${totalTasks || 0}`}
-            scheduleLabel={`${scheduleItems?.length || 0} blocks`}
+            scheduleLabel={`${scheduleItems.length} blocks`}
             peopleLabel={`${travelers?.length || 0} synced`}
             onOpenDetails={() => onOpenView("list")}
           />
@@ -456,7 +470,7 @@ export default function TripSummaryBoard({
           <BudgetOverviewCard
             expenses={expenses}
             totalBudget={totalBudget}
-            expenseCount={expenses?.length || 0}
+            expenseCount={expenses.length}
             budgetTarget={budgetTarget}
             onOpenDetails={() => onOpenView("list")}
           />
@@ -573,8 +587,8 @@ export default function TripSummaryBoard({
             </div>
 
             <div className="space-y-3">
-              {(scheduleItems || []).length > 0 ? (
-                scheduleItems?.map((item) => (
+              {scheduleItems.length > 0 ? (
+                scheduleItems.map((item) => (
                   <article
                     key={item._id}
                     className={`rounded-[24px] border px-4 py-4 ${getScheduleToneClasses(

@@ -1,16 +1,15 @@
-"use client";
-
-import { useMutation, useQuery } from "convex/react";
-import { motion } from "motion/react";
 import { format, parseISO } from "date-fns";
-import { ArrowUpRight, CalendarDays, MapPin, Sparkles, Users } from "lucide-react";
+import { CalendarDays, MapPin, Sparkles, Users } from "lucide-react";
 import type { Route } from "next";
-import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
-import { useAuthActions } from "@convex-dev/auth/react";
-import AppState from "../../../components/AppState";
-import { api } from "../../../convex/_generated/api";
-import { Id } from "../../../convex/_generated/dataModel";
+import * as motion from "motion/react-client";
+
+import { ConvexClientProvider } from "@/app/ConvexClientProvider";
+import AppState from "@/components/AppState";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
+import { fetchServerQuery } from "@/lib/convex-server";
+
+import InviteActions from "./InviteActions";
 
 function formatTripRange(startDate: string, endDate: string) {
   const start = parseISO(startDate);
@@ -18,46 +17,14 @@ function formatTripRange(startDate: string, endDate: string) {
   return `${format(start, "MMM d")} - ${format(end, "MMM d, yyyy")}`;
 }
 
-export default function InvitePage() {
-  const params = useParams();
-  const tripId = params.token as Id<"trips">;
-
-  const trip = useQuery(api.trips.getPublic, { tripId });
-  const joinTrip = useMutation(api.members.joinTrip);
-
-  const { signIn } = useAuthActions();
-  const router = useRouter();
-  const [isJoining, setIsJoining] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleJoin = async () => {
-    setIsJoining(true);
-    setError("");
-
-    try {
-      await joinTrip({ tripId });
-      router.push(`/trip/${tripId}` as Route);
-    } catch (e: unknown) {
-      if (e instanceof Error && e.message.includes("Unauthenticated")) {
-        await signIn("google", { redirectTo: `/invite/${tripId}` });
-        return;
-      }
-
-      setError(e instanceof Error ? e.message : "Unable to join this trip.");
-      setIsJoining(false);
-    }
-  };
-
-  if (trip === undefined) {
-    return (
-      <AppState
-        loading
-        eyebrow="Invite"
-        title="Loading invitation"
-        description="Checking the shared trip link and preparing the invite view."
-      />
-    );
-  }
+export default async function InvitePage({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}) {
+  const { token } = await params;
+  const tripId = token as Id<"trips">;
+  const trip = await fetchServerQuery(api.trips.getPublic, { tripId });
 
   if (trip === null) {
     return (
@@ -71,7 +38,7 @@ export default function InvitePage() {
 
   return (
     <div className="relative min-h-full overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,218,198,0.84),transparent_30%),radial-gradient(circle_at_88%_16%,rgba(255,244,228,0.84),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0))]" />
+      <div className="invite-page-glow absolute inset-0" />
 
       <div className="relative mx-auto flex min-h-full max-w-5xl items-center">
         <div className="grid w-full gap-6 lg:grid-cols-[0.96fr_1.04fr]">
@@ -86,7 +53,8 @@ export default function InvitePage() {
               Someone wants you in the trip notebook.
             </h1>
             <p className="mt-5 max-w-lg text-lg text-stone-600">
-              Join the shared plan to weigh in on dates, places, budget, and the details that turn a destination into an actual trip.
+              Join the shared plan to weigh in on dates, places, budget, and the details
+              that turn a destination into an actual trip.
             </p>
 
             <div className="mt-auto grid gap-4">
@@ -102,7 +70,8 @@ export default function InvitePage() {
                 <div className="flex items-center gap-3">
                   <Sparkles className="h-5 w-5 text-[#dd5a3d]" />
                   <p className="text-sm text-stone-700">
-                    Keep the practical plan visible without losing the energy of the trip itself.
+                    Keep the practical plan visible without losing the energy of the trip
+                    itself.
                   </p>
                 </div>
               </div>
@@ -148,24 +117,9 @@ export default function InvitePage() {
               </div>
             </div>
 
-            {error ? (
-              <div className="mt-5 rounded-[1rem] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                {error}
-              </div>
-            ) : null}
-
-            <button
-              onClick={() => void handleJoin()}
-              disabled={isJoining}
-              className="editorial-button-primary mt-8 flex w-full items-center justify-center rounded-[1.3rem] px-5 py-4 text-[0.68rem] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isJoining ? "Joining..." : "Join this trip"}
-              <ArrowUpRight className="h-4 w-4" />
-            </button>
-
-            <p className="mt-4 text-center text-sm text-stone-500">
-              If you are not signed in yet, we will send you through Google first and bring you straight back here.
-            </p>
+            <ConvexClientProvider>
+              <InviteActions tripId={tripId} redirectHref={`/trip/${tripId}` as Route} />
+            </ConvexClientProvider>
           </motion.div>
         </div>
       </div>

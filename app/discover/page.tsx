@@ -1,5 +1,3 @@
-"use client";
-
 import { Compass, MapPin, Sparkles, Waves } from "lucide-react";
 
 const discoverCards = [

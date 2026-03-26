@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useAction, useMutation } from "convex/react";
+import { useQuery } from "convex-helpers/react/cache/hooks";
 import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import {
   BedDouble,
@@ -134,7 +135,7 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 
 const categoryMeta: Record<
   ProposalCategory,
-  { label: string; icon: React.ReactNode; tone: string; softTone: string }
+  { label: string; icon: ReactNode; tone: string; softTone: string }
 > = {
   accommodation: {
     label: "Stay",
@@ -195,7 +196,7 @@ const proposalFilterMeta = [
   },
 ];
 
-const taskCategoryMeta: Record<string, { icon: React.ReactNode; shortLabel: string }> = {
+const taskCategoryMeta: Record<string, { icon: ReactNode; shortLabel: string }> = {
   General: { icon: <CheckSquare className="h-3.5 w-3.5" />, shortLabel: "General" },
   Packing: { icon: <Package className="h-3.5 w-3.5" />, shortLabel: "Packing" },
   Booking: { icon: <CalendarDays className="h-3.5 w-3.5" />, shortLabel: "Booking" },
@@ -2046,8 +2047,8 @@ function EditorDrawer({
   onOpenChange: (open: boolean) => void;
   title: string;
   description?: string;
-  children: React.ReactNode;
-  footer: React.ReactNode;
+  children: ReactNode;
+  footer: ReactNode;
 }) {
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -2075,7 +2076,7 @@ function Input({
   value: string;
   onChange: (value: string) => void;
   type?: string;
-  startAdornment?: React.ReactNode;
+  startAdornment?: ReactNode;
 }) {
   return (
     <div className="relative">
@@ -2111,7 +2112,7 @@ function EmptyState({
   icon,
   title,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
 }) {
   return (

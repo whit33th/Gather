@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "convex-helpers/react/cache/hooks";
 import { format } from "date-fns";
 import { MessageSquare, Send } from "lucide-react";
 import { api } from "../../convex/_generated/api";

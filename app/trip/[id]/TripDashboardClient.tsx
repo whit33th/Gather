@@ -1,7 +1,9 @@
 "use client";
 
+import type { Preloaded } from "convex/react";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "convex/react";
+import { usePreloadedQuery } from "convex/react";
 import { useQuery } from "convex-helpers/react/cache/hooks";
 import { addDays, differenceInCalendarDays, parseISO } from "date-fns";
 import { CalendarDays, Plus, Search, Settings2, Share2, UsersRound, X } from "lucide-react";
@@ -69,6 +71,18 @@ type CurrentUser = {
   } | null;
 } | null;
 
+type TripDashboardPreloadedData = {
+  currentUser: Preloaded<typeof api.users.current>;
+  dashboardCards: Preloaded<typeof api.dashboardCards.list>;
+  expenses: Preloaded<typeof api.expenses.list>;
+  photos: Preloaded<typeof api.photos.list>;
+  proposals: Preloaded<typeof api.proposals.listAccommodations>;
+  scheduleItems: Preloaded<typeof api.tripScheduleItems.list>;
+  tasks: Preloaded<typeof api.tasks.list>;
+  travelers: Preloaded<typeof api.availabilities.list>;
+  trip: Preloaded<typeof api.trips.get>;
+};
+
 function normalizeSearch(value: string) {
   return value.trim().toLowerCase();
 }
@@ -97,30 +111,23 @@ function getViewHref(tripId: Id<"trips">, view: DashboardView): Route {
 }
 
 export default function TripDashboardClient({
-  currentUser,
-  initialDashboardCards,
-  initialExpenses,
-  initialPhotos,
-  initialProposals,
-  initialScheduleItems,
-  initialTasks,
-  initialTravelers,
-  initialTrip,
+  preloaded,
   tripId,
   view,
 }: {
-  currentUser: CurrentUser;
-  initialDashboardCards: DashboardCardRecord[];
-  initialExpenses: ExpenseCard[];
-  initialPhotos: PhotoCard[];
-  initialProposals: ProposalCard[];
-  initialScheduleItems: ScheduleItem[];
-  initialTasks: TaskCard[];
-  initialTravelers: AvailabilityMember[];
-  initialTrip: Doc<"trips">;
+  preloaded: TripDashboardPreloadedData;
   tripId: Id<"trips">;
   view: DashboardView;
 }) {
+  const currentUser = usePreloadedQuery(preloaded.currentUser) as CurrentUser;
+  const initialDashboardCards = usePreloadedQuery(preloaded.dashboardCards) as DashboardCardRecord[];
+  const initialExpenses = usePreloadedQuery(preloaded.expenses) as ExpenseCard[];
+  const initialPhotos = usePreloadedQuery(preloaded.photos) as PhotoCard[];
+  const initialProposals = usePreloadedQuery(preloaded.proposals) as ProposalCard[];
+  const initialScheduleItems = usePreloadedQuery(preloaded.scheduleItems) as ScheduleItem[];
+  const initialTasks = usePreloadedQuery(preloaded.tasks) as TaskCard[];
+  const initialTravelers = usePreloadedQuery(preloaded.travelers) as AvailabilityMember[];
+  const initialTrip = usePreloadedQuery(preloaded.trip) as Doc<"trips">;
   const router = useRouter();
   const liveProposals = useQuery(
     api.proposals.listAccommodations,
@@ -330,9 +337,9 @@ export default function TripDashboardClient({
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <button
             type="button"
-            onClick={() => navigateToView("board")}
+            onClick={() => navigateToView("people")}
             className={cn(
-              "trip-glass-button trip-control-surface h-12 px-2 text-sm",
+              "trip-glass-button trip-control-surface h-11 p-2 text-sm",
               view === "board" &&
               "trip-header-button-active border-white/24 bg-white/[0.14] text-white",
             )}
@@ -354,18 +361,7 @@ export default function TripDashboardClient({
             ) : null}
           </button>
 
-          <button
-            type="button"
-            onClick={() => navigateToView("people")}
-            className={cn(
-              "trip-glass-icon-button trip-control-surface",
-              view === "people" &&
-              "trip-header-button-active border-white/24 bg-white/[0.14] text-white",
-            )}
-            aria-label="Open people"
-          >
-            <UsersRound className="h-4 w-4" />
-          </button>
+        
 
           <button
             type="button"
@@ -389,7 +385,7 @@ export default function TripDashboardClient({
             <Settings2 className="h-4 w-4" />
           </button>
 
-          <button
+          {/* <button
             type="button"
             onClick={() => {
               navigateToView("board");
@@ -398,16 +394,16 @@ export default function TripDashboardClient({
             className="trip-glass-button trip-control-surface h-12 px-5 text-sm"
           >
             <Plus className="h-4 w-4" />
-            <span>Add Notes</span>
-          </button>
+            <span className="hidden sm:block">Add Notes</span>
+          </button> */}
 
           <button
             type="button"
             onClick={() => void handleShare()}
-            className="flex h-12 items-center justify-center gap-2 rounded-full border border-white bg-white px-5 text-sm text-black transition hover:border-white hover:bg-[#f4f1e8] hover:text-black"
+            className="flex h-11 sm:w-fit w-11 items-center justify-center gap-2 rounded-full border border-white bg-white sm:px-5 text-sm text-black transition hover:border-white hover:bg-[#f4f1e8] hover:text-black"
           >
             <Share2 className="h-4 w-4" />
-            <span>{copied ? "Copied" : "Share"}</span>
+            <span className="hidden sm:block">{copied ? "Copied" : "Share"}</span>
           </button>
         </div>
       </header>

@@ -187,7 +187,7 @@ function SummaryActionButton({
 
 function SummaryEyebrow({ children }: { children: string }) {
   return (
-    <p className="text-[0.78rem] font-medium uppercase tracking-[0.22em] text-[color:var(--trip-card-muted-text)]">
+    <p className=" font-semibold text-[color:var(--trip-card-muted-text)]">
       {children}
     </p>
   );
@@ -343,19 +343,19 @@ export function StaySummaryCard({
 }) {
   return (
     <section className={surface("overflow-hidden p-4 h-full")}>
-      <div className="grid h-full gap-4 md:grid-cols-[minmax(10rem,14rem)_minmax(0,1fr)]">
-        <div className="relative h-full w-full">
+      <div className="grid gap-4 md:h-full md:grid-cols-[minmax(10rem,14rem)_minmax(0,1fr)]">
+        <div className="relative h-44 w-full md:h-full">
           <Image
             src={proposal?.imageUrl || image}
             alt={proposal?.name || "Choose your stay"}
             fill
             sizes="(min-width: 768px) 14rem, 100vw"
-            className="rounded-[22px] object-cover object-center h-full w-full min-h-[10rem] md:min-h-[14rem]"
+            className="rounded-[22px] object-cover object-center"
             style={{ backgroundColor: "#232" }}
             priority={true}
           />
         </div>
-        <div className="flex flex-col h-full min-h-[10rem]">
+        <div className="flex flex-col md:h-full">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <SummaryEyebrow>Stay</SummaryEyebrow>
@@ -544,61 +544,7 @@ export function SpotsSummaryCard({
   );
 }
 
-export function ArrivalSummaryCard({
-  arrivalDate,
-  items,
-  onManage,
-}: {
-  arrivalDate: string;
-  items: ScheduleItem[] | undefined;
-  onManage: () => void;
-}) {
-  const visibleItems = items?.slice(0, 3) || [];
 
-  return (
-    <section className={surface("flex flex-col p-5")}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <SummaryEyebrow>Arrival</SummaryEyebrow>
-          <p className="mt-3 text-[1.7rem] font-semibold tracking-[-0.06em] sm:text-[2rem]">
-            {arrivalDate}
-          </p>
-        </div>
-        <SummaryActionButton label="Manage arrival plan" onClick={onManage} />
-      </div>
-
-      {visibleItems.length > 0 ? (
-        <div className="mt-6 flex-1 space-y-3">
-          {visibleItems.map((item, index) => (
-            <article
-              key={item._id}
-              className="rounded-[22px] border border-[#23372e] bg-[#14251e] px-4 py-4"
-            >
-              <div className="flex items-start gap-3">
-                <span className="trip-theme-chip rounded-full px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.14em]">
-                  Day {index + 1}
-                </span>
-                <div className="min-w-0">
-                  <p className="text-base font-medium">{item.title}</p>
-                  <p className="mt-2 text-sm text-[color:var(--trip-card-muted-text)]">
-                    {item.startsAt} - {item.endsAt}
-                  </p>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      ) : (
-        <div className="mt-6">
-          <SummaryEmpty
-            title="No arrival blocks yet"
-            description="Keep this card clean and summary-only. Add check-in, transfer, and first-day anchors from the planner drawer."
-          />
-        </div>
-      )}
-    </section>
-  );
-}
 
 export function BudgetSummaryCard({
   expenses,
@@ -751,19 +697,7 @@ export function BudgetOverviewCard({
   );
 }
 
-export function ExpensesSummaryCard({
-  expenses,
-  onOpenDetails,
-}: {
-  expenses: ExpenseCard[] | undefined;
-  onOpenDetails: () => void;
-}) {
-  const visibleExpenses = expenses?.slice(0, 4) || [];
 
-  return (
-    <>    </>
-  );
-}
 
 export function PackingSummaryCard({
   tasks,
@@ -821,16 +755,10 @@ export function PackingSummaryCard({
 export function ReadinessSummaryCard({
   daysLeft,
   readinessScore,
-  checklistLabel,
-  scheduleLabel,
-  peopleLabel,
   onOpenDetails,
 }: {
   daysLeft: number;
   readinessScore: number;
-  checklistLabel: string;
-  scheduleLabel: string;
-  peopleLabel: string;
   onOpenDetails: () => void;
 }) {
   const circleRadius = 54;
@@ -840,24 +768,19 @@ export function ReadinessSummaryCard({
 
   return (
     <section className="trip-theme-card trip-dashboard-surface readiness-card-shell relative flex h-full flex-col overflow-hidden rounded-4xl px-5 py-5 text-[#f7f4ea]">
-      <div className="readiness-card-overlay absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,color-mix(in_srgb,var(--accent)_12%,transparent),transparent_20%),radial-gradient(circle_at_18%_0%,color-mix(in_srgb,var(--foreground)_5%,transparent),transparent_24%)]" />
       <div className="flex items-start justify-between gap-3">
         <div className="relative z-10">
-          <p className="text-[0.82rem] font-semibold tracking-[0.2em] text-[color:var(--trip-card-muted-text)]">
+          <p className="font-semibold text-[color:var(--trip-card-muted-text)]">
             Readiness
           </p>
-          
-        
         </div>
         <div className="relative z-10">
           <SummaryActionButton label="Open readiness details" onClick={onOpenDetails} />
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto mt-6 h-[11rem] w-[11rem] sm:h-[13rem] sm:w-[13rem]">
-        <div className="readiness-card-orb absolute inset-0 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--accent)_22%,transparent),transparent_62%)] blur-xl" />
-        <div className="readiness-card-core absolute inset-[0.9rem] rounded-full border border-[color:var(--trip-card-border)] bg-[radial-gradient(circle_at_top,color-mix(in_srgb,var(--paper)_92%,transparent),color-mix(in_srgb,var(--paper-strong)_96%,transparent)_72%)] backdrop-blur-sm" />
-        <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 140 140">
+      <div className="relative z-10 mx-auto mt-6 h-40 w-40 sm:h-48 sm:w-48 xl:h-full xl:w-full">
+        <svg className="absolute inset-0 h-full w-full -rotate-90 drop-shadow-lg " viewBox="0 0 140 140">
           <circle
             cx="70"
             cy="70"
@@ -878,35 +801,15 @@ export function ReadinessSummaryCard({
             strokeDashoffset={dashOffset}
           />
         </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center ">
           <p className="text-sm font-medium text-[color:var(--trip-card-muted-text)]">Days left</p>
           <p className="mt-1 text-[2.45rem] font-semibold leading-none tracking-[-0.08em] sm:text-[3rem]">
             {daysLeft}
           </p>
-
         </div>
       </div>
 
-      <div className="relative z-10 mt-5 grid grid-cols-3 gap-2">
-        <div className="trip-theme-muted rounded-[20px] px-3 py-3">
-          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--trip-card-muted-text)]">
-            Checklist
-          </p>
-          <p className="mt-2 text-sm font-medium text-white">{checklistLabel}</p>
-        </div>
-        <div className="trip-theme-muted rounded-[20px] px-3 py-3">
-          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--trip-card-muted-text)]">
-            Plan
-          </p>
-          <p className="mt-2 text-sm font-medium text-white">{scheduleLabel}</p>
-        </div>
-        <div className="trip-theme-muted rounded-[20px] px-3 py-3">
-          <p className="text-[0.62rem] uppercase tracking-[0.16em] text-[color:var(--trip-card-muted-text)]">
-            People
-          </p>
-          <p className="mt-2 text-sm font-medium text-white">{peopleLabel}</p>
-        </div>
-      </div>
+    
     </section>
   );
 }

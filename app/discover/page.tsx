@@ -22,7 +22,7 @@ export default function DiscoverPage() {
   return (
     <>
       <section className="mx-auto max-w-7xl px-4 pb-8 pt-6 sm:px-6 lg:px-8">
-        <div className="glass-panel mesh-card overflow-hidden rounded-[2.5rem] p-6 sm:p-8">
+        <div className="glass-panel  overflow-hidden rounded-[2.5rem] p-6 sm:p-8">
           <p className="section-kicker">Discover</p>
           <div className="mt-4 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
             <div>

@@ -1,15 +1,14 @@
+import { p } from "motion/react-client";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   experimental: {
     viewTransition: true,
-    // Disable optimizeCss to avoid critters/beasties processing issues in dev.
-    // This is blocking page rendering for some routes during screenshot verification.
-    optimizeCss: false,
+    optimizeCss: process.env.NODE_ENV === "production",
   },
   typedRoutes: true,
   images: {
+    minimumCacheTTL: 60 * 60 * 24, // 24 hours
     remotePatterns: [
       {
         protocol: "https",

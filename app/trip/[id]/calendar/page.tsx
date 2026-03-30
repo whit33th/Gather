@@ -1,7 +1,7 @@
 import type { Id } from "@/convex/_generated/dataModel";
 
 import TripDashboardClient from "../TripDashboardClient";
-import { getTripPageData, renderMissingTripState } from "../tripPageData";
+import { getPreloadedTripResult, preloadTripPageData, renderMissingTripState } from "../tripPageData";
 
 export default async function TripCalendarPage({
   params,
@@ -10,8 +10,8 @@ export default async function TripCalendarPage({
 }) {
   const { id } = await params;
   const tripId = id as Id<"trips">;
-  const { currentUser, dashboardCards, expenses, photos, proposals, scheduleItems, tasks, travelers, trip } =
-    await getTripPageData(tripId);
+  const preloaded = await preloadTripPageData(tripId);
+  const trip = getPreloadedTripResult(preloaded);
 
   if (trip === null) {
     return renderMissingTripState();
@@ -19,15 +19,7 @@ export default async function TripCalendarPage({
 
   return (
     <TripDashboardClient
-      currentUser={currentUser}
-      initialDashboardCards={dashboardCards}
-      initialExpenses={expenses}
-      initialPhotos={photos}
-      initialProposals={proposals}
-      initialScheduleItems={scheduleItems}
-      initialTasks={tasks}
-      initialTravelers={travelers}
-      initialTrip={trip}
+      preloaded={preloaded}
       tripId={tripId}
       view="calendar"
     />

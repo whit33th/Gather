@@ -1,13 +1,27 @@
 import "server-only";
 
 import { cache } from "react";
+import { preloadedQueryResult } from "convex/nextjs";
+import type { Preloaded } from "convex/react";
 
 import AppState from "@/components/AppState";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
-import { fetchServerQuery } from "@/lib/convex-server";
+import { preloadServerQuery } from "@/lib/convex-server";
 
-export const getTripPageData = cache(async (tripId: Id<"trips">) => {
+export type TripPagePreloadedData = {
+  currentUser: Preloaded<typeof api.users.current>;
+  dashboardCards: Preloaded<typeof api.dashboardCards.list>;
+  expenses: Preloaded<typeof api.expenses.list>;
+  photos: Preloaded<typeof api.photos.list>;
+  proposals: Preloaded<typeof api.proposals.listAccommodations>;
+  scheduleItems: Preloaded<typeof api.tripScheduleItems.list>;
+  tasks: Preloaded<typeof api.tasks.list>;
+  travelers: Preloaded<typeof api.availabilities.list>;
+  trip: Preloaded<typeof api.trips.get>;
+};
+
+export const preloadTripPageData = cache(async (tripId: Id<"trips">): Promise<TripPagePreloadedData> => {
   const [
     trip,
     currentUser,
@@ -19,15 +33,15 @@ export const getTripPageData = cache(async (tripId: Id<"trips">) => {
     dashboardCards,
     scheduleItems,
   ] = await Promise.all([
-    fetchServerQuery(api.trips.get, { tripId }),
-    fetchServerQuery(api.users.current, {}),
-    fetchServerQuery(api.proposals.listAccommodations, { tripId }),
-    fetchServerQuery(api.availabilities.list, { tripId }),
-    fetchServerQuery(api.expenses.list, { tripId }),
-    fetchServerQuery(api.tasks.list, { tripId }),
-    fetchServerQuery(api.photos.list, { tripId }),
-    fetchServerQuery(api.dashboardCards.list, { tripId }),
-    fetchServerQuery(api.tripScheduleItems.list, { tripId }),
+    preloadServerQuery(api.trips.get, { tripId }),
+    preloadServerQuery(api.users.current, {}),
+    preloadServerQuery(api.proposals.listAccommodations, { tripId }),
+    preloadServerQuery(api.availabilities.list, { tripId }),
+    preloadServerQuery(api.expenses.list, { tripId }),
+    preloadServerQuery(api.tasks.list, { tripId }),
+    preloadServerQuery(api.photos.list, { tripId }),
+    preloadServerQuery(api.dashboardCards.list, { tripId }),
+    preloadServerQuery(api.tripScheduleItems.list, { tripId }),
   ]);
 
   return {
@@ -42,6 +56,10 @@ export const getTripPageData = cache(async (tripId: Id<"trips">) => {
     scheduleItems,
   };
 });
+
+export function getPreloadedTripResult(preloaded: TripPagePreloadedData) {
+  return preloadedQueryResult(preloaded.trip);
+}
 
 export function renderMissingTripState() {
   return (

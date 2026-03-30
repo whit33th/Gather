@@ -1,7 +1,8 @@
 import AppState from "@/components/AppState";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
-import { fetchServerQuery } from "@/lib/convex-server";
+import { preloadServerQuery } from "@/lib/convex-server";
+import { preloadedQueryResult } from "convex/nextjs";
 
 import TripSettingsClient from "./TripSettingsClient";
 
@@ -12,7 +13,8 @@ export default async function TripSettingsPage({
 }) {
   const { id } = await params;
   const tripId = id as Id<"trips">;
-  const trip = await fetchServerQuery(api.trips.get, { tripId });
+  const preloadedTrip = await preloadServerQuery(api.trips.get, { tripId });
+  const trip = preloadedQueryResult(preloadedTrip);
 
   if (trip === null) {
     return (
@@ -24,5 +26,5 @@ export default async function TripSettingsPage({
     );
   }
 
-  return <TripSettingsClient trip={trip} tripId={tripId} />;
+  return <TripSettingsClient preloadedTrip={preloadedTrip} tripId={tripId} />;
 }

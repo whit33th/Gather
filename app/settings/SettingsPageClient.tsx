@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
+import type { Preloaded } from "convex/react";
 import { useMutation } from "convex/react";
+import { usePreloadedQuery } from "convex/react";
 import {
   ArrowUpRight,
   Image as ImageIcon,
@@ -73,10 +75,11 @@ function ThemePresetCard({
 }
 
 export default function SettingsPageClient({
-  currentUser,
+  preloadedCurrentUser,
 }: {
-  currentUser: SettingsUser;
+  preloadedCurrentUser: Preloaded<typeof api.users.current>;
 }) {
+  const currentUser = usePreloadedQuery(preloadedCurrentUser) as SettingsUser;
   const { signIn, signOut } = useAuthActions();
   const updateAppearance = useMutation(api.users.updateAppearance);
 

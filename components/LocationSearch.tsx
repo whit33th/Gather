@@ -42,10 +42,21 @@ export default function LocationSearch({
   const [query, setQuery] = useState(value ?? defaultValue ?? "");
   const [options, setOptions] = useState<LocationOption[]>([]);
   const [showOptions, setShowOptions] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const hasToken = Boolean(MAPBOX_TOKEN);
   const suppressOpenRef = useRef(false);
   const hasInteractedRef = useRef(false);
   const requestIdRef = useRef(0);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setShowOptions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (isControlled) {
@@ -111,7 +122,7 @@ export default function LocationSearch({
   }, [hasToken, query]);
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
       <div className="relative">
         <input
           id={inputId}

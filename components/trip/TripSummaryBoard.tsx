@@ -1,22 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useMutation } from "convex/react";
 import { useQuery } from "convex-helpers/react/cache/hooks";
+import { useMutation } from "convex/react";
 import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
-import { CalendarDays, FileText, Plus, Trash2 } from "lucide-react";
-import {
-  ArrivalSummaryCard,
-  BudgetOverviewCard,
-  ExpensesSummaryCard,
-  HeroSummaryCard,
-  PackingSummaryCard,
-  ReadinessSummaryCard,
-  SpotsSummaryCard,
-  StaySummaryCard,
-  TripNotesSummaryCard,
-} from "./TripDashboardCards";
-import WeatherCard from "./WeatherCard";
+import { useEffect, useMemo, useState } from "react";
+import { api } from "../../convex/_generated/api";
+import type { Doc, Id } from "../../convex/_generated/dataModel";
 import {
   Drawer,
   DrawerContent,
@@ -25,8 +14,16 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "../ui/drawer";
-import { api } from "../../convex/_generated/api";
-import type { Doc, Id } from "../../convex/_generated/dataModel";
+import {
+  BudgetOverviewCard,
+  HeroSummaryCard,
+  PackingSummaryCard,
+  ReadinessSummaryCard,
+  SpotsSummaryCard,
+  StaySummaryCard,
+  TripNotesSummaryCard
+} from "./TripDashboardCards";
+import WeatherCard from "./WeatherCard";
 
 type ProposalCard = {
   _id: string;
@@ -397,8 +394,16 @@ export default function TripSummaryBoard({
 
   return (
     <>
-      <div className="grid  gap-4 md:grid-cols-6 md:grid-flow-row-dense">
-        <div className="md:col-span-3">
+      {/*
+        Grid breakpoints:
+          md  (768px)  → 2 cols  — roomy 2-card rows
+          xl  (1280px) → 4 cols  — compact magazine feel
+          2xl (1536px) → 6 cols  — full dense grid (the one that looks great on big screens)
+      */}
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6 2xl:grid-flow-row-dense">
+
+        {/* Hero — full width md/xl, half row on 2xl */}
+        <div className="md:col-span-2 xl:col-span-4 2xl:col-span-3">
           <HeroSummaryCard
             trip={trip}
             heroImage={heroImage}
@@ -406,61 +411,17 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        <div className="md:col-span-3">
+        {/* Readiness — half on md, 1/4 on xl, 1/6 on 2xl */}
+        <div className="md:col-span-1 xl:col-span-1 2xl:col-span-1">
           <ReadinessSummaryCard
             daysLeft={daysLeft}
             readinessScore={readinessScore}
-            checklistLabel={`${completedTasks}/${totalTasks || 0}`}
-            scheduleLabel={`${scheduleItems.length} blocks`}
-            peopleLabel={`${travelers?.length || 0} synced`}
             onOpenDetails={() => onOpenView("list")}
           />
         </div>
 
-        <div className="md:col-span-1">
-          <ArrivalSummaryCard
-            arrivalDate={arrivalDateLabel}
-            items={scheduleItems}
-            onManage={() => setArrivalEditorOpen(true)}
-          />
-        </div>
-
-        <div className="md:col-span-2">
-          <StaySummaryCard
-            proposal={sortedProposals?.[0]}
-            image={gallery[1] || heroImage}
-            onOpenSearch={() => onOpenView("search")}
-          />
-        </div>
-
-        <div className="md:col-span-3">
-          <WeatherCard
-            lat={trip.lat}
-            lng={trip.lng}
-            location={trip.locationName || trip.destination}
-          />
-        </div>
-
-        <div className="md:col-span-2">
-          <SpotsSummaryCard
-            proposals={sortedProposals || []}
-            destination={trip.destination}
-            images={gallery.slice(1)}
-            onOpenSearch={() => onOpenView("search")}
-          />
-        </div>
-
-        <div className="md:col-span-2">
-          <TripNotesSummaryCard
-            card={tripNotesCard}
-            extraNotesCount={customNotes.length}
-            onEdit={openTripNotesEditor}
-          />
-        </div>
-
-       
-
-        <div className="md:col-span-2">
+        {/* Budget — half on md, 3/4 on xl, 1/3 on 2xl */}
+        <div className="md:col-span-1 xl:col-span-3 2xl:col-span-2">
           <BudgetOverviewCard
             expenses={expenses}
             totalBudget={totalBudget}
@@ -470,14 +431,45 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        <div className="md:col-span-2">
-          <ExpensesSummaryCard
-            expenses={expenses}
-            onOpenDetails={() => onOpenView("list")}
+        {/* Stay — full on md, half on xl/2xl */}
+        <div className="md:col-span-2 xl:col-span-2 2xl:col-span-2">
+          <StaySummaryCard
+            proposal={sortedProposals?.[0]}
+            image={gallery[1] || heroImage}
+            onOpenSearch={() => onOpenView("search")}
           />
         </div>
 
-        <div className="md:col-span-2">
+        {/* Weather — full on md/xl, 4/6 on 2xl */}
+        <div className="md:col-span-2 xl:col-span-4 2xl:col-span-4">
+          <WeatherCard
+            lat={trip.lat}
+            lng={trip.lng}
+            location={trip.locationName || trip.destination}
+          />
+        </div>
+
+        {/* Spots — full on md, half on xl/2xl */}
+        <div className="md:col-span-2 xl:col-span-2 2xl:col-span-2">
+          <SpotsSummaryCard
+            proposals={sortedProposals || []}
+            destination={trip.destination}
+            images={gallery.slice(1)}
+            onOpenSearch={() => onOpenView("search")}
+          />
+        </div>
+
+        {/* Trip Notes — half on md/xl/2xl */}
+        <div className="md:col-span-1 xl:col-span-2 2xl:col-span-2">
+          <TripNotesSummaryCard
+            card={tripNotesCard}
+            extraNotesCount={customNotes.length}
+            onEdit={openTripNotesEditor}
+          />
+        </div>
+
+        {/* Packing — half on md/xl/2xl */}
+        <div className="md:col-span-1 xl:col-span-2 2xl:col-span-2">
           <PackingSummaryCard tasks={tasks} onOpenDetails={() => onOpenView("list")} />
         </div>
       </div>
@@ -540,191 +532,7 @@ export default function TripSummaryBoard({
         </DrawerContent>
       </Drawer>
 
-      <Drawer
-        open={arrivalEditorOpen}
-        onOpenChange={(open) => {
-          setArrivalEditorOpen(open);
-          if (!open) {
-            resetScheduleDraft();
-          }
-        }}
-      >
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Arrival planner</DrawerTitle>
-            <DrawerDescription>
-              Keep arrival editing off the main board. Add, update, and remove timeline
-              blocks here.
-            </DrawerDescription>
-          </DrawerHeader>
-
-          <div className="grid gap-5 px-5 pb-4 sm:px-6">
-            <div className={surface("p-4")}>
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">
-                    Arrival day
-                  </p>
-                  <p className="mt-2 text-xl font-semibold tracking-[-0.04em]">
-                    {arrivalDateLabel}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={resetScheduleDraft}
-                  className="trip-glass-button bg-[color:var(--control-bg)] px-4 py-3 text-sm hover:bg-[color:var(--control-bg-hover)]"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>New block</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {scheduleItems.length > 0 ? (
-                scheduleItems.map((item) => (
-                  <article
-                    key={item._id}
-                    className={`rounded-3xl border px-4 py-4 ${getScheduleToneClasses(
-                      (item.tone as ScheduleTone | undefined) || "neutral"
-                    )}`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-base font-medium">{item.title}</p>
-                        <p className="mt-2 text-sm opacity-80">
-                          {item.startsAt} - {item.endsAt}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingScheduleId(item._id);
-                            setScheduleDraft({
-                              title: item.title,
-                              startsAt: item.startsAt,
-                              endsAt: item.endsAt,
-                              tone: (item.tone as ScheduleTone | undefined) || "neutral",
-                            });
-                          }}
-                          className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] hover:bg-[color:var(--control-bg-hover)]"
-                          aria-label="Edit arrival block"
-                        >
-                          <FileText className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => void removeScheduleItem({ itemId: item._id })}
-                          className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] text-[#f3b4a3] hover:bg-[color:var(--control-bg-hover)] hover:text-[#ffd2c8]"
-                          aria-label="Delete arrival block"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </article>
-                ))
-              ) : (
-                <div className={surface("border-dashed p-5")}>
-                  <p className="text-sm font-medium">No arrival blocks yet</p>
-                  <p className="mt-2 text-sm leading-6 text-[#9fb0a3]">
-                    Add check-in, transfer, pickup, or first-stop timing here.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className={surface("p-5")}>
-              <div className="flex items-center gap-2">
-                <CalendarDays className="h-4 w-4 text-[#9fb0a3]" />
-                <p className="text-sm uppercase tracking-[0.18em] text-[#9fb0a3]">
-                  {editingScheduleId ? "Edit block" : "Add block"}
-                </p>
-              </div>
-
-              <div className="mt-4 grid gap-3">
-                <input
-                  value={scheduleDraft.title}
-                  onChange={(event) =>
-                    setScheduleDraft((current) => ({
-                      ...current,
-                      title: event.target.value,
-                    }))
-                  }
-                  placeholder="Check in at villa"
-                  className="editorial-input"
-                />
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <input
-                    value={scheduleDraft.startsAt}
-                    onChange={(event) =>
-                      setScheduleDraft((current) => ({
-                        ...current,
-                        startsAt: event.target.value,
-                      }))
-                    }
-                    type="time"
-                    className="editorial-input [color-scheme:dark]"
-                  />
-                  <input
-                    value={scheduleDraft.endsAt}
-                    onChange={(event) =>
-                      setScheduleDraft((current) => ({
-                        ...current,
-                        endsAt: event.target.value,
-                      }))
-                    }
-                    type="time"
-                    className="editorial-input [color-scheme:dark]"
-                  />
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {(["purple", "green", "neutral"] as const).map((tone) => (
-                    <button
-                      key={tone}
-                      type="button"
-                      onClick={() =>
-                        setScheduleDraft((current) => ({
-                          ...current,
-                          tone,
-                        }))
-                      }
-                      className={`trip-glass-button bg-[color:var(--control-bg)] px-4 py-2 capitalize hover:bg-[color:var(--control-bg-hover)] ${scheduleDraft.tone === tone
-                        ? "border-[#dbe887]/40 bg-[#213229]"
-                        : ""
-                        }`}
-                    >
-                      {tone}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <DrawerFooter>
-            <div className="flex items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={resetScheduleDraft}
-                className="trip-glass-button bg-[color:var(--control-bg)] px-4 py-3 text-sm hover:bg-[color:var(--control-bg-hover)]"
-              >
-                Reset
-              </button>
-              <button
-                type="button"
-                onClick={() => void handleSaveSchedule()}
-                className="trip-glass-button bg-[color:var(--control-bg)] px-5 py-3 text-sm hover:bg-[color:var(--control-bg-hover)]"
-              >
-                Save block
-              </button>
-            </div>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+     
     </>
   );
 }

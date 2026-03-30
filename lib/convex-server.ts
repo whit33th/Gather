@@ -1,11 +1,11 @@
 import "server-only";
 
 import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
-import { fetchQuery } from "convex/nextjs";
+import { preloadQuery } from "convex/nextjs";
+import type { Preloaded } from "convex/react";
 import type {
   FunctionArgs,
   FunctionReference,
-  FunctionReturnType,
 } from "convex/server";
 import { cache } from "react";
 
@@ -13,11 +13,14 @@ export const getServerConvexToken = cache(async () => {
   return convexAuthNextjsToken();
 });
 
-export async function fetchServerQuery<Query extends FunctionReference<"query">>(
+export const getServerQueryOptions = cache(async () => {
+  const token = await getServerConvexToken();
+  return token ? { token } : {};
+});
+
+export async function preloadServerQuery<Query extends FunctionReference<"query">>(
   query: Query,
   args: FunctionArgs<Query>,
-): Promise<FunctionReturnType<Query>> {
-  const token = await getServerConvexToken();
-
-  return fetchQuery(query, args, token ? { token } : {});
+): Promise<Preloaded<Query>> {
+  return preloadQuery(query, args, await getServerQueryOptions());
 }

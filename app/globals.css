@@ -116,12 +116,13 @@ a {
   text-decoration: none;
 }
 
-button,
+/* button,
 input,
 textarea,
 select {
   font: inherit;
-}
+} */
+
 button {
   cursor: pointer;
 }
@@ -254,7 +255,7 @@ button {
   border-radius: 999px;
   border: 1px solid var(--control-border);
   color: color-mix(in srgb, var(--foreground) 88%, transparent);
-
+  box-shadow: rgba(255, 255, 255, 0.22) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.07) 0px 3px 16px 0px inset, rgba(255, 255, 255, 0.005) 0px -2px 16px 0px inset;
   backdrop-filter: blur(16px);
   transition:
     background-color 160ms ease,
@@ -347,6 +348,7 @@ button {
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--foreground) 8%, transparent);
   background: color-mix(in srgb, var(--paper-strong) 92%, transparent);
+  box-shadow: rgba(255, 255, 255, 0.22) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.07) 0px 3px 16px 0px inset, rgba(255, 255, 255, 0.005) 0px -2px 16px 0px inset;
   padding: 0.62rem 0.95rem;
   color: color-mix(in srgb, var(--foreground) 88%, transparent);
   transition:
@@ -365,6 +367,7 @@ button {
 .editorial-filter-chip[data-active="true"] {
   border-color: color-mix(in srgb, var(--accent) 34%, transparent);
   background: color-mix(in srgb, var(--accent) 16%, transparent);
+
   color: var(--accent-strong);
   box-shadow: var(--shadow-sm);
 }
@@ -382,6 +385,7 @@ button {
 
 .editorial-filter-chip[data-active="true"] .editorial-filter-chip__icon {
   background: color-mix(in srgb, var(--accent) 14%, transparent);
+
 }
 
 .editorial-filter-chip__label {
@@ -416,6 +420,7 @@ button {
 
 .editorial-filter-chip[data-active="true"] .editorial-filter-chip__meta {
   background: color-mix(in srgb, var(--accent) 16%, transparent);
+
 }
 
 .mapboxgl-ctrl-group {
@@ -463,34 +468,9 @@ button {
   backdrop-filter: blur(20px);
 }
 
-.mesh-card {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
 
-.mesh-card::before {
-  content: "";
-  position: absolute;
-  inset: -20% 24% auto -12%;
-  height: 12rem;
-  border-radius: 999px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 12%, transparent), transparent 72%);
-  filter: blur(24px);
-  z-index: -1;
-}
 
-.mesh-card::after {
-  content: "";
-  position: absolute;
-  inset: auto -10% -24% auto;
-  width: 12rem;
-  height: 12rem;
-  border-radius: 999px;
-  background: radial-gradient(circle, var(--shell-glow-b), transparent 68%);
-  filter: blur(26px);
-  z-index: -1;
-}
+
 
 
 
@@ -547,8 +527,6 @@ button {
   --shell-photo-tint: rgba(10, 12, 15, 0.16);
 }
 
-.app-theme-shell[data-photo-background="true"] .mesh-card::before,
-.app-theme-shell[data-photo-background="true"] .mesh-card::after,
 .app-theme-shell[data-photo-background="true"] .app-shell-background__mesh {
   display: none;
 }

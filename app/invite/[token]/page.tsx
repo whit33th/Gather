@@ -1,4 +1,5 @@
 import { format, parseISO } from "date-fns";
+import { fetchQuery } from "convex/nextjs";
 import { CalendarDays, MapPin, Sparkles, Users } from "lucide-react";
 import type { Route } from "next";
 import * as motion from "motion/react-client";
@@ -7,7 +8,7 @@ import { ConvexClientProvider } from "@/app/ConvexClientProvider";
 import AppState from "@/components/AppState";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
-import { fetchServerQuery } from "@/lib/convex-server";
+import { getServerQueryOptions } from "@/lib/convex-server";
 
 import InviteActions from "./InviteActions";
 
@@ -24,7 +25,7 @@ export default async function InvitePage({
 }) {
   const { token } = await params;
   const tripId = token as Id<"trips">;
-  const trip = await fetchServerQuery(api.trips.getPublic, { tripId });
+  const trip = await fetchQuery(api.trips.getPublic, { tripId }, await getServerQueryOptions());
 
   if (trip === null) {
     return (

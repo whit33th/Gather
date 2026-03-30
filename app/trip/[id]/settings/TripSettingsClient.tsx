@@ -1,5 +1,6 @@
 "use client";
 
+import type { Preloaded } from "convex/react";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import {
   ArrowLeft,
@@ -10,6 +11,7 @@ import {
   Type,
 } from "lucide-react";
 import { useMutation } from "convex/react";
+import { usePreloadedQuery } from "convex/react";
 import Link from "next/link";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -26,12 +28,13 @@ type SelectedLocation = {
 };
 
 export default function TripSettingsClient({
-  trip,
+  preloadedTrip,
   tripId,
 }: {
-  trip: Doc<"trips">;
+  preloadedTrip: Preloaded<typeof api.trips.get>;
   tripId: Id<"trips">;
 }) {
+  const trip = usePreloadedQuery(preloadedTrip) as Doc<"trips">;
   const router = useRouter();
   const updateTrip = useMutation(api.trips.update);
   const initialValues = useMemo(

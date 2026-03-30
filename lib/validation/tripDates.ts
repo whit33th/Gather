@@ -19,7 +19,17 @@ export const tripDateSchema = z
   })
   .refine(isValidIsoDate, {
     message: "Use a valid date.",
-  });
+  })
+  .refine(
+    (value) => {
+      const year = parseInt(value.slice(0, 4), 10);
+      const currentYear = new Date().getFullYear();
+      return year >= currentYear - 1;
+    },
+    {
+      message: "Trip date cannot be earlier than last year.",
+    }
+  );
 
 export const tripDateRangeSchema = z
   .object({

@@ -10,7 +10,7 @@ import {
   Flag,
   Heart,
   Hotel,
-  Map,
+  Map as MapIcon,
   MapPin,
   MoreHorizontal,
   Plane,
@@ -1055,7 +1055,7 @@ export function MapSummaryCard({
         </div>
       ) : (
         <div className="flex h-44 w-full items-center justify-center bg-white/[0.03]">
-          <Map className="h-12 w-12 text-white/20" />
+          <MapIcon className="h-12 w-12 text-white/20" />
         </div>
       )}
 

@@ -17,11 +17,14 @@ import {
 import {
   BudgetOverviewCard,
   HeroSummaryCard,
+  MapSummaryCard,
   PackingSummaryCard,
+  PeopleSummaryCard,
+  ProposalsSummaryCard,
   ReadinessSummaryCard,
   SpotsSummaryCard,
   StaySummaryCard,
-  TripNotesSummaryCard
+  TripNotesSummaryCard,
 } from "./TripDashboardCards";
 import WeatherCard from "./WeatherCard";
 
@@ -80,23 +83,23 @@ type DashboardCardRecord = {
   _id: Id<"dashboardCards">;
   tripId: Id<"trips">;
   kind:
-  | "hero"
-  | "arrival"
-  | "stay"
-  | "weather"
-  | "map"
-  | "travelers"
-  | "tripNotes"
-  | "budgetSummary"
-  | "spots"
-  | "packingSummary"
-  | "budget"
-  | "packing"
-  | "gallery"
-  | "proposals"
-  | "availability"
-  | "chat"
-  | "note";
+    | "hero"
+    | "arrival"
+    | "stay"
+    | "weather"
+    | "map"
+    | "travelers"
+    | "tripNotes"
+    | "budgetSummary"
+    | "spots"
+    | "packingSummary"
+    | "budget"
+    | "packing"
+    | "gallery"
+    | "proposals"
+    | "availability"
+    | "chat"
+    | "note";
   title?: string;
   content?: string;
   order: number;
@@ -104,11 +107,20 @@ type DashboardCardRecord = {
 
 type ScheduleItem = Doc<"tripScheduleItems">;
 type DashboardView = "board" | "search" | "people" | "calendar" | "list";
-type ScheduleTone = "purple" | "green" | "neutral";
 type NoteEditorState =
   | { mode: "create-note" }
   | { mode: "edit-trip-notes"; card: DashboardCardRecord | null }
   | { mode: "edit-note"; card: DashboardCardRecord };
+
+type TripMarker = {
+  id: string;
+  name: string;
+  locationName?: string;
+  lat: number;
+  lng: number;
+  category: "general" | "accommodation" | "food" | "activity" | "favorite";
+  selected?: boolean;
+};
 
 const fallbackGallery = [
   "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80",
@@ -131,20 +143,46 @@ function buildTripDates(startDate: string, endDate: string) {
   return Array.from({ length: totalDays }, (_, index) => addDays(start, index));
 }
 
-function getScheduleToneClasses(tone: ScheduleTone) {
-  if (tone === "purple") {
-    return "border-[#4f3b68] bg-[#211a2a] text-[#f2e7ff]";
-  }
+function buildMarkers(trip: Doc<"trips">, proposals: ProposalCard[] | undefined): TripMarker[] {
+  const selectedIds = new Set(
+    [
+      trip.selectedAccommodationId,
+      trip.selectedFoodId,
+      trip.selectedActivityId,
+      trip.selectedFavoriteId,
+    ]
+      .filter(Boolean)
+      .map((id) => String(id))
+  );
 
-  if (tone === "green") {
-    return "border-[#47614a] bg-[#15261d] text-[#d4e8cf]";
-  }
-
-  return "border-[#2b3c34] bg-[#13211c] text-[#f7f4ea]";
-}
-
-function surface(extra = "") {
-  return `trip-theme-card trip-dashboard-surface rounded-4xl text-[#f7f4ea] ${extra}`;
+  return [
+    ...(trip.lat != null && trip.lng != null
+      ? [
+          {
+            id: "destination",
+            name: trip.destination,
+            lat: trip.lat,
+            lng: trip.lng,
+            category: "general" as const,
+          },
+        ]
+      : []),
+    ...((proposals || [])
+      .filter((proposal) => proposal.lat != null && proposal.lng != null)
+      .map((proposal) => ({
+        id: proposal._id,
+        name: proposal.name,
+        locationName: proposal.locationName,
+        lat: proposal.lat!,
+        lng: proposal.lng!,
+        category: (proposal.category || "accommodation") as
+          | "accommodation"
+          | "food"
+          | "activity"
+          | "favorite",
+        selected: selectedIds.has(proposal._id),
+      })) || []),
+  ];
 }
 
 export default function TripSummaryBoard({
@@ -194,28 +232,10 @@ export default function TripSummaryBoard({
   const ensureDefaultCards = useMutation(api.dashboardCards.ensureDefaults);
   const addDashboardCard = useMutation(api.dashboardCards.add);
   const updateDashboardCard = useMutation(api.dashboardCards.update);
-  const addScheduleItem = useMutation(api.tripScheduleItems.add);
-  const updateScheduleItem = useMutation(api.tripScheduleItems.update);
-  const removeScheduleItem = useMutation(api.tripScheduleItems.remove);
 
   const [noteEditor, setNoteEditor] = useState<NoteEditorState | null>(null);
   const [noteTitle, setNoteTitle] = useState("");
   const [noteContent, setNoteContent] = useState("");
-  const [arrivalEditorOpen, setArrivalEditorOpen] = useState(false);
-  const [editingScheduleId, setEditingScheduleId] = useState<Id<"tripScheduleItems"> | null>(
-    null
-  );
-  const [scheduleDraft, setScheduleDraft] = useState<{
-    title: string;
-    startsAt: string;
-    endsAt: string;
-    tone: ScheduleTone;
-  }>({
-    title: "",
-    startsAt: "10:00",
-    endsAt: "11:00",
-    tone: "neutral",
-  });
 
   useEffect(() => {
     if (dashboardCards.length === 0) {
@@ -242,6 +262,8 @@ export default function TripSummaryBoard({
       ]),
     [photos, sortedProposals, trip.coverUrl]
   );
+
+  const markers = useMemo(() => buildMarkers(trip, sortedProposals), [trip, sortedProposals]);
 
   const heroImage = gallery[0] || fallbackGallery[0];
   const totalBudget = expenses.reduce((sum, item) => sum + item.amount, 0);
@@ -356,54 +378,16 @@ export default function TripSummaryBoard({
     closeNoteEditor();
   };
 
-  const resetScheduleDraft = () => {
-    setEditingScheduleId(null);
-    setScheduleDraft({
-      title: "",
-      startsAt: "10:00",
-      endsAt: "11:00",
-      tone: "neutral",
-    });
-  };
-
-  const handleSaveSchedule = async () => {
-    if (!scheduleDraft.title.trim()) return;
-
-    if (editingScheduleId) {
-      await updateScheduleItem({
-        itemId: editingScheduleId,
-        title: scheduleDraft.title.trim(),
-        startsAt: scheduleDraft.startsAt,
-        endsAt: scheduleDraft.endsAt,
-        tone: scheduleDraft.tone,
-      });
-    } else {
-      await addScheduleItem({
-        tripId,
-        title: scheduleDraft.title.trim(),
-        startsAt: scheduleDraft.startsAt,
-        endsAt: scheduleDraft.endsAt,
-        tone: scheduleDraft.tone,
-      });
-    }
-
-    resetScheduleDraft();
-  };
-
-  const arrivalDateLabel = format(parseISO(trip.startDate), "d MMM yyyy");
-
   return (
     <>
-      {/*
-        Grid breakpoints:
-          md  (768px)  → 2 cols  — roomy 2-card rows
-          xl  (1280px) → 4 cols  — compact magazine feel
-          2xl (1536px) → 6 cols  — full dense grid (the one that looks great on big screens)
+      {/* 
+        Unified Dashboard Grid
+        - Uses CSS Grid with consistent column spans
+        - Cards use h-full to fill their grid cell
       */}
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6 2xl:grid-flow-row-dense">
-
-        {/* Hero — full width md/xl, half row on 2xl */}
-        <div className="md:col-span-2 xl:col-span-4 2xl:col-span-3">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6">
+        {/* Hero - spans most of the row */}
+        <div className="md:col-span-2 xl:col-span-4 2xl:col-span-4">
           <HeroSummaryCard
             trip={trip}
             heroImage={heroImage}
@@ -411,7 +395,7 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        {/* Readiness — half on md, 1/4 on xl, 1/6 on 2xl */}
+        {/* Readiness - compact on all screens */}
         <div className="md:col-span-1 xl:col-span-1 2xl:col-span-1">
           <ReadinessSummaryCard
             daysLeft={daysLeft}
@@ -420,8 +404,17 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        {/* Budget — half on md, 3/4 on xl, 1/3 on 2xl */}
-        <div className="md:col-span-1 xl:col-span-3 2xl:col-span-2">
+        {/* Map - compact summary card */}
+        <div className="md:col-span-1 xl:col-span-1 2xl:col-span-1">
+          <MapSummaryCard
+            trip={trip}
+            markers={markers}
+            onOpenSearch={() => onOpenView("search")}
+          />
+        </div>
+
+        {/* Budget - wider on larger screens */}
+        <div className="md:col-span-2 xl:col-span-2 2xl:col-span-2">
           <BudgetOverviewCard
             expenses={expenses}
             totalBudget={totalBudget}
@@ -431,7 +424,7 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        {/* Stay — full on md, half on xl/2xl */}
+        {/* Stay - accommodation card */}
         <div className="md:col-span-2 xl:col-span-2 2xl:col-span-2">
           <StaySummaryCard
             proposal={sortedProposals?.[0]}
@@ -440,8 +433,8 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        {/* Weather — full on md/xl, 4/6 on 2xl */}
-        <div className="md:col-span-2 xl:col-span-4 2xl:col-span-4">
+        {/* Weather */}
+        <div className="md:col-span-2 xl:col-span-2 2xl:col-span-2">
           <WeatherCard
             lat={trip.lat}
             lng={trip.lng}
@@ -449,17 +442,24 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        {/* Spots — full on md, half on xl/2xl */}
-        <div className="md:col-span-2 xl:col-span-2 2xl:col-span-2">
-          <SpotsSummaryCard
-            proposals={sortedProposals || []}
-            destination={trip.destination}
-            images={gallery.slice(1)}
+        {/* People - new compact summary */}
+        <div className="md:col-span-1 xl:col-span-2 2xl:col-span-2">
+          <PeopleSummaryCard
+            travelers={travelers}
+            onOpenPeople={() => onOpenView("people")}
+          />
+        </div>
+
+        {/* Proposals - new summary card */}
+        <div className="md:col-span-1 xl:col-span-2 2xl:col-span-2">
+          <ProposalsSummaryCard
+            proposals={sortedProposals}
+            trip={trip}
             onOpenSearch={() => onOpenView("search")}
           />
         </div>
 
-        {/* Trip Notes — half on md/xl/2xl */}
+        {/* Trip Notes */}
         <div className="md:col-span-1 xl:col-span-2 2xl:col-span-2">
           <TripNotesSummaryCard
             card={tripNotesCard}
@@ -468,12 +468,23 @@ export default function TripSummaryBoard({
           />
         </div>
 
-        {/* Packing — half on md/xl/2xl */}
+        {/* Packing */}
         <div className="md:col-span-1 xl:col-span-2 2xl:col-span-2">
           <PackingSummaryCard tasks={tasks} onOpenDetails={() => onOpenView("list")} />
         </div>
+
+        {/* Spots - larger showcase */}
+        <div className="md:col-span-2 xl:col-span-4 2xl:col-span-4">
+          <SpotsSummaryCard
+            proposals={sortedProposals || []}
+            destination={trip.destination}
+            images={gallery.slice(1)}
+            onOpenSearch={() => onOpenView("search")}
+          />
+        </div>
       </div>
 
+      {/* Note Editor Drawer */}
       <Drawer
         open={Boolean(noteEditor)}
         onOpenChange={(open) => {
@@ -531,8 +542,6 @@ export default function TripSummaryBoard({
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
-
-     
     </>
   );
 }

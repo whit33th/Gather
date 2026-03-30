@@ -7,13 +7,18 @@ import {
   Check,
   ChevronRight,
   FileText,
+  Flag,
+  Heart,
   Hotel,
+  Map,
   MapPin,
   MoreHorizontal,
   Plane,
   Plus,
   Sparkles,
+  ThumbsUp,
   Ticket,
+  Utensils,
   UtensilsCrossed,
   Users,
 } from "lucide-react";
@@ -52,6 +57,16 @@ type AvailabilityMember = {
   image?: string;
   role: "owner" | "member";
   isCurrentUser: boolean;
+};
+
+type TripMarker = {
+  id: string;
+  name: string;
+  locationName?: string;
+  lat: number;
+  lng: number;
+  category: "general" | "accommodation" | "food" | "activity" | "favorite";
+  selected?: boolean;
 };
 
 type DashboardCardRecord = {
@@ -810,6 +825,260 @@ export function ReadinessSummaryCard({
       </div>
 
     
+    </section>
+  );
+}
+
+const categoryIcons = {
+  accommodation: Hotel,
+  food: Utensils,
+  activity: Flag,
+  favorite: Heart,
+} as const;
+
+const categoryColors = {
+  accommodation: "text-sky-400",
+  food: "text-amber-400",
+  activity: "text-emerald-400",
+  favorite: "text-rose-400",
+} as const;
+
+export function PeopleSummaryCard({
+  travelers,
+  onOpenPeople,
+}: {
+  travelers: AvailabilityMember[] | undefined;
+  onOpenPeople: () => void;
+}) {
+  const visibleTravelers = travelers?.slice(0, 5) || [];
+  const hiddenCount = Math.max((travelers?.length || 0) - 5, 0);
+  const ownerCount = travelers?.filter((t) => t.role === "owner").length || 0;
+
+  return (
+    <section className={surface("flex flex-col p-5")}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <SummaryEyebrow>People</SummaryEyebrow>
+          <h2 className="mt-3 text-[1.65rem] font-semibold tracking-[-0.05em] sm:text-[1.9rem]">
+            {travelers?.length || 0} travelers
+          </h2>
+        </div>
+        <SummaryActionButton label="View all people" onClick={onOpenPeople} />
+      </div>
+
+      <div className="mt-5 flex-1">
+        {visibleTravelers.length > 0 ? (
+          <div className="space-y-2">
+            {visibleTravelers.map((traveler) => (
+              <div
+                key={traveler.memberId}
+                className="people-card-row trip-theme-subsurface-solid flex items-center gap-3 rounded-2xl px-3 py-2.5"
+              >
+                <UserAvatar
+                  name={traveler.name}
+                  image={traveler.image}
+                  seed={traveler.userId}
+                  size={32}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-white">
+                    {traveler.name}
+                    {traveler.isCurrentUser && (
+                      <span className="ml-1.5 text-[color:var(--trip-card-muted-text)]">(you)</span>
+                    )}
+                  </p>
+                </div>
+                <span className="shrink-0 text-[0.65rem] uppercase tracking-[0.12em] text-[color:var(--trip-card-muted-text)]">
+                  {traveler.role}
+                </span>
+              </div>
+            ))}
+            {hiddenCount > 0 && (
+              <button
+                type="button"
+                onClick={onOpenPeople}
+                className="trip-theme-chip w-full rounded-2xl px-3 py-2.5 text-center text-sm transition-colors hover:bg-white/[0.06]"
+              >
+                +{hiddenCount} more
+              </button>
+            )}
+          </div>
+        ) : (
+          <SummaryEmpty
+            title="No travelers yet"
+            description="Share the trip link to invite friends and family to join the planning."
+          />
+        )}
+      </div>
+
+      <div className="mt-4 flex items-center gap-2 pt-2">
+        <span className="trip-theme-chip inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[0.68rem] uppercase tracking-[0.14em]">
+          <Users className="h-3 w-3" />
+          {ownerCount} owner{ownerCount !== 1 ? "s" : ""}
+        </span>
+      </div>
+    </section>
+  );
+}
+
+export function ProposalsSummaryCard({
+  proposals,
+  trip,
+  onOpenSearch,
+}: {
+  proposals: ProposalCard[] | undefined;
+  trip: Doc<"trips">;
+  onOpenSearch: () => void;
+}) {
+  const topProposals = useMemo(() => {
+    if (!proposals) return [];
+    return [...proposals]
+      .sort((a, b) => b.votes - a.votes)
+      .slice(0, 4);
+  }, [proposals]);
+
+  const categoryCounts = useMemo(() => {
+    if (!proposals) return { accommodation: 0, food: 0, activity: 0, favorite: 0 };
+    return proposals.reduce(
+      (acc, p) => {
+        const cat = p.category || "accommodation";
+        acc[cat] = (acc[cat] || 0) + 1;
+        return acc;
+      },
+      { accommodation: 0, food: 0, activity: 0, favorite: 0 } as Record<string, number>
+    );
+  }, [proposals]);
+
+  return (
+    <section className={surface("flex flex-col p-5")}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <SummaryEyebrow>Proposals</SummaryEyebrow>
+          <h2 className="mt-3 text-[1.65rem] font-semibold tracking-[-0.05em] sm:text-[1.9rem]">
+            {proposals?.length || 0} saved places
+          </h2>
+        </div>
+        <SummaryActionButton label="View all proposals" onClick={onOpenSearch} />
+      </div>
+
+      <div className="mt-5 flex-1">
+        {topProposals.length > 0 ? (
+          <div className="space-y-2">
+            {topProposals.map((proposal) => {
+              const CategoryIcon = categoryIcons[proposal.category || "accommodation"];
+              const colorClass = categoryColors[proposal.category || "accommodation"];
+              
+              return (
+                <div
+                  key={proposal._id}
+                  className="trip-theme-subsurface-solid flex items-center gap-3 rounded-2xl px-3 py-2.5"
+                >
+                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl">
+                    {proposal.imageUrl ? (
+                      <Image
+                        src={proposal.imageUrl}
+                        alt={proposal.name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-white/[0.06]">
+                        <CategoryIcon className={`h-4 w-4 ${colorClass}`} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-white">{proposal.name}</p>
+                    <p className="truncate text-xs text-[color:var(--trip-card-muted-text)]">
+                      {proposal.locationName || trip.destination}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1.5 text-sm text-[color:var(--trip-card-muted-text)]">
+                    <ThumbsUp className="h-3.5 w-3.5" />
+                    <span>{proposal.votes}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <SummaryEmpty
+            title="No proposals yet"
+            description="Add places the group wants to visit, stay at, or eat at."
+          />
+        )}
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2 pt-2">
+        {Object.entries(categoryCounts).map(([cat, count]) => {
+          if (count === 0) return null;
+          const Icon = categoryIcons[cat as keyof typeof categoryIcons];
+          const colorClass = categoryColors[cat as keyof typeof categoryColors];
+          return (
+            <span
+              key={cat}
+              className="trip-theme-chip inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[0.68rem] uppercase tracking-[0.14em]"
+            >
+              <Icon className={`h-3 w-3 ${colorClass}`} />
+              {count}
+            </span>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+export function MapSummaryCard({
+  trip,
+  markers,
+  onOpenSearch,
+}: {
+  trip: Doc<"trips">;
+  markers: TripMarker[];
+  onOpenSearch: () => void;
+}) {
+  const markerCount = markers.length;
+  const hasCoordinates = trip.lat != null && trip.lng != null;
+
+  return (
+    <section className={surface("relative flex flex-col overflow-hidden p-0")}>
+      {hasCoordinates ? (
+        <div className="relative h-44 w-full">
+          <Image
+            src={`https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/${trip.lng},${trip.lat},10,0/600x300@2x?access_token=pk.eyJ1Ijoid2hpdGUzM3RoIiwiYSI6ImNsdm1mY3ZreDB0OG0ycWsydGR0NHdxdmwifQ.7aQNbMMMhR8d3mj_yD8cvA`}
+            alt={`Map of ${trip.destination}`}
+            fill
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        </div>
+      ) : (
+        <div className="flex h-44 w-full items-center justify-center bg-white/[0.03]">
+          <Map className="h-12 w-12 text-white/20" />
+        </div>
+      )}
+
+      <div className="absolute inset-x-0 bottom-0 p-5">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-white/60">
+              Map
+            </p>
+            <h2 className="mt-1 text-[1.4rem] font-semibold tracking-[-0.04em] text-white">
+              {trip.destination}
+            </h2>
+            <p className="mt-1 text-sm text-white/60">
+              {markerCount} pinned location{markerCount !== 1 ? "s" : ""}
+            </p>
+          </div>
+          <SummaryActionButton
+            label="Open map"
+            onClick={onOpenSearch}
+            contrast="light"
+          />
+        </div>
+      </div>
     </section>
   );
 }

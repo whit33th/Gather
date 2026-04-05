@@ -6,6 +6,7 @@ import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
+import { TripSearchView } from "./TripPageViews";
 import {
   Drawer,
   DrawerContent,
@@ -106,7 +107,7 @@ type DashboardCardRecord = {
 };
 
 type ScheduleItem = Doc<"tripScheduleItems">;
-type DashboardView = "board" | "search" | "people" | "calendar" | "list";
+type DashboardView = "board" | "people" | "calendar" | "list";
 type NoteEditorState =
   | { mode: "create-note" }
   | { mode: "edit-trip-notes"; card: DashboardCardRecord | null }
@@ -194,6 +195,7 @@ export default function TripSummaryBoard({
   initialTasks,
   noteComposerOpen,
   onNoteComposerOpenChange,
+  onOpenSearch,
   onOpenView,
   sortedProposals,
   travelers,
@@ -208,6 +210,7 @@ export default function TripSummaryBoard({
   initialTasks: TaskCard[];
   noteComposerOpen: boolean;
   onNoteComposerOpenChange: (open: boolean) => void;
+  onOpenSearch: () => void;
   onOpenView: (view: DashboardView) => void;
   sortedProposals: ProposalCard[] | undefined;
   travelers: AvailabilityMember[] | undefined;
@@ -387,7 +390,7 @@ export default function TripSummaryBoard({
       */}
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-6">
         {/* Hero - spans most of the row */}
-        <div className="md:col-span-2 xl:col-span-4 2xl:col-span-4">
+        <div className="md:col-span-2 xl:col-span-2 2xl:col-span-2">
           <HeroSummaryCard
             trip={trip}
             heroImage={heroImage}
@@ -409,7 +412,7 @@ export default function TripSummaryBoard({
           <MapSummaryCard
             trip={trip}
             markers={markers}
-            onOpenSearch={() => onOpenView("search")}
+            onOpenSearch={onOpenSearch}
           />
         </div>
 
@@ -429,7 +432,7 @@ export default function TripSummaryBoard({
           <StaySummaryCard
             proposal={sortedProposals?.[0]}
             image={gallery[1] || heroImage}
-            onOpenSearch={() => onOpenView("search")}
+            onOpenSearch={onOpenSearch}
           />
         </div>
 
@@ -455,7 +458,7 @@ export default function TripSummaryBoard({
           <ProposalsSummaryCard
             proposals={sortedProposals}
             trip={trip}
-            onOpenSearch={() => onOpenView("search")}
+            onOpenSearch={onOpenSearch}
           />
         </div>
 
@@ -479,9 +482,18 @@ export default function TripSummaryBoard({
             proposals={sortedProposals || []}
             destination={trip.destination}
             images={gallery.slice(1)}
-            onOpenSearch={() => onOpenView("search")}
+            onOpenSearch={onOpenSearch}
           />
         </div>
+      </div>
+
+      <div className="mt-4">
+        <TripSearchView
+          currentViewerRole={currentViewerRole}
+          proposals={sortedProposals}
+          trip={trip}
+          tripId={tripId}
+        />
       </div>
 
       {/* Note Editor Drawer */}

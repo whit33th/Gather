@@ -73,6 +73,7 @@ export default function Navbar({ children }: { children: ReactNode }) {
         ? currentUser.backgroundTrip.coverUrl ?? null
         : backgroundFallbackUrl
       : null;
+  const isCalendarRoute = /^\/trip\/[^/]+\/calendar(?:\/)?$/.test(pathname);
 
   useEffect(() => {
     const syncFallback = () => {
@@ -229,8 +230,19 @@ export default function Navbar({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <LenisProvider className="relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
-        <main className=" relative flex-1  min-h-full gap-4 p-4 flex flex-col sm:p-5 lg:p-6">{children}</main>
+      <LenisProvider
+        className={cn(
+          "relative z-10 min-h-0 flex-1 overflow-x-hidden",
+          isCalendarRoute ? "overflow-hidden" : "overflow-y-auto",
+        )}
+      >
+        <main
+          className={cn(
+            "relative flex flex-1 flex-col gap-4 p-4 sm:p-5 lg:p-6",
+          )}
+        >
+          {children}
+        </main>
       </LenisProvider>
     </AppThemeProvider>
   );

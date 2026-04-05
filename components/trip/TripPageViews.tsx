@@ -15,6 +15,7 @@ import {
   TasksStudio,
 } from "./TripOverview";
 
+
 export type ProposalCard = {
   _id: string;
   name: string;

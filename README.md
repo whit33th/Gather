@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gather
 
-## Getting Started
+[Live Test Environment](https://gather67.vercel.app)
 
-First, run the development server:
+> *Note: We are still building! This project is currently under active development.*
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## The Story Behind Gather
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Sometimes it feels like getting your closest friends together in one place is completely impossible. Group chats quickly turn into chaos, spreadsheet itineraries get ignored, and coordinating everyone's ideas becomes a logistical nightmare. 
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**That is exactly why we created Gather.** 
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+We believe that planning a trip with the people you love should feel like the beginning of the adventure, not a chore. Gather is a warm, collaborative space where your friend group can dream up your next getaway, seamlessly map out itineraries, and get everyone on the same page — literally in real-time.
 
-## Learn More
+## Under the Hood
 
-To learn more about Next.js, take a look at the following resources:
+While Gather feels friendly and effortless on the surface, it is powered by a robust, highly reactive tech stack designed for scale, performance, and a flawless developer experience:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Framework:** Next.js (App Router) for blazing-fast performance and modern routing.
+- **Backend & Database:** Convex. This provides the real-time data hydration and active subscriptions that allow the UI to update instantly for all users without a single page refresh.
+- **Language:** TypeScript for strict end-to-end type safety.
+- **Styling:** Tailwind CSS for a beautiful, responsive, and maintainable design system.
+- **Authentication:** Integrated secure authentication flows.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Key Features
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Real-Time Collaboration:** Watch your friends add destinations and ideas to the itinerary live, powered by Convex subscriptions.
+- **Interactive Trip Dashboard:** A responsive, visually pleasing grid interface that makes managing multiple trips an engaging experience.
+- **Frictionless Invites:** Token-based secure invite links. Just drop the link in your chat, and your friends are instantly added to the trip.
+- **Modern UI/UX:** High-quality aesthetics, featuring dynamic components like interactive globe visualizations, wrapped in a clean, intuitive layout.

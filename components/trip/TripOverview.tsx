@@ -55,47 +55,19 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "../ui/drawer";
-import WeatherCard from "./WeatherCard";
-
-type ProposalCategory = "accommodation" | "food" | "activity" | "favorite";
-type AvailabilityStatus = "yes" | "no" | "maybe";
+import WeatherCard from "@/components/cards/WeatherCard";
+import type {
+  AvailabilityMember,
+  AvailabilityStatus,
+  ExpenseCard,
+  ProposalCard,
+  ProposalCategory,
+  TaskCard,
+} from "./types";
 
 type SelectedLocation = {
   place_name: string;
   center: [number, number];
-};
-
-type ProposalCard = {
-  _id: string;
-  name: string;
-  link?: string;
-  imageUrl?: string;
-  locationName?: string;
-  lat?: number;
-  lng?: number;
-  category?: ProposalCategory;
-  votes: number;
-  isVotedByMe: boolean;
-  isOwnedByMe?: boolean;
-  authorName: string;
-  authorImage?: string;
-  authorUserId?: string;
-  voters: Array<{ userId?: string; name: string; image?: string }>;
-};
-
-type AvailabilityEntry = {
-  date: string;
-  status: AvailabilityStatus;
-};
-
-type AvailabilityMember = {
-  userId: string;
-  memberId: string;
-  name: string;
-  image?: string;
-  role: "owner" | "member";
-  isCurrentUser: boolean;
-  availabilities: AvailabilityEntry[];
 };
 
 type PhotoCard = {
@@ -107,15 +79,6 @@ type PhotoCard = {
   canDelete?: boolean;
 };
 
-type ExpenseCard = {
-  _id: string;
-  title: string;
-  amount: number;
-  payerName: string;
-  payerImage?: string;
-  payerUserId?: string;
-};
-
 type SongCard = {
   _id: string;
   url: string;
@@ -124,8 +87,6 @@ type SongCard = {
   addedByImage?: string;
   addedByUserId?: string;
 };
-
-type TaskCard = Doc<"packingItems">;
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -425,27 +386,11 @@ export default function TripOverview({
         location={trip.locationName || trip.destination}
       />
 
-      <ProposalStudio
-        trip={trip}
-        tripId={tripId}
-        proposals={sortedProposals}
-        canManageSelections={currentViewer?.role === "owner"}
-      />
-
-      <BudgetStudio
-        tripId={tripId}
-        expenses={expenses}
-        totalBudget={totalBudget}
-      />
-
-      <MapStudio trip={trip} markers={markers} proposalCount={sortedProposals.length} />
+      <MapStudio trip={trip} markers={markers} />
 
       <GalleryStudio tripId={tripId} photos={photos} />
 
-      <div className="grid items-stretch gap-8 xl:grid-cols-[minmax(0,1.1fr)_minmax(22rem,0.9fr)]">
-        <TasksStudio tripId={tripId} tasks={tasks} />
-        <PlaylistStudio tripId={tripId} songs={music} />
-      </div>
+      <PlaylistStudio tripId={tripId} songs={music} />
     </div>
   );
 }
@@ -919,14 +864,9 @@ export function ProposalStudio({
 
   return (
     <RevealSection className="rounded-4xl border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] p-5 sm:p-6">
-      <div>
-        <p className="section-kicker">Proposals</p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
-          What the group likes
-        </h2>
-      </div>
+   
 
-      <div className="mt-6 flex flex-wrap gap-2.5">
+      <div className=" flex flex-wrap gap-2.5">
         {proposalFilterMeta.map((item) => {
           const active = selectedCategory === item.id;
           return (
@@ -1360,39 +1300,39 @@ export function BudgetStudio({
 
   return (
     <RevealSection className="h-full overflow-hidden rounded-[2rem] border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] ">
-      <div className="border-b border-white/10 bg-white/[0.04] px-5 py-5 sm:px-6">
+      <div className="border-b border-white/10 bg-white/[0.04] px-5 py-4 sm:px-6">
         <div>
           <p className="section-kicker">Budget</p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
+          <h2 className="mt-2 text-[1.75rem] font-semibold tracking-[-0.04em] text-white">
             Money snapshot
           </h2>
-          <div className="mt-5">
+          <div className="mt-3">
             <p className="section-kicker text-[0.56rem]">Total</p>
-            <p className="editorial-metric mt-2 text-[clamp(2.1rem,4vw,3.4rem)] text-white">
+            <p className="editorial-metric mt-1.5 text-[clamp(1.9rem,3.5vw,3rem)] text-white">
               {currencyFormatter.format(totalBudget)}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="px-5 py-6 sm:px-6">
+      <div className="px-5 py-4 sm:px-6">
         {expenses === undefined ? (
           <Loader />
         ) : (
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid gap-2.5 lg:grid-cols-2">
             <AddTile
               title="Add expense"
-              description="Open the drawer and save a new cost."
               onClick={() => setOpen(true)}
+              className="min-h-[6.25rem]"
             />
             {expenses.map((expense) => (
               <article
                 key={expense._id}
-                className="flex items-center justify-between gap-3 rounded-[1.5rem] border border-[#23372e] bg-[#14251e] px-4 py-4"
+                className="flex items-center justify-between gap-3 rounded-[1.5rem] border border-[#23372e] bg-[#14251e] px-4 py-3.5"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-white">{expense.title}</p>
-                  <div className="mt-2 flex items-center gap-3">
+                  <div className="mt-1.5 flex items-center gap-3">
                     <UserAvatar
                       name={expense.payerName}
                       image={expense.payerImage}
@@ -1477,7 +1417,6 @@ export function BudgetStudio({
 export function MapStudio({
   trip,
   markers,
-  proposalCount,
 }: {
   trip: Doc<"trips">;
   markers: Array<{
@@ -1489,7 +1428,6 @@ export function MapStudio({
     category: "accommodation" | "food" | "activity" | "favorite" | "general";
     selected?: boolean;
   }>;
-  proposalCount: number;
 }) {
   const categorizedMarkers = markers
     .map((marker) => ({
@@ -1531,8 +1469,8 @@ export function MapStudio({
               Around {trip.destination}
             </h2>
             <p className="mt-2 text-sm text-[#a8b8ad]">
-              {proposalCount > 0
-                ? `${proposalCount} saved places around the base pin`
+              {categorizedMarkers.length > 1
+                ? `${categorizedMarkers.length} pinned locations across the trip map`
                 : "The base destination is pinned and ready"}
             </p>
           </div>
@@ -1608,23 +1546,20 @@ export function GalleryStudio({
 
   return (
     <RevealSection className="overflow-hidden rounded-4xl border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)]">
-      <div className="bg-[#13231d] px-5 py-6 sm:px-6">
+      <div className="bg-[#13231d] px-5 py-4 sm:px-6">
         <p className="section-kicker">Gallery</p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
+        <h2 className="mt-2 text-[1.75rem] font-semibold tracking-[-0.04em] text-white">
           Notebook images
         </h2>
-        <p className="mt-3 max-w-md text-sm leading-6 text-[#a8b8ad]">
-          Add real photos from the trip thread. The grid stays dense and quiet.
-        </p>
       </div>
 
       <div className="border-t border-[#23372e] bg-transparent">
         {photos === undefined ? (
-          <div className="p-6">
+          <div className="p-4">
             <Loader />
           </div>
         ) : (
-          <div className="p-3 sm:p-4">
+          <div className="p-2.5 sm:p-3">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
               <ImageKitUpload
                 folder={`/gather/trips/${tripId}/photos`}
@@ -1665,12 +1600,6 @@ export function GalleryStudio({
                 </div>
               ))}
             </div>
-
-            {photos.length === 0 ? (
-              <div className="mt-3 rounded-[1.2rem] border border-dashed border-[#31463c] bg-[#13231d] px-4 py-5 text-sm text-[#a8b8ad]">
-                No photos yet. Start with the first tile.
-              </div>
-            ) : null}
           </div>
         )}
       </div>

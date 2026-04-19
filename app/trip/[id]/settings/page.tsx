@@ -1,10 +1,7 @@
-import AppState from "@/components/AppState";
-import { api } from "@/convex/_generated/api";
-import type { Id } from "@/convex/_generated/dataModel";
-import { preloadServerQuery } from "@/lib/convex-server";
-import { preloadedQueryResult } from "convex/nextjs";
+import { redirect } from "next/navigation";
 
-import TripSettingsClient from "./TripSettingsClient";
+import { getTripViewHref } from "@/components/trip/view";
+import type { Id } from "@/convex/_generated/dataModel";
 
 export default async function TripSettingsPage({
   params,
@@ -13,18 +10,5 @@ export default async function TripSettingsPage({
 }) {
   const { id } = await params;
   const tripId = id as Id<"trips">;
-  const preloadedTrip = await preloadServerQuery(api.trips.get, { tripId });
-  const trip = preloadedQueryResult(preloadedTrip);
-
-  if (trip === null) {
-    return (
-      <AppState
-        eyebrow="Trip unavailable"
-        title="You cannot edit this trip."
-        description="Only members with access to this notebook can change its settings."
-      />
-    );
-  }
-
-  return <TripSettingsClient preloadedTrip={preloadedTrip} tripId={tripId} />;
+  redirect(getTripViewHref(tripId, "settings"));
 }

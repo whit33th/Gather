@@ -25,24 +25,8 @@ import {
 } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
-import UserAvatar from "../UserAvatar";
-
-type AvailabilityStatus = "yes" | "no" | "maybe";
-
-type AvailabilityEntry = {
-  date: string;
-  status: AvailabilityStatus;
-};
-
-type AvailabilityMember = {
-  userId: string;
-  memberId: string;
-  name: string;
-  image?: string;
-  role: "owner" | "member";
-  isCurrentUser: boolean;
-  availabilities: AvailabilityEntry[];
-};
+import UserAvatar from "@/components/UserAvatar";
+import type { AvailabilityMember, AvailabilityStatus } from "@/components/trip/types";
 
 type TripAvailabilityCalendarProps = {
   tripId: Id<"trips">;

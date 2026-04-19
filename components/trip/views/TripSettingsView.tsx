@@ -1,20 +1,15 @@
 "use client";
 
-import type { Preloaded } from "convex/react";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import {
-  ArrowLeft,
   ArrowUpRight,
   CalendarDays,
   MapPin,
   Sparkles,
   Type,
 } from "lucide-react";
-import { useMutation } from "convex/react";
-import { usePreloadedQuery } from "convex/react";
-import Link from "next/link";
-import type { Route } from "next";
-import { useRouter } from "next/navigation";
+import { useMutation, usePreloadedQuery } from "convex/react";
+import type { Preloaded } from "convex/react";
 import { useEffect, useMemo, useState } from "react";
 
 import LocationSearch from "@/components/LocationSearch";
@@ -27,7 +22,7 @@ type SelectedLocation = {
   center: [number, number];
 };
 
-export default function TripSettingsClient({
+export default function TripSettingsView({
   preloadedTrip,
   tripId,
 }: {
@@ -35,7 +30,6 @@ export default function TripSettingsClient({
   tripId: Id<"trips">;
 }) {
   const trip = usePreloadedQuery(preloadedTrip) as Doc<"trips">;
-  const router = useRouter();
   const updateTrip = useMutation(api.trips.update);
   const initialValues = useMemo(
     () => ({
@@ -114,8 +108,8 @@ export default function TripSettingsClient({
         lng,
         locationName: locationName || destination || undefined,
       });
-      router.push(`/trip/${tripId}` as Route);
-      router.refresh();
+      setIsDirty(false);
+      setIsSaving(false);
     } catch (error) {
       console.error(error);
       setSaveError(error instanceof Error ? error.message : "Could not save trip settings.");
@@ -126,26 +120,6 @@ export default function TripSettingsClient({
   return (
     <div className="min-h-full px-4 py-6 sm:px-6 lg:px-8">
       <section className="mx-auto max-w-7xl space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <Link
-            href={`/trip/${tripId}` as Route}
-            className="trip-glass-button trip-control-surface h-12 px-5 text-sm"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to trip</span>
-          </Link>
-
-          <button
-            type="submit"
-            form="trip-settings-form"
-            disabled={isSaving}
-            className="editorial-button-primary justify-center px-5 py-3 text-[0.66rem] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isSaving ? "Saving..." : "Save changes"}
-            <ArrowUpRight className="h-4 w-4" />
-          </button>
-        </div>
-
         <form
           id="trip-settings-form"
           onSubmit={handleSubmit}
@@ -268,6 +242,15 @@ export default function TripSettingsClient({
                   {saveError}
                 </p>
               ) : null}
+
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="editorial-button-primary mt-6 justify-center px-5 py-3 text-[0.66rem] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSaving ? "Saving..." : "Save changes"}
+                <ArrowUpRight className="h-4 w-4" />
+              </button>
             </section>
           </div>
 

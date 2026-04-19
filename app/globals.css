@@ -1132,3 +1132,8 @@ body[data-theme-preset="babyBlue"],
   --shell-photo-tint: rgba(18, 37, 52, 0.38);
   --shell-grid-line: rgba(239, 247, 255, 0.04);
 }
+
+.mapboxgl-ctrl,
+.mapboxgl-ctrl-icon {
+  display: none !important;
+}

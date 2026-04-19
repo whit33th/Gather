@@ -165,16 +165,14 @@ export default function WeatherCard({
 
   const theme = useMemo(
     () => (data ? getWeatherTheme(data.current.weather_code) : null),
-    [data]
+    [data],
   );
 
   if (lat == null || lng == null) {
     return (
       <div className="trip-theme-card trip-dashboard-surface h-full rounded-4xl p-5 text-white">
         <p className="section-kicker">Weather</p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
-          Forecast snapshot
-        </h2>
+       
         <p className="mt-3 text-sm text-[#a8b8ad]">
           Add a destination with coordinates to see the forecast.
         </p>
@@ -196,9 +194,7 @@ export default function WeatherCard({
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="section-kicker">Weather</p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
-              Forecast snapshot
-            </h2>
+           
             <p className="mt-2 text-sm text-[#a8b8ad]">{location || "Current location"}</p>
           </div>
 
@@ -211,10 +207,11 @@ export default function WeatherCard({
               </div>
               <div>
                 <p className="editorial-metric text-4xl text-white">
-                  {`${Math.round(data.current.temperature_2m)}°`}
+                  {`${Math.round(data.current.temperature_2m)}В°`}
                 </p>
                 <p className="mt-1 text-xs uppercase tracking-[0.18em] text-[#9fb0a3]">
-                  {codeToLabel(data.current.weather_code)} / {Math.round(data.current.wind_speed_10m)} kmh wind
+                  {codeToLabel(data.current.weather_code)} /{" "}
+                  {Math.round(data.current.wind_speed_10m)} kmh wind
                 </p>
               </div>
             </div>
@@ -236,7 +233,8 @@ export default function WeatherCard({
               >
                 <p className="section-kicker text-[0.58rem]">{format(new Date(day), "EEE")}</p>
                 <p className="mt-2 text-sm font-semibold text-white">
-                  {Math.round(data.daily.temperature_2m_max[index])} / {Math.round(data.daily.temperature_2m_min[index])}
+                  {Math.round(data.daily.temperature_2m_max[index])} /{" "}
+                  {Math.round(data.daily.temperature_2m_min[index])}
                 </p>
                 <p className="mt-1 text-xs text-[#9fb0a3]">
                   {codeToLabel(data.daily.weather_code[index])}

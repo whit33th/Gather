@@ -1,7 +1,7 @@
-import type { Id } from "@/convex/_generated/dataModel";
+import { redirect } from "next/navigation";
 
-import TripDashboardClient from "../TripDashboardClient";
-import { getPreloadedTripResult, preloadTripPageData, renderMissingTripState } from "../tripPageData";
+import { getTripViewHref } from "@/components/trip/view";
+import type { Id } from "@/convex/_generated/dataModel";
 
 export default async function TripListPage({
   params,
@@ -10,18 +10,5 @@ export default async function TripListPage({
 }) {
   const { id } = await params;
   const tripId = id as Id<"trips">;
-  const preloaded = await preloadTripPageData(tripId);
-  const trip = getPreloadedTripResult(preloaded);
-
-  if (trip === null) {
-    return renderMissingTripState();
-  }
-
-  return (
-    <TripDashboardClient
-      preloaded={preloaded}
-      tripId={tripId}
-      view="list"
-    />
-  );
+  redirect(getTripViewHref(tripId, "board"));
 }

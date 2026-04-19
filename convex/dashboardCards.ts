@@ -5,18 +5,12 @@ import { mutation, query } from "./_generated/server";
 const cardKind = v.union(
   v.literal("hero"),
   v.literal("arrival"),
-  v.literal("stay"),
   v.literal("weather"),
   v.literal("map"),
   v.literal("travelers"),
   v.literal("tripNotes"),
-  v.literal("budgetSummary"),
   v.literal("spots"),
-  v.literal("packingSummary"),
-  v.literal("budget"),
-  v.literal("packing"),
   v.literal("gallery"),
-  v.literal("proposals"),
   v.literal("availability"),
   v.literal("chat"),
   v.literal("note")
@@ -25,18 +19,12 @@ const cardKind = v.union(
 const singletonKinds = new Set([
   "hero",
   "arrival",
-  "stay",
   "weather",
   "map",
   "travelers",
   "tripNotes",
-  "budgetSummary",
   "spots",
-  "packingSummary",
-  "budget",
-  "packing",
   "gallery",
-  "proposals",
   "availability",
   "chat",
 ]);
@@ -45,18 +33,12 @@ const defaultCards: Array<{
   kind:
     | "hero"
     | "arrival"
-    | "stay"
     | "weather"
     | "map"
     | "travelers"
     | "tripNotes"
-    | "budgetSummary"
     | "spots"
-    | "packingSummary"
-    | "budget"
-    | "packing"
     | "gallery"
-    | "proposals"
     | "availability"
     | "chat"
     | "note";
@@ -65,7 +47,6 @@ const defaultCards: Array<{
 }> = [
   { kind: "hero" },
   { kind: "arrival" },
-  { kind: "stay" },
   { kind: "weather" },
   { kind: "travelers" },
   {
@@ -73,12 +54,9 @@ const defaultCards: Array<{
     title: "Trip Notes",
     content: "Add the high-level itinerary, meeting point, and any shared reminders here.",
   },
-  { kind: "budgetSummary" },
   { kind: "spots" },
-  { kind: "packingSummary" },
   { kind: "map" },
   { kind: "availability" },
-  { kind: "proposals" },
   {
     kind: "note",
     title: "Must have notes",
@@ -102,12 +80,9 @@ async function requireMember(ctx: any, tripId: any) {
 const v2Kinds = new Set([
   "hero",
   "arrival",
-  "stay",
   "travelers",
   "tripNotes",
-  "budgetSummary",
   "spots",
-  "packingSummary",
 ]);
 
 export const list = query({

@@ -8,23 +8,9 @@
 
 Sometimes it feels like getting your closest friends together in one place is completely impossible. Group chats quickly turn into chaos, spreadsheet itineraries get ignored, and coordinating everyone's ideas becomes a logistical nightmare. 
 
-<div style="width: 100%; max-width: 800px;">
-  <img
-    src="https://github.com/user-attachments/assets/fa2f7384-8262-4fe7-8df9-94b98078934c"
-    alt="image"
-    width="100%"
-    style="aspect-ratio: 16 / 9; object-fit: cover; display: block;"
-  />
-</div>
 
-<div style="width: 100%; max-width: 800px;">
-  <img
-    src="https://github.com/user-attachments/assets/54d1db0c-c1fc-4604-8279-350c133784e8"
-    alt="image"
-    width="100%"
-    style="aspect-ratio: 16 / 9; object-fit: cover; display: block;"
-  />
-</div>
+
+
 
 **That is exactly why we created Gather.** 
 

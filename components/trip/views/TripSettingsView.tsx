@@ -119,7 +119,7 @@ export default function TripSettingsView({
 
   return (
     <div className="min-h-full px-4 py-6 sm:px-6 lg:px-8">
-      <section className="mx-auto max-w-7xl space-y-6">
+      <div className="mx-auto max-w-7xl space-y-6">
         <form
           id="trip-settings-form"
           onSubmit={handleSubmit}
@@ -332,7 +332,7 @@ export default function TripSettingsView({
             </section>
           </aside>
         </form>
-      </section>
+      </div>
     </div>
   );
 }

@@ -679,7 +679,10 @@ export default function TripAvailabilityCalendar({
   };
 
   return (
-    <section className="trip-theme-card relative max-h-[calc(100vh-48px-16px-16px-16px)] lg:max-h-[calc(100vh-48px-16px-24px-24px)] flex h-full min-h-0 flex-col overflow-hidden rounded-4xl p-5 ">
+    <section
+      aria-label="Trip availability"
+      className="trip-theme-card relative max-h-[calc(100vh-48px-16px-16px-16px)] lg:max-h-[calc(100vh-48px-16px-24px-24px)] flex h-full min-h-0 flex-col overflow-hidden rounded-4xl p-5 "
+    >
       <div className="grid grid-cols-[1fr_auto] items-center gap-3 sm:gap-4">
         <div className="min-w-0 justify-self-start">
           <div className="flex items-center gap-2">

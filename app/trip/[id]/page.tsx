@@ -46,29 +46,23 @@ export default async function TripPage({
         tripId={tripId}
       />
 
-      <Activity mode={currentView === "board" ? "visible" : "hidden"}>
-        <div className="relative min-w-0">
+      <div className="relative min-w-0">
+        <Activity mode={currentView === "board" ? "visible" : "hidden"}>
           <TripBoardView preloaded={preloaded} tripId={tripId} />
-        </div>
-      </Activity>
+        </Activity>
 
-      <Activity mode={currentView === "calendar" ? "visible" : "hidden"}>
-        <div className="relative min-w-0">
+        <Activity mode={currentView === "calendar" ? "visible" : "hidden"}>
           <TripCalendarView preloaded={preloaded} tripId={tripId} />
-        </div>
-      </Activity>
+        </Activity>
 
-      <Activity mode={currentView === "people" ? "visible" : "hidden"}>
-        <div className="relative min-w-0">
+        <Activity mode={currentView === "people" ? "visible" : "hidden"}>
           <TripPeopleView preloaded={preloaded} tripId={tripId} />
-        </div>
-      </Activity>
+        </Activity>
 
-      <Activity mode={currentView === "settings" ? "visible" : "hidden"}>
-        <div className="relative min-w-0">
+        <Activity mode={currentView === "settings" ? "visible" : "hidden"}>
           <TripSettingsView preloadedTrip={preloaded.trip} tripId={tripId} />
-        </div>
-      </Activity>
+        </Activity>
+      </div>
 
     </>
   );

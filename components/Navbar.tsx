@@ -17,7 +17,7 @@ import AppShellBackground from "./AppShellBackground";
 import { AppThemeProvider } from "./AppThemeProvider";
 import LenisProvider from "./LenisProvider";
 import UserAvatar from "./UserAvatar";
-import { GoogleIcon } from "@/app/login/LoginActions";
+import { GoogleIcon } from "@/components/icons/GoogleIcon";
 
 type AppNavItem = {
   href: Route;

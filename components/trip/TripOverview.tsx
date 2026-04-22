@@ -43,14 +43,13 @@ import {
   type ProposalLinkPreview,
   type ProposalProvider,
 } from "../../lib/proposal-links";
-import ImageKitUpload from "../ImageKitUpload";
+import ImageKitUpload, { uploadImageWithImageKit } from "../ImageKitUpload";
 import LocationSearch from "../LocationSearch";
 import TripMap from "../TripMap";
 import UserAvatar from "../UserAvatar";
 import {
   Drawer,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -937,7 +936,6 @@ export function ProposalStudio({
         <div className="mt-8 space-y-3">
           <AddTile
             title="Add proposal"
-            description="Open a drawer and drop in a new option."
             onClick={() => {
               setEditingProposalId(null);
               setOpen(true);
@@ -1129,9 +1127,8 @@ export function ProposalStudio({
           setOpen(nextOpen);
         }}
         title={editingProposalId ? "Edit proposal" : "Add proposal"}
-        description="Save one option with its category, link preview and map location."
         footer={
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex w-full items-center justify-between gap-3">
             {editingProposalId ? (
               <button
                 type="button"
@@ -1145,7 +1142,7 @@ export function ProposalStudio({
               <div />
             )}
             <SubmitButton
-              label={editingProposalId ? "Save changes" : "Save proposal"}
+              label={editingProposalId ? "Save" : "Add"}
               form="proposal-drawer-form"
             />
           </div>
@@ -1386,9 +1383,8 @@ export function BudgetStudio({
           setOpen(nextOpen);
         }}
         title={editingExpenseId ? "Edit expense" : "Add expense"}
-        description="Log a shared cost and keep the running total tidy."
         footer={
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex w-full items-center justify-between gap-3">
             {editingExpenseId ? (
               <button
                 type="button"
@@ -1401,7 +1397,7 @@ export function BudgetStudio({
             ) : (
               <div />
             )}
-            <SubmitButton label={editingExpenseId ? "Save changes" : "Save"} form="expense-drawer-form" />
+            <SubmitButton label={editingExpenseId ? "Save" : "Add"} form="expense-drawer-form" />
           </div>
         }
       >
@@ -1541,8 +1537,31 @@ export function GalleryStudio({
   tripId: Id<"trips">;
   photos: PhotoCard[] | undefined;
 }) {
+  const [open, setOpen] = useState(false);
+  const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
+  const [isSavingPhoto, setIsSavingPhoto] = useState(false);
   const addPhoto = useMutation(api.photos.add);
   const removePhoto = useMutation(api.photos.remove);
+
+  const handleAddPhoto = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!pendingPhoto) return;
+
+    setIsSavingPhoto(true);
+    try {
+      const url = await uploadImageWithImageKit({
+        file: pendingPhoto,
+        folder: `/gather/trips/${tripId}/photos`,
+      });
+      await addPhoto({ tripId, url });
+      setPendingPhoto(null);
+      setOpen(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSavingPhoto(false);
+    }
+  };
 
   return (
     <RevealSection className="overflow-hidden rounded-4xl border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)]">
@@ -1561,12 +1580,15 @@ export function GalleryStudio({
         ) : (
           <div className="p-2.5 sm:p-3">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
-              <ImageKitUpload
-                folder={`/gather/trips/${tripId}/photos`}
-                onSuccess={(url) => void addPhoto({ tripId, url })}
-                mode="tile"
-
-              />
+              <button
+                type="button"
+                onClick={() => setOpen(true)}
+                className="group flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-4xl border border-dashed border-[#31463c] bg-[#13231d] transition-colors hover:border-[#42584d] hover:bg-[#172920]"
+              >
+                <span className="trip-glass-icon-button h-11 w-11 bg-[color:var(--control-bg)] text-[#cfd8cd] transition-transform group-hover:scale-[1.03] group-hover:bg-[color:var(--control-bg-hover)] group-hover:text-white">
+                  <Plus className="h-4 w-4" />
+                </span>
+              </button>
 
               {(photos ?? []).map((photo) => (
                 <div
@@ -1603,6 +1625,34 @@ export function GalleryStudio({
           </div>
         )}
       </div>
+
+      <EditorDrawer
+        open={open}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen);
+          if (!nextOpen) {
+            setPendingPhoto(null);
+          }
+        }}
+        title="Add photo"
+        footer={
+          <div className="w-full">
+            <SubmitButton label={isSavingPhoto ? "Adding..." : "Add"} form="photo-drawer-form" />
+          </div>
+        }
+      >
+        <form id="photo-drawer-form" onSubmit={handleAddPhoto} className="grid gap-4 pb-4">
+          <div className="overflow-hidden rounded-3xl border  aspect-video max-h-100 w-full border-white/14 bg-black/16 p-3 backdrop-blur-xl">
+            <ImageKitUpload
+              mode="button"
+              uploadMode="manual"
+              onFileSelect={(file) => setPendingPhoto(file)}
+              label={pendingPhoto ? "Change image" : "Choose image"}
+              buttonClassName="w-full h-full flex-1 rounded-2xl border border-dashed border-white/18 bg-transparent px-4 py-6 text-sm text-white/70 transition-colors hover:border-white/28 hover:text-white"
+            />
+          </div>
+        </form>
+      </EditorDrawer>
     </RevealSection>
   );
 }
@@ -1737,9 +1787,8 @@ export function TasksStudio({
           setOpen(nextOpen);
         }}
         title={editingTaskId ? "Edit task" : "Add task"}
-        description="Keep the pre-trip checklist focused and easy to scan."
         footer={
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex w-full items-center justify-between gap-3">
             {editingTaskId ? (
               <button
                 type="button"
@@ -1753,7 +1802,7 @@ export function TasksStudio({
               <div />
             )}
             <SubmitButton
-              label={editingTaskId ? "Save changes" : "Save task"}
+              label={editingTaskId ? "Save" : "Add"}
               form="task-drawer-form"
             />
           </div>
@@ -1823,7 +1872,6 @@ export function PlaylistStudio({
             <>
               <AddTile
                 title="Add song"
-                description="Paste a Spotify or Apple Music link."
                 onClick={() => setOpen(true)}
                 className="min-h-[9rem] bg-white"
               />
@@ -1875,8 +1923,7 @@ export function PlaylistStudio({
           }
         }}
         title="Add song"
-        description="Attach one link and keep the trip soundtrack in one place."
-        footer={<SubmitButton label="Save song" form="song-drawer-form" />}
+        footer={<SubmitButton label="Add" form="song-drawer-form" />}
       >
         <form id="song-drawer-form" onSubmit={handleSubmit} className="grid gap-4 pb-4">
           <Input
@@ -1968,26 +2015,22 @@ function EditorDrawer({
   open,
   onOpenChange,
   title,
-  description,
   children,
   footer,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  description?: string;
   children: ReactNode;
   footer: ReactNode;
 }) {
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent>
-        <DrawerHeader>
-          <p className="section-kicker">Editor</p>
-          <DrawerTitle>{title}</DrawerTitle>
-          {description ? <DrawerDescription>{description}</DrawerDescription> : null}
+        <DrawerHeader className="pb-2">
+          <DrawerTitle className="text-[1.35rem] leading-tight">{title}</DrawerTitle>
         </DrawerHeader>
-        <div className=" px-5 pb-2 sm:px-6 h-full">{children}</div>
+        <div className="h-full px-5 pb-2 sm:px-6">{children}</div>
         <DrawerFooter>{footer}</DrawerFooter>
       </DrawerContent>
     </Drawer>
@@ -2019,7 +2062,7 @@ function Input({
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className={`editorial-input ${startAdornment ? "pl-12" : ""}`}
+        className={`w-full rounded-2xl border border-white/18 bg-transparent px-4 py-3.5 text-white placeholder:text-white/45 transition-[border-color,background-color] focus:border-white/30 focus:bg-white/6 focus:outline-none ${startAdornment ? "pl-12" : ""}`}
       />
     </div>
   );
@@ -2030,7 +2073,7 @@ function SubmitButton({ label, form }: { label: string; form?: string }) {
     <button
       type="submit"
       form={form}
-      className="editorial-button-primary justify-center px-5 py-3 text-[0.66rem]"
+      className="editorial-button-primary w-full justify-center px-5 py-3.5 text-[0.66rem]"
     >
       {label}
     </button>

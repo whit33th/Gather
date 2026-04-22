@@ -292,12 +292,13 @@ button {
   width: 100%;
   border-radius: 1rem;
   border: 1px solid var(--line);
-  background: var(--paper);
+  background: transparent;
   padding: 0.95rem 1rem;
   color: var(--foreground);
   transition:
     border-color 160ms ease,
-    box-shadow 160ms ease;
+    box-shadow 160ms ease,
+    background-color 160ms ease;
   backdrop-filter: blur(14px);
 }
 
@@ -308,6 +309,7 @@ button {
 .editorial-input:focus {
   outline: none;
   border-color: color-mix(in srgb, var(--accent) 34%, transparent);
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 10%, transparent);
 }
 

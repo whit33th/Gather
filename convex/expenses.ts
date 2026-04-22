@@ -8,6 +8,15 @@ export const add = mutation({
     tripId: v.id("trips"),
     title: v.string(),
     amount: v.number(),
+    category: v.optional(
+      v.union(
+        v.literal("flights"),
+        v.literal("stay"),
+        v.literal("food"),
+        v.literal("drinks"),
+        v.literal("entertainment"),
+      ),
+    ),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -24,6 +33,7 @@ export const add = mutation({
       tripId: args.tripId,
       title: args.title,
       amount: args.amount,
+      category: args.category,
       paidBy: member._id,
     });
   },
@@ -52,6 +62,7 @@ export const list = query({
         const payer = await getMemberProfile(ctx, expense.paidBy);
         return {
           ...expense,
+          category: expense.category,
           payerName: payer?.name ?? "Unknown",
           payerImage: payer?.image,
           payerUserId: payer?.userId,
@@ -89,6 +100,15 @@ export const update = mutation({
     expenseId: v.id("expenses"),
     title: v.string(),
     amount: v.number(),
+    category: v.optional(
+      v.union(
+        v.literal("flights"),
+        v.literal("stay"),
+        v.literal("food"),
+        v.literal("drinks"),
+        v.literal("entertainment"),
+      ),
+    ),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -110,6 +130,7 @@ export const update = mutation({
     await ctx.db.patch(args.expenseId, {
       title: args.title,
       amount: args.amount,
+      category: args.category,
     });
   },
 });

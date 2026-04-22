@@ -48,7 +48,6 @@ const defaultCards: Array<{
   { kind: "hero" },
   { kind: "arrival" },
   { kind: "weather" },
-  { kind: "travelers" },
   {
     kind: "tripNotes",
     title: "Trip Notes",
@@ -80,7 +79,6 @@ async function requireMember(ctx: any, tripId: any) {
 const v2Kinds = new Set([
   "hero",
   "arrival",
-  "travelers",
   "tripNotes",
   "spots",
 ]);

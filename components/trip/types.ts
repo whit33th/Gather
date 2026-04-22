@@ -34,6 +34,66 @@ export type AvailabilityMember = {
   }>;
 };
 
+export type TripMemberTrip = {
+  tripId: string;
+  title: string;
+  destination: string;
+  locationName?: string;
+  startDate: string;
+  endDate: string;
+  role: "owner" | "member";
+  country?: string;
+};
+
+export type TripMemberRosterItem = {
+  userId: string;
+  memberId: string;
+  name: string;
+  image?: string;
+  role: "owner" | "member";
+  isCurrentUser: boolean;
+  joinedAt: number;
+  availabilityCount: number;
+  availabilityCoverage: number;
+  availabilityStatus: "empty" | "partial" | "ready";
+  tripCount: number;
+  countryCount: number;
+  contributionCount: number;
+  proposalCount: number;
+  photoCount: number;
+  songCount: number;
+  expenseCount: number;
+  visitedCountries: string[];
+  visitedTrips: TripMemberTrip[];
+};
+
+export type TripMemberProfile = TripMemberRosterItem & {
+  currentTrip: {
+    tripId: string;
+    title: string;
+    destination: string;
+    locationName?: string;
+    startDate: string;
+    endDate: string;
+    totalDates: number;
+    country?: string;
+  };
+  availability: Array<{
+    date: string;
+    status: AvailabilityStatus | null;
+  }>;
+  gallery: Array<{
+    id: string;
+    url: string;
+    createdAt: number;
+  }>;
+  proposalBreakdown: Array<{
+    category: ProposalCategory;
+    count: number;
+  }>;
+  expenseTotal: number;
+};
+
 export type PhotoCard = {
   _id: string;
   url: string;
@@ -47,6 +107,7 @@ export type ExpenseCard = {
   _id: string;
   title: string;
   amount: number;
+  category?: "flights" | "stay" | "food" | "drinks" | "entertainment";
   payerName: string;
   payerImage?: string;
   payerUserId?: string;

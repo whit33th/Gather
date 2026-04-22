@@ -4,12 +4,16 @@ import { useEffect, useState } from "react";
 import { useMutation } from "convex/react";
 import { Pencil, Plus, Trash2, X } from "lucide-react";
 
-import { currencyFormatter } from "@/components/cards/shared";
+import {
+  budgetBuckets,
+  currencyFormatter,
+  getBudgetBucket,
+  type ExpenseCategory,
+} from "@/components/cards/shared";
 import UserAvatar from "@/components/UserAvatar";
 import {
   Drawer,
   DrawerContent,
-  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
@@ -33,6 +37,7 @@ export default function TripBudgetDrawer({
 }) {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState<ExpenseCategory>("food");
   const [editingExpenseId, setEditingExpenseId] = useState<Id<"expenses"> | null>(null);
 
   const addExpense = useMutation(api.expenses.add);
@@ -42,6 +47,7 @@ export default function TripBudgetDrawer({
   const resetComposer = () => {
     setTitle("");
     setAmount("");
+    setCategory("food");
     setEditingExpenseId(null);
   };
 
@@ -60,9 +66,14 @@ export default function TripBudgetDrawer({
 
     try {
       if (editingExpenseId) {
-        await updateExpense({ expenseId: editingExpenseId, title, amount: numericAmount });
+        await updateExpense({
+          expenseId: editingExpenseId,
+          title,
+          amount: numericAmount,
+          category,
+        });
       } else {
-        await addExpense({ tripId, title, amount: numericAmount });
+        await addExpense({ tripId, title, amount: numericAmount, category });
       }
 
       resetComposer();
@@ -73,44 +84,27 @@ export default function TripBudgetDrawer({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[90vh] rounded-t-[2rem] border-[#23372e] bg-[#0f1915] text-white">
-        <DrawerHeader>
-          <p className="section-kicker">Budget</p>
-          <DrawerTitle className="text-white">Money snapshot</DrawerTitle>
-          <DrawerDescription className="text-[#9fb0a3]">
-            Add, edit, and review shared trip costs without keeping a full budget card on the board.
-          </DrawerDescription>
+      <DrawerContent className="max-h-[90vh] rounded-t-[2rem] border-white/16 bg-[rgba(8,10,12,0.58)] text-white">
+        <DrawerHeader className="pb-2">
+          <DrawerTitle className="text-[1.35rem] leading-tight text-white">
+            {editingExpenseId ? "Edit expense" : "Add expense"}
+          </DrawerTitle>
         </DrawerHeader>
 
         <div className="overflow-y-auto px-5 pb-6 sm:px-6">
-          <div className="rounded-[1.6rem] border border-[#23372e] bg-[#13231d] px-4 py-4">
-            <p className="section-kicker text-[0.56rem]">Total</p>
-            <div className="mt-2 flex items-end justify-between gap-4">
-              <p className="editorial-metric text-[clamp(2rem,5vw,3.25rem)] text-white">
-                {currencyFormatter.format(totalBudget)}
-              </p>
-              <p className="text-sm text-[#9fb0a3]">
-                {expenses.length} record{expenses.length === 1 ? "" : "s"}
-              </p>
-            </div>
-          </div>
-
           <form
             onSubmit={handleSubmit}
-            className="mt-4 rounded-[1.6rem] border border-[#23372e] bg-[#13231d] px-4 py-4"
+            className="rounded-[1.6rem] border border-white/14 bg-black/16 px-4 py-4 backdrop-blur-xl"
           >
             <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="section-kicker">{editingExpenseId ? "Edit expense" : "Add expense"}</p>
-                <p className="mt-2 text-sm text-[#9fb0a3]">
-                  Keep the running cost list in the drawer and the board focused on the summary.
-                </p>
-              </div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/56">
+                Category
+              </p>
               {editingExpenseId ? (
                 <button
                   type="button"
                   onClick={resetComposer}
-                  className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] text-[#cfd8cd] hover:bg-[color:var(--control-bg-hover)] hover:text-white"
+                    className="trip-glass-icon-button h-10 w-10 bg-transparent text-white/76 hover:bg-white/8 hover:text-white"
                   aria-label="Cancel editing expense"
                 >
                   <X className="h-4 w-4" />
@@ -118,40 +112,71 @@ export default function TripBudgetDrawer({
               ) : null}
             </div>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem_auto]">
+            <div className="mt-3 flex flex-wrap gap-2">
+              {budgetBuckets.map((bucket) => {
+                const Icon = bucket.icon;
+                const selected = category === bucket.id;
+
+                return (
+                  <button
+                    key={bucket.id}
+                    type="button"
+                    onClick={() => setCategory(bucket.id)}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.12em] transition ${
+                      selected
+                        ? "border-white/30 bg-white/12 text-white"
+                        : "border-white/16 bg-transparent text-white/70 hover:border-white/24 hover:text-white"
+                    }`}
+                    aria-pressed={selected}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {bucket.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 placeholder="Dinner reservation"
-                className="editorial-input"
+                className="w-full rounded-2xl border border-white/18 bg-transparent px-4 py-3.5 text-white placeholder:text-white/45 transition-[border-color,background-color] focus:border-white/30 focus:bg-white/6 focus:outline-none"
               />
               <input
                 value={amount}
                 onChange={(event) => setAmount(event.target.value)}
                 placeholder="Amount"
                 type="number"
-                className="editorial-input"
+                className="w-full rounded-2xl border border-white/18 bg-transparent px-4 py-3.5 text-white placeholder:text-white/45 transition-[border-color,background-color] focus:border-white/30 focus:bg-white/6 focus:outline-none"
               />
-              <button
-                type="submit"
-                className="editorial-button-primary justify-center px-4 py-3 text-[0.62rem]"
-              >
-                <Plus className="h-4 w-4" />
-                {editingExpenseId ? "Save" : "Add"}
-              </button>
             </div>
+
+            <button
+              type="submit"
+              className="editorial-button-primary mt-4 w-full justify-center px-4 py-3.5 text-[0.62rem]"
+            >
+              <Plus className="h-4 w-4" />
+              {editingExpenseId ? "Save" : "Add"}
+            </button>
           </form>
 
           <div className="mt-4 space-y-3 pb-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/56">Records</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-white/56">
+                {currencyFormatter.format(totalBudget)} · {expenses.length}
+              </p>
+            </div>
             {expenses.length === 0 ? (
-              <div className="rounded-[1.6rem] border border-dashed border-[#31463c] bg-[#13231d] px-4 py-6 text-sm text-[#9fb0a3]">
+              <div className="rounded-[1.6rem] border border-dashed border-white/22 bg-black/16 px-4 py-6 text-sm text-white/62 backdrop-blur-xl">
                 No expenses yet.
               </div>
             ) : (
               expenses.map((expense) => (
                 <article
                   key={expense._id}
-                  className="flex items-center justify-between gap-3 rounded-[1.5rem] border border-[#23372e] bg-[#13231d] px-4 py-3.5"
+                  className="flex items-center justify-between gap-3 rounded-[1.5rem] border border-white/14 bg-black/16 px-4 py-3.5 backdrop-blur-xl"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-white">{expense.title}</p>
@@ -162,9 +187,13 @@ export default function TripBudgetDrawer({
                         seed={expense.payerUserId || expense.payerName}
                         size={28}
                       />
-                      <p className="truncate text-xs uppercase tracking-[0.14em] text-[#9fb0a3]">
+                      <p className="truncate text-xs uppercase tracking-[0.14em] text-white/58">
                         {expense.payerName}
                       </p>
+                      <span className="truncate rounded-full border border-white/18 px-2 py-0.5 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-white/70">
+                        {budgetBuckets.find((bucket) => bucket.id === (expense.category ?? getBudgetBucket(expense.title)))?.label ??
+                          "Entertainment"}
+                      </span>
                     </div>
                   </div>
 
@@ -175,8 +204,9 @@ export default function TripBudgetDrawer({
                         setEditingExpenseId(expense._id as Id<"expenses">);
                         setTitle(expense.title);
                         setAmount(String(expense.amount));
+                        setCategory(expense.category ?? getBudgetBucket(expense.title));
                       }}
-                      className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] text-[#cfd8cd] hover:bg-[color:var(--control-bg-hover)] hover:text-white"
+                      className="trip-glass-icon-button h-10 w-10 bg-transparent text-white/76 hover:bg-white/8 hover:text-white"
                       aria-label={`Edit ${expense.title}`}
                     >
                       <Pencil className="h-4 w-4" />
@@ -187,7 +217,7 @@ export default function TripBudgetDrawer({
                     <button
                       type="button"
                       onClick={() => void removeExpense({ expenseId: expense._id as Id<"expenses"> })}
-                      className="trip-glass-icon-button h-10 w-10 bg-[color:var(--control-bg)] text-[#cfd8cd] hover:bg-[color:var(--control-bg-hover)] hover:text-[#f3b4a3]"
+                      className="trip-glass-icon-button h-10 w-10 bg-transparent text-white/76 hover:bg-white/8 hover:text-[#f3b4a3]"
                       aria-label={`Delete ${expense.title}`}
                     >
                       <Trash2 className="h-4 w-4" />

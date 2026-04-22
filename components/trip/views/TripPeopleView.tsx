@@ -1,14 +1,79 @@
 "use client";
 
-import { usePreloadedQuery } from "convex/react";
+import Link from "next/link";
+import { useMutation, usePreloadedQuery } from "convex/react";
 import { useQuery } from "convex-helpers/react/cache/hooks";
+import { format } from "date-fns";
+import { ChevronDown, LogOut, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import UserAvatar from "@/components/UserAvatar";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
 import type { TripPagePreloadedData } from "../preloaded";
-import type { AvailabilityMember } from "../types";
+import type { TripMemberRosterItem } from "../types";
+import { getTripPersonHref } from "../view";
+
+const sortOptions = [
+  { id: "name", label: "Name" },
+  { id: "availability", label: "Availability" },
+  { id: "contributions", label: "Contributions" },
+  { id: "countries", label: "Countries" },
+  { id: "joined", label: "Recently joined" },
+] as const;
+
+type SortKey = (typeof sortOptions)[number]["id"];
+
+function toPercent(value: number) {
+  return Math.max(0, Math.min(100, Math.round(value * 100)));
+}
+
+function getSortedRoster(roster: TripMemberRosterItem[], sortBy: SortKey) {
+  const collator = new Intl.Collator("en", { sensitivity: "base" });
+
+  return [...roster].sort((left, right) => {
+    if (left.isCurrentUser !== right.isCurrentUser) {
+      return left.isCurrentUser ? -1 : 1;
+    }
+
+    if (sortBy === "availability") {
+      return (
+        right.availabilityCoverage - left.availabilityCoverage ||
+        collator.compare(left.name, right.name)
+      );
+    }
+
+    if (sortBy === "contributions") {
+      return (
+        right.contributionCount - left.contributionCount ||
+        collator.compare(left.name, right.name)
+      );
+    }
+
+    if (sortBy === "countries") {
+      return right.countryCount - left.countryCount || collator.compare(left.name, right.name);
+    }
+
+    if (sortBy === "joined") {
+      return right.joinedAt - left.joinedAt || collator.compare(left.name, right.name);
+    }
+
+    if (left.role !== right.role) {
+      return left.role === "owner" ? -1 : 1;
+    }
+
+    return collator.compare(left.name, right.name);
+  });
+}
+
+function buildSecondaryLine(member: TripMemberRosterItem) {
+  if (member.contributionCount > 0) {
+    return `${toPercent(member.availabilityCoverage)}% availability filled / ${member.proposalCount} spots / ${member.photoCount} photos / ${member.songCount} tracks`;
+  }
+
+  return `${toPercent(member.availabilityCoverage)}% availability filled / joined ${format(member.joinedAt, "MMM yyyy")}`;
+}
 
 export default function TripPeopleView({
   preloaded,
@@ -17,108 +82,163 @@ export default function TripPeopleView({
   preloaded: TripPagePreloadedData;
   tripId: Id<"trips">;
 }) {
-  const initialTravelers = usePreloadedQuery(preloaded.travelers) as AvailabilityMember[];
-  const liveTravelers = useQuery(api.availabilities.list, { tripId }) as
-    | AvailabilityMember[]
-    | undefined;
-  const travelers = liveTravelers ?? initialTravelers;
-  const ownerCount = travelers.filter((traveler) => traveler.role === "owner").length;
+  const initialRoster = usePreloadedQuery(preloaded.memberRoster) as TripMemberRosterItem[];
+  const liveRoster = useQuery(api.members.roster, { tripId }) as TripMemberRosterItem[] | undefined;
+  const roster = liveRoster ?? initialRoster;
+  const removeFromTrip = useMutation(api.members.removeFromTrip);
+
+  const [sortBy, setSortBy] = useState<SortKey>("name");
+  const [pendingMemberId, setPendingMemberId] = useState<string | null>(null);
+
+  const currentViewer = roster.find((member) => member.isCurrentUser) ?? null;
+  const sortedRoster = useMemo(() => getSortedRoster(roster, sortBy), [roster, sortBy]);
+
+  const handleRemove = async (member: TripMemberRosterItem) => {
+    const actionLabel = member.isCurrentUser
+      ? "leave this trip"
+      : `remove ${member.name} from this trip`;
+    const confirmed =
+      typeof window === "undefined" ? false : window.confirm(`Do you want to ${actionLabel}?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setPendingMemberId(member.memberId);
+      await removeFromTrip({
+        tripId,
+        memberId: member.memberId as Id<"members">,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setPendingMemberId(null);
+    }
+  };
 
   return (
-    <section className="trip-theme-card rounded-4xl p-6 sm:p-7">
-      <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-        <div className="max-w-2xl">
-          <p className="text-sm uppercase tracking-[0.18em] text-white/42">People</p>
-          <h1 className="mt-3 text-[2rem] font-semibold tracking-[-0.06em] text-white sm:text-[2.7rem]">
-            Everyone on this trip
+    <section className="trip-theme-card rounded-[2rem] p-4 sm:p-5 xl:p-6">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="section-kicker">People</p>
+          <h1 className="mt-3 text-[2rem] font-semibold tracking-[-0.06em] text-white sm:text-[2.6rem]">
+            Trip roster
           </h1>
-          <p className="mt-3 text-sm leading-6 text-[#9fb0a3] sm:text-base">
-            Full-screen roster for the shared notebook. Keep this view focused on members,
-            roles, and sync status instead of splitting the page with chat.
-          </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <article className="trip-theme-muted rounded-3xl px-4 py-4">
-            <p className="text-[0.65rem] uppercase tracking-[0.18em] text-white/42">
-              Travelers
-            </p>
-            <p className="mt-3 text-[1.8rem] font-semibold tracking-[-0.06em] text-white">
-              {travelers.length}
-            </p>
-          </article>
-          <article className="trip-theme-muted rounded-3xl px-4 py-4">
-            <p className="text-[0.65rem] uppercase tracking-[0.18em] text-white/42">Owners</p>
-            <p className="mt-3 text-[1.8rem] font-semibold tracking-[-0.06em] text-white">
-              {ownerCount}
-            </p>
-          </article>
-          <article className="trip-theme-muted col-span-2 rounded-3xl px-4 py-4 sm:col-span-1">
-            <p className="text-[0.65rem] uppercase tracking-[0.18em] text-white/42">
-              Synced
-            </p>
-            <p className="mt-3 text-[1.8rem] font-semibold tracking-[-0.06em] text-white">
-              {travelers.length > 0 ? "Live" : "Pending"}
-            </p>
-          </article>
-        </div>
+        <label className="inline-flex w-full items-center gap-3 rounded-full border border-[color:var(--trip-card-border)] bg-[color:var(--trip-card-subsurface-solid)] px-4 py-3 text-sm text-white sm:w-auto">
+          <span className="text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-[color:var(--trip-card-muted-text)]">
+            Sort
+          </span>
+          <div className="relative min-w-[11rem]">
+            <select
+              value={sortBy}
+              onChange={(event) => setSortBy(event.target.value as SortKey)}
+              className="w-full appearance-none bg-transparent pr-7 text-sm text-white outline-none"
+            >
+              {sortOptions.map((option) => (
+                <option key={option.id} value={option.id} className="bg-[#0b1713] text-white">
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--trip-card-muted-text)]" />
+          </div>
+        </label>
       </div>
 
-      {travelers.length > 0 ? (
-        <div className="mt-8 grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
-          {travelers.map((traveler) => (
-            <article key={traveler.memberId} className="trip-theme-card rounded-[28px] p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex min-w-0 items-center gap-4">
-                  <UserAvatar
-                    name={traveler.name}
-                    image={traveler.image}
-                    seed={traveler.userId}
-                    size={52}
-                  />
-                  <div className="min-w-0">
-                    <p className="truncate text-lg font-medium text-white">{traveler.name}</p>
-                    <p className="mt-1 text-sm text-white/46">
-                      {traveler.isCurrentUser ? "You" : traveler.role || "member"}
-                    </p>
+      <div className="mt-6 space-y-3">
+        {sortedRoster.map((member) => {
+          const canRemoveOther =
+            currentViewer?.role === "owner" && !member.isCurrentUser && member.role !== "owner";
+          const canLeave = member.isCurrentUser && member.role !== "owner";
+          const canShowDelete = canRemoveOther || canLeave;
+          const isPending = pendingMemberId === member.memberId;
+
+          return (
+            <article
+              key={member.memberId}
+              className="people-card-row rounded-[1.6rem] border border-[color:var(--trip-card-border)] bg-[color:var(--trip-card-subsurface-solid)] px-4 py-4 sm:px-5"
+            >
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start gap-4">
+                    <Link
+                      href={getTripPersonHref(tripId, member.memberId)}
+                      className="shrink-0 transition-transform duration-200 hover:scale-[1.03]"
+                      aria-label={`Open ${member.name} profile`}
+                    >
+                      <UserAvatar
+                        name={member.name}
+                        image={member.image}
+                        seed={member.userId}
+                        size={56}
+                      />
+                    </Link>
+
+                    <div className="min-w-0 flex-1">
+                      <div>
+                        <Link
+                          href={getTripPersonHref(tripId, member.memberId)}
+                          className="truncate text-lg font-semibold tracking-[-0.04em] text-white transition-colors hover:text-[color:var(--accent-strong)]"
+                        >
+                          {member.name}
+                        </Link>
+                      </div>
+
+                      <p className="mt-2 text-sm text-[color:var(--trip-card-muted-text)]">
+                        {member.isCurrentUser
+                          ? `You / ${member.role}`
+                          : member.role}
+                      </p>
+                      <p className="mt-1 text-sm text-[color:var(--trip-card-muted-text)]">
+                        {buildSecondaryLine(member)}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <span className="trip-theme-chip rounded-full px-3 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em]">
-                  {traveler.role}
-                </span>
-              </div>
+                <div className="flex items-center gap-2 self-end lg:self-start">
+                  <div className="trip-theme-muted rounded-[1rem] px-3 py-2 text-right">
+                    <p className="text-[0.54rem] uppercase tracking-[0.14em] text-white/42">
+                      Filled
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-white">
+                      {toPercent(member.availabilityCoverage)}%
+                    </p>
+                  </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                <div className="trip-theme-muted rounded-[20px] px-4 py-3">
-                  <p className="text-[0.62rem] uppercase tracking-[0.16em] text-white/42">
-                    Availability
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-white">
-                    {traveler.availabilities.length} days marked
-                  </p>
-                </div>
-                <div className="trip-theme-muted rounded-[20px] px-4 py-3">
-                  <p className="text-[0.62rem] uppercase tracking-[0.16em] text-white/42">
-                    Presence
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-white">
-                    {traveler.isCurrentUser ? "Current account" : "Shared member"}
-                  </p>
+                  {canShowDelete ? (
+                    <button
+                      type="button"
+                      onClick={() => void handleRemove(member)}
+                      disabled={isPending}
+                      className="trip-theme-chip inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] border px-4 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-[#f2c9c9] transition-colors hover:border-[#f2c9c9]/30 hover:bg-[#f2c9c9]/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {member.isCurrentUser ? (
+                        <LogOut className="h-4 w-4" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                      {member.isCurrentUser ? "Leave" : "Delete"}
+                    </button>
+                  ) : null}
                 </div>
               </div>
             </article>
-          ))}
-        </div>
-      ) : (
-        <div className="trip-theme-subsurface-solid mt-8 rounded-[28px] border border-dashed px-5 py-6">
-          <p className="text-base font-medium text-white">No people synced yet</p>
-          <p className="mt-2 text-sm leading-6 text-[#9fb0a3]">
-            Once members join this trip, the roster will fill the whole view instead of
-            opening chat.
-          </p>
-        </div>
-      )}
+          );
+        })}
+
+        {sortedRoster.length === 0 ? (
+          <div className="trip-theme-subsurface rounded-[1.6rem] border border-dashed border-[color:var(--trip-card-border)] px-5 py-8 text-center">
+            <p className="text-base font-medium text-white">No people yet</p>
+            <p className="mt-2 text-sm text-[color:var(--trip-card-muted-text)]">
+              Once members join, they will appear here as a single clean list.
+            </p>
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }

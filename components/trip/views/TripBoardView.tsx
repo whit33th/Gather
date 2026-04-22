@@ -84,11 +84,7 @@ export default function TripBoardView({
     <>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="md:col-span-2 xl:col-span-2">
-          <HeroSummaryCard
-            trip={trip}
-            heroImage={heroImage}
-            travelerCount={travelers.length || 0}
-          />
+          <HeroSummaryCard trip={trip} heroImage={heroImage} />
         </div>
 
         <div className="md:col-span-1 xl:col-span-1">

@@ -6,12 +6,15 @@ import { ImageKitClient } from "imagekitio-next";
 import { Plus } from "lucide-react";
 
 type ImageKitUploadProps = {
-  onSuccess: (url: string) => void;
+  onSuccess?: (url: string) => void;
+  onFileSelect?: (file: File | null) => void;
   folder?: string;
   buttonClassName?: string;
   label?: string;
   disabled?: boolean;
   mode?: "button" | "tile";
+  uploadMode?: "immediate" | "manual";
+  initialPreviewUrl?: string | null;
 };
 
 const defaultButtonClassName =
@@ -24,18 +27,58 @@ const Spinner = () => (
   </div>
 );
 
+export async function uploadImageWithImageKit({
+  file,
+  folder,
+}: {
+  file: File;
+  folder?: string;
+}) {
+  const urlEndpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
+  const publicKey = process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY;
+
+  if (!urlEndpoint || !publicKey) {
+    throw new Error("Image upload is not configured");
+  }
+
+  const res = await fetch("/api/imagekit/auth");
+  if (!res.ok) throw new Error("ImageKit auth failed");
+
+  const { token, expire, signature } = await res.json();
+  const imagekit = new ImageKitClient({
+    publicKey,
+    urlEndpoint,
+  });
+
+  const uploadRes: { url?: string } = await imagekit.upload({
+    file,
+    fileName: file.name,
+    token,
+    expire,
+    signature,
+    useUniqueFileName: true,
+    folder,
+  });
+
+  if (!uploadRes.url) throw new Error("Upload failed");
+  return uploadRes.url;
+}
+
 export default function ImageKitUpload({
   onSuccess,
+  onFileSelect,
   folder,
   buttonClassName,
   label = "Choose file",
   disabled,
   mode = "button",
+  uploadMode = "immediate",
+  initialPreviewUrl = null,
 }: ImageKitUploadProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initialPreviewUrl);
   const [uploading, setUploading] = useState(false);
 
   const urlEndpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
@@ -43,7 +86,7 @@ export default function ImageKitUpload({
 
   useEffect(() => {
     if (!file) {
-      setPreviewUrl(null);
+      setPreviewUrl(initialPreviewUrl);
       return;
     }
 
@@ -51,7 +94,7 @@ export default function ImageKitUpload({
     setPreviewUrl(url);
 
     return () => URL.revokeObjectURL(url);
-  }, [file]);
+  }, [file, initialPreviewUrl]);
 
   if (!urlEndpoint || !publicKey) {
     return (
@@ -80,29 +123,9 @@ export default function ImageKitUpload({
     setError(null);
 
     try {
-      const res = await fetch("/api/imagekit/auth");
-      if (!res.ok) throw new Error("ImageKit auth failed");
-
-      const { token, expire, signature } = await res.json();
-
-      const imagekit = new ImageKitClient({
-        publicKey,
-        urlEndpoint,
-      });
-
-      const uploadRes: { url?: string } = await imagekit.upload({
-        file: nextFile,
-        fileName: nextFile.name,
-        token,
-        expire,
-        signature,
-        useUniqueFileName: true,
-        folder,
-      });
-
-      if (!uploadRes.url) throw new Error("Upload failed");
-
-      onSuccess(uploadRes.url);
+      const uploadedUrl = await uploadImageWithImageKit({ file: nextFile, folder });
+      if (!onSuccess) throw new Error("Missing onSuccess callback for immediate upload mode");
+      onSuccess(uploadedUrl);
       reset();
     } catch {
       setError("Upload failed. Try again.");
@@ -120,7 +143,8 @@ export default function ImageKitUpload({
         onChange={(e) => {
           const nextFile = e.target.files?.[0] || null;
           setFile(nextFile);
-          if (nextFile) {
+          onFileSelect?.(nextFile);
+          if (nextFile && uploadMode === "immediate") {
             void uploadFile(nextFile);
           }
         }}

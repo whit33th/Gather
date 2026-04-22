@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 export type TripPagePreloadedData = {
   currentUser: Preloaded<typeof api.users.current>;
   expenses: Preloaded<typeof api.expenses.list>;
+  memberRoster: Preloaded<typeof api.members.roster>;
   photos: Preloaded<typeof api.photos.list>;
   proposals: Preloaded<typeof api.proposals.listAccommodations>;
   travelers: Preloaded<typeof api.availabilities.list>;

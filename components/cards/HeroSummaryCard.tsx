@@ -9,11 +9,9 @@ import { cardSurface } from "./shared";
 export function HeroSummaryCard({
   trip,
   heroImage,
-  travelerCount,
 }: {
   trip: Doc<"trips">;
   heroImage: string;
-  travelerCount: number;
 }) {
   const start = parseISO(trip.startDate);
   const end = parseISO(trip.endDate);
@@ -62,28 +60,27 @@ export function HeroSummaryCard({
                 <div className="grid grid-cols-2 gap-2.5">
                   <div className="rounded-[18px] border border-white/10 bg-white/[0.05] px-3 py-3">
                     <p className="text-[0.58rem] uppercase tracking-[0.16em] text-white/40">
-                      People
+                      Window
                     </p>
                     <p className="mt-2 text-sm font-medium text-white">
-                      {Math.max(travelerCount, 1)} travelers
+                      {tripWindow}
                     </p>
                   </div>
                   <div className="rounded-[18px] border border-white/10 bg-white/[0.05] px-3 py-3">
                     <p className="text-[0.58rem] uppercase tracking-[0.16em] text-white/40">
-                      Mode
+                      Length
                     </p>
-                    <p className="mt-2 text-sm font-medium text-white">Lit</p>
+                    <p className="mt-2 text-sm font-medium text-white">{duration}</p>
                   </div>
                 </div>
 
                 <div className="mt-5 space-y-3">
                   <div>
                     <div className="flex items-center justify-between text-[0.68rem] uppercase tracking-[0.16em] text-white/46">
-                      <span>Trip mood</span>
-                      <span>Curated</span>
+                      <span>{trip.destination}</span>
                     </div>
                     <div className="mt-2 h-1.5 rounded-full bg-white/10">
-                      <div className="h-full w-[82%] rounded-full bg-[linear-gradient(90deg,#dbe887,#8cc8ba)]" />
+                      <div className="h-full w-[84%] rounded-full bg-[linear-gradient(90deg,#dbe887,#8cc8ba)]" />
                     </div>
                   </div>
                   <div>

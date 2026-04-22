@@ -24,7 +24,7 @@ export function BudgetOverviewCard({
   const totals = new Map<string, number>(budgetBuckets.map((bucket) => [bucket.id, 0]));
 
   (expenses || []).forEach((expense) => {
-    const bucketId = getBudgetBucket(expense.title);
+    const bucketId = getBudgetBucket(expense.title, expense.category);
     totals.set(bucketId, (totals.get(bucketId) || 0) + expense.amount);
   });
 

@@ -114,6 +114,15 @@ export default defineSchema({
     tripId: v.id("trips"),
     title: v.string(),
     amount: v.number(),
+    category: v.optional(
+      v.union(
+        v.literal("flights"),
+        v.literal("stay"),
+        v.literal("food"),
+        v.literal("drinks"),
+        v.literal("entertainment"),
+      ),
+    ),
     paidBy: v.id("members"),
   })
     .index("by_trip", ["tripId"]),

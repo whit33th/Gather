@@ -1,17 +1,21 @@
 "use client";
 
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import Image from "next/image";
 import {
   ArrowUpRight,
   CalendarDays,
+  ImageIcon,
   MapPin,
   Sparkles,
   Type,
+  X,
 } from "lucide-react";
 import { useMutation, usePreloadedQuery } from "convex/react";
 import type { Preloaded } from "convex/react";
 import { useEffect, useMemo, useState } from "react";
 
+import ImageKitUpload, { uploadImageWithImageKit } from "@/components/ImageKitUpload";
 import LocationSearch from "@/components/LocationSearch";
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
@@ -37,6 +41,7 @@ export default function TripSettingsView({
       destination: trip.destination,
       startDate: trip.startDate,
       endDate: trip.endDate,
+      coverUrl: trip.coverUrl || "",
       lat: trip.lat,
       lng: trip.lng,
       locationName: trip.locationName || trip.destination,
@@ -48,6 +53,8 @@ export default function TripSettingsView({
   const [destination, setDestination] = useState(trip.destination);
   const [startDate, setStartDate] = useState(trip.startDate);
   const [endDate, setEndDate] = useState(trip.endDate);
+  const [coverUrl, setCoverUrl] = useState(trip.coverUrl || "");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [lat, setLat] = useState<number | undefined>(trip.lat);
   const [lng, setLng] = useState<number | undefined>(trip.lng);
   const [locationName, setLocationName] = useState(trip.locationName || trip.destination);
@@ -77,10 +84,17 @@ export default function TripSettingsView({
     setDestination(initialValues.destination);
     setStartDate(initialValues.startDate);
     setEndDate(initialValues.endDate);
+    setCoverUrl(initialValues.coverUrl);
+    setCoverFile(null);
     setLat(initialValues.lat);
     setLng(initialValues.lng);
     setLocationName(initialValues.locationName);
   }, [initialValues, isDirty]);
+
+  useEffect(() => {
+    if (!coverUrl.startsWith("blob:")) return;
+    return () => URL.revokeObjectURL(coverUrl);
+  }, [coverUrl]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -98,17 +112,24 @@ export default function TripSettingsView({
     setIsSaving(true);
 
     try {
+      const uploadedCoverUrl =
+        coverFile !== null
+          ? await uploadImageWithImageKit({ file: coverFile, folder: "/gather/covers" })
+          : coverUrl || undefined;
+
       await updateTrip({
         tripId,
         title,
         destination,
         startDate,
         endDate,
+        coverUrl: uploadedCoverUrl,
         lat,
         lng,
         locationName: locationName || destination || undefined,
       });
       setIsDirty(false);
+      setCoverFile(null);
       setIsSaving(false);
     } catch (error) {
       console.error(error);
@@ -186,6 +207,53 @@ export default function TripSettingsView({
                       placeholder="Search destination"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="section-kicker text-[0.58rem]">Cover photo</label>
+                  <div className="mt-3 relative aspect-video overflow-hidden rounded-2xl border border-dashed border-white/12 bg-paper/60">
+                    {coverUrl ? (
+                      <>
+                        <Image src={coverUrl} alt="Trip cover" fill className="object-cover" unoptimized />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsDirty(true);
+                            setCoverUrl("");
+                            setCoverFile(null);
+                          }}
+                          className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white/80 backdrop-blur transition hover:bg-black/80"
+                          aria-label="Remove cover image"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </>
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center p-3">
+                        <div className="w-full h-full">
+                          <ImageKitUpload
+                            uploadMode="manual"
+                            mode="button"
+                            label="Upload cover"
+                            onFileSelect={(file) => {
+                              setCoverFile(file);
+                              if (!file) {
+                                setCoverUrl("");
+                                return;
+                              }
+                              const localPreviewUrl = URL.createObjectURL(file);
+                              setCoverUrl(localPreviewUrl);
+                              setIsDirty(true);
+                            }}
+                            buttonClassName="flex h-full w-full items-center justify-center rounded-xl border border-white/14 bg-transparent text-sm font-medium text-white/60 transition hover:border-white/24 hover:text-white"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-2 text-xs text-white/46">
+                    New image is uploaded only when you save changes.
+                  </p>
                 </div>
               </div>
             </section>
@@ -301,6 +369,18 @@ export default function TripSettingsView({
                   <p className="mt-3 text-sm leading-6 text-white/80">
                     Hero card, readiness, and invite screens will immediately reflect the
                     updated trip identity.
+                  </p>
+                </article>
+
+                <article className="trip-theme-subsurface rounded-[1.5rem] p-4">
+                  <div className="flex items-center gap-3">
+                    <ImageIcon className="h-4 w-4 text-[#f2c98b]" />
+                    <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-white/44">
+                      Cover
+                    </p>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-white/80">
+                    {coverUrl ? "Cover image ready" : "No cover image"}
                   </p>
                 </article>
               </div>

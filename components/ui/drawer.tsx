@@ -40,7 +40,7 @@ function DrawerOverlay({
 }: React.ComponentProps<typeof DrawerPrimitive.Overlay>) {
   return (
     <DrawerPrimitive.Overlay
-      className={cn("fixed inset-0 z-50 bg-stone-950/48", className)}
+      className={cn("fixed inset-0 z-50 bg-black/52 backdrop-blur-[1px]", className)}
       {...props}
     />
   );
@@ -56,12 +56,12 @@ function DrawerContent({
       <DrawerOverlay />
       <DrawerPrimitive.Content
         className={cn(
-          "fixed inset-x-0 bottom-0 z-50 mt-24 flex max-h-[88vh] flex-col  rounded-t-lg border border-stone-900/8 bg-background/99 backdrop-blur",
+          "fixed inset-x-0 bottom-0 z-50 mt-24 flex max-h-[88vh] flex-col rounded-t-lg border border-white/16 bg-[rgba(8,10,12,0.58)] text-white shadow-[0_-24px_56px_rgba(0,0,0,0.38)] backdrop-blur-2xl",
           className
         )}
         {...props}
       >
-        <div className="mx-auto mt-3 h-1.5 w-14 rounded-full bg-stone-200" />
+        <div className="mx-auto mt-3 h-1.5 w-14 rounded-full bg-white/38" />
         {children}
       </DrawerPrimitive.Content>
     </DrawerPortal>
@@ -98,7 +98,7 @@ function DrawerTitle({
 }: React.ComponentProps<typeof DrawerPrimitive.Title>) {
   return (
     <DrawerPrimitive.Title
-      className={cn("text-2xl font-semibold tracking-[-0.04em] text-foreground", className)}
+      className={cn("text-2xl font-semibold tracking-[-0.04em] text-white", className)}
       {...props}
     />
   );
@@ -110,7 +110,7 @@ function DrawerDescription({
 }: React.ComponentProps<typeof DrawerPrimitive.Description>) {
   return (
     <DrawerPrimitive.Description
-      className={cn("text-sm leading-6 text-stone-500", className)}
+      className={cn("text-sm leading-6 text-white/68", className)}
       {...props}
     />
   );

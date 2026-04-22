@@ -14,6 +14,16 @@ export const currencyFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
+export const expenseCategories = [
+  "flights",
+  "stay",
+  "food",
+  "drinks",
+  "entertainment",
+] as const;
+
+export type ExpenseCategory = (typeof expenseCategories)[number];
+
 export const budgetBuckets = [
   {
     id: "flights",
@@ -24,7 +34,7 @@ export const budgetBuckets = [
   },
   {
     id: "stay",
-    label: "Resort",
+    label: "Stay",
     icon: Hotel,
     keywords: [
       "hotel",
@@ -42,21 +52,26 @@ export const budgetBuckets = [
   },
   {
     id: "food",
-    label: "Food & Drinks",
+    label: "Food",
     icon: UtensilsCrossed,
     keywords: [
       "food",
-      "drink",
       "dinner",
       "lunch",
       "breakfast",
       "restaurant",
       "cafe",
-      "bar",
-      "coffee",
       "brunch",
+      "meal",
     ],
     barClass: "bg-[linear-gradient(90deg,#c7b0ff,#9d84ec)]",
+  },
+  {
+    id: "drinks",
+    label: "Drinks",
+    icon: UtensilsCrossed,
+    keywords: ["drink", "bar", "coffee", "cocktail", "juice", "tea", "wine", "beer"],
+    barClass: "bg-[linear-gradient(90deg,#8fc8ff,#6ea7ff)]",
   },
   {
     id: "entertainment",
@@ -65,9 +80,19 @@ export const budgetBuckets = [
     keywords: [],
     barClass: "bg-[linear-gradient(90deg,#f2c98b,#e0a765)]",
   },
-] as const;
+] as const satisfies ReadonlyArray<{
+  id: ExpenseCategory;
+  label: string;
+  icon: typeof Plane;
+  keywords: readonly string[];
+  barClass: string;
+}>;
 
-export function getBudgetBucket(title: string) {
+export function getBudgetBucket(title: string, explicitCategory?: ExpenseCategory) {
+  if (explicitCategory && expenseCategories.includes(explicitCategory)) {
+    return explicitCategory;
+  }
+
   const normalized = title.toLowerCase();
 
   return (

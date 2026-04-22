@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { api } from "../convex/_generated/api";
 import { tripDateRangeSchema } from "../lib/validation/tripDates";
 import LocationSearch from "./LocationSearch";
-import ImageKitUpload from "./ImageKitUpload";
+import ImageKitUpload, { uploadImageWithImageKit } from "./ImageKitUpload";
 
 type SelectedLocation = {
   place_name: string;
@@ -44,9 +44,15 @@ export default function CreateTripModalNew({
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (!coverUrl.startsWith("blob:")) return;
+    return () => URL.revokeObjectURL(coverUrl);
+  }, [coverUrl]);
 
   const createTrip = useMutation(api.trips.create);
 
@@ -68,12 +74,17 @@ export default function CreateTripModalNew({
     setIsSubmitting(true);
 
     try {
+      const uploadedCoverUrl =
+        coverFile !== null
+          ? await uploadImageWithImageKit({ file: coverFile, folder: "/gather/covers" })
+          : coverUrl || undefined;
+
       const tripId = await createTrip({
         title,
         destination,
         startDate,
         endDate,
-        coverUrl: coverUrl || undefined,
+        coverUrl: uploadedCoverUrl,
         lat,
         lng,
         locationName: destination,
@@ -238,7 +249,10 @@ export default function CreateTripModalNew({
                       />
                       <button
                         type="button"
-                        onClick={() => setCoverUrl("")}
+                        onClick={() => {
+                          setCoverUrl("");
+                          setCoverFile(null);
+                        }}
                         className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white/80 backdrop-blur transition hover:bg-black/80"
                       >
                         <X className="h-3.5 w-3.5" />
@@ -246,9 +260,17 @@ export default function CreateTripModalNew({
                     </>
                   ) : (
                     <ImageKitUpload
-                      folder="/gather/covers"
+                      uploadMode="manual"
                       label="Upload cover"
-                      onSuccess={(url) => setCoverUrl(url)}
+                      onFileSelect={(file) => {
+                        setCoverFile(file);
+                        if (!file) {
+                          setCoverUrl("");
+                          return;
+                        }
+                        const localPreviewUrl = URL.createObjectURL(file);
+                        setCoverUrl(localPreviewUrl);
+                      }}
                       buttonClassName="flex flex-1 h-full w-full *:h-full *:w-full items-center justify-center text-sm font-medium text-white/40 transition hover:text-white/60"
                     />
                   )}

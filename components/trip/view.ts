@@ -30,3 +30,6 @@ export function getTripViewHref(tripId: Id<"trips">, view: TripView): Route {
   return `/trip/${tripId}${suffix ? `?${suffix}` : ""}` as Route;
 }
 
+export function getTripPersonHref(tripId: Id<"trips">, memberId: string): Route {
+  return `/trip/${tripId}/people/${memberId}` as Route;
+}

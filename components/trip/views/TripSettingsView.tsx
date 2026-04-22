@@ -1,18 +1,15 @@
 "use client";
 
+import type { Preloaded } from "convex/react";
+import { useMutation, usePreloadedQuery } from "convex/react";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
-import Image from "next/image";
 import {
   ArrowUpRight,
   CalendarDays,
-  ImageIcon,
-  MapPin,
-  Sparkles,
   Type,
-  X,
+  X
 } from "lucide-react";
-import { useMutation, usePreloadedQuery } from "convex/react";
-import type { Preloaded } from "convex/react";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 import ImageKitUpload, { uploadImageWithImageKit } from "@/components/ImageKitUpload";
@@ -144,7 +141,7 @@ export default function TripSettingsView({
         <form
           id="trip-settings-form"
           onSubmit={handleSubmit}
-          className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_21rem]"
+          className=""
         >
           <div className="grid gap-6">
             <section className="glass-panel relative z-20 overflow-visible rounded-[2.1rem] p-5 sm:p-6">
@@ -322,95 +319,6 @@ export default function TripSettingsView({
             </section>
           </div>
 
-          <aside className="grid gap-6">
-            <section className="glass-panel rounded-[2.1rem] p-5 sm:p-6">
-              <p className="section-kicker">Live summary</p>
-              <h2 className="mt-3 text-[1.9rem] font-semibold tracking-[-0.06em] text-white">
-                What this page is shaping
-              </h2>
-
-              <div className="mt-6 space-y-3">
-                <article className="trip-theme-subsurface rounded-[1.5rem] p-4">
-                  <div className="flex items-center gap-3">
-                    <MapPin className="h-4 w-4 text-[#dbe887]" />
-                    <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-white/44">
-                      Destination
-                    </p>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-white/80">
-                    {locationName || destination || "No destination yet"}
-                  </p>
-                </article>
-
-                <article className="trip-theme-subsurface rounded-[1.5rem] p-4">
-                  <div className="flex items-center gap-3">
-                    <CalendarDays className="h-4 w-4 text-[#8fd0c0]" />
-                    <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-white/44">
-                      Window
-                    </p>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-white/80">
-                    {tripLength ? tripLength.range : "Choose your travel dates"}
-                  </p>
-                  {tripLength ? (
-                    <p className="mt-2 text-[0.72rem] uppercase tracking-[0.16em] text-white/42">
-                      {tripLength.days} days / {tripLength.nights} nights
-                    </p>
-                  ) : null}
-                </article>
-
-                <article className="trip-theme-subsurface rounded-[1.5rem] p-4">
-                  <div className="flex items-center gap-3">
-                    <Sparkles className="h-4 w-4 text-[#c7b0ff]" />
-                    <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-white/44">
-                      Board impact
-                    </p>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-white/80">
-                    Hero card, readiness, and invite screens will immediately reflect the
-                    updated trip identity.
-                  </p>
-                </article>
-
-                <article className="trip-theme-subsurface rounded-[1.5rem] p-4">
-                  <div className="flex items-center gap-3">
-                    <ImageIcon className="h-4 w-4 text-[#f2c98b]" />
-                    <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-white/44">
-                      Cover
-                    </p>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-white/80">
-                    {coverUrl ? "Cover image ready" : "No cover image"}
-                  </p>
-                </article>
-              </div>
-            </section>
-
-            <section className="glass-panel rounded-[2.1rem] p-5 sm:p-6">
-              <p className="section-kicker">Coordinates</p>
-              <h2 className="mt-3 text-[1.55rem] font-semibold tracking-[-0.05em] text-white">
-                Map status
-              </h2>
-              <div className="mt-5 grid gap-3">
-                <div className="trip-theme-subsurface rounded-[1.3rem] px-4 py-3">
-                  <p className="text-[0.62rem] uppercase tracking-[0.16em] text-white/40">
-                    Latitude
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-white">
-                    {lat != null ? lat.toFixed(4) : "Pending"}
-                  </p>
-                </div>
-                <div className="trip-theme-subsurface rounded-[1.3rem] px-4 py-3">
-                  <p className="text-[0.62rem] uppercase tracking-[0.16em] text-white/40">
-                    Longitude
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-white">
-                    {lng != null ? lng.toFixed(4) : "Pending"}
-                  </p>
-                </div>
-              </div>
-            </section>
-          </aside>
         </form>
       </div>
     </div>

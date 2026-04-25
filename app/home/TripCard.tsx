@@ -41,7 +41,7 @@ export function TripCard({ trip, index }: { trip: HomeTripListItem; index: numbe
             </div>
           </div>
 
-          <div className="p-4 sm:p-5 bg-black/70">
+          <div className="p-4 sm:p-5 bg-black/65">
             <h3 className="text-lg font-semibold tracking-[-0.03em] text-white transition-colors ">{trip.title}</h3>
 
             <div className="mt-2 flex items-center gap-1.5 text-[0.72rem] text-white/45">

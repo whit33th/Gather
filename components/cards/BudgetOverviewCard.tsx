@@ -48,18 +48,19 @@ export function BudgetOverviewCard({
         "grid grid-cols-2 gap-3 p-4 xl:grid-cols-[11rem_minmax(0,1fr)]",
       )}
     >
-      <div className="trip-theme-subsurface flex flex-col items-center justify-center rounded-3xl px-4 py-5 text-center">
-        <p className="section-kicker text-[0.56rem]">Expenses</p>
-        <p className="mt-3 text-[2.35rem] font-semibold tracking-[-0.08em] text-white">
-          {currencyFormatter.format(totalBudget)}
-        </p>
-
+      <div className="trip-theme-subsurface flex min-h-[16rem] flex-col rounded-3xl px-4 py-5 text-center">
+        <div className="flex flex-1 flex-col items-center justify-center">
+          <p className="section-kicker text-[0.56rem]">Expenses</p>
+          <p className="mt-3 text-[2.35rem] font-semibold tracking-[-0.08em] text-white">
+            {currencyFormatter.format(totalBudget)}
+          </p>
+        </div>
         <button
           type="button"
           onClick={onOpen}
-          className="editorial-button-secondary mt-6 justify-center px-4 py-3 text-[0.62rem]"
+          className="editorial-button-secondary mt-auto justify-center px-4 py-3 text-[0.62rem]"
         >
-          Add or edit costs
+          Manage
         </button>
       </div>
 

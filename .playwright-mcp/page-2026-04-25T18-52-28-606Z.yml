@@ -1,0 +1,37 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - link "Gather" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e7]: Gather
+        - generic [ref=e8]:
+          - link "Trips All notebooks" [ref=e9] [cursor=pointer]:
+            - /url: /
+            - img [ref=e11]
+            - generic [ref=e14]:
+              - generic [ref=e15]: Trips
+              - generic [ref=e16]: All notebooks
+          - link "Discover Trip ideas" [ref=e17] [cursor=pointer]:
+            - /url: /discover
+            - img [ref=e19]
+            - generic [ref=e22]:
+              - generic [ref=e23]: Discover
+              - generic [ref=e24]: Trip ideas
+    - main [ref=e29]:
+      - img "Mountain landscape behind Gather login" [ref=e31]
+      - generic [ref=e34]:
+        - generic [ref=e36]:
+          - heading "The Journey Starts Here" [level=1] [ref=e37]
+          - paragraph [ref=e38]: Plan trips from idea to booking
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - paragraph [ref=e42]: Sign in
+            - paragraph [ref=e43]: One shared notebook for places, dates, votes, and bookings.
+          - button "Sign in with Google" [ref=e44] [cursor=pointer]:
+            - img [ref=e45]
+            - generic [ref=e50]: Sign in with Google
+          - button "Sign in anonymously" [ref=e51] [cursor=pointer]
+          - paragraph [ref=e52]: By continuing you agree to the Terms of Service and Privacy Policy
+  - button "Open Next.js Dev Tools" [ref=e58] [cursor=pointer]:
+    - img [ref=e59]

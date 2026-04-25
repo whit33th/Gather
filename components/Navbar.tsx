@@ -156,9 +156,7 @@ export default function Navbar({ children }: { children: ReactNode }) {
           <p className="truncate text-sm font-medium tracking-[-0.03em] text-white">
             {currentUser.name || "Traveler"}
           </p>
-          <p className="truncate text-[0.7rem] uppercase tracking-[0.16em] text-white/42">
-            Account
-          </p>
+        
         </div>
         <Link
           href={"/settings" as Route}
@@ -238,7 +236,7 @@ export default function Navbar({ children }: { children: ReactNode }) {
       >
         <main
           className={cn(
-            "relative flex flex-1 flex-col gap-4 p-4 sm:p-5 lg:p-6",
+            "relative flex min-h-screen flex-1 flex-col gap-4 p-4 sm:p-5 lg:p-6",
           )}
         >
           {children}

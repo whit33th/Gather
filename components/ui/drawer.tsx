@@ -56,7 +56,7 @@ function DrawerContent({
       <DrawerOverlay />
       <DrawerPrimitive.Content
         className={cn(
-          "fixed inset-x-0 bottom-0 z-50 mt-24 flex max-h-[88vh] flex-col rounded-t-lg border border-white/16 bg-[rgba(8,10,12,0.58)] text-white shadow-[0_-24px_56px_rgba(0,0,0,0.38)] backdrop-blur-2xl",
+          "fixed inset-x-0 bottom-0 z-50 mt-24 flex max-h-[88vh] flex-col rounded-t-sm border border-white/16 bg-black/90 text-white shadow-[0_-24px_56px_rgba(0,0,0,0.2)] backdrop-blur-2xl",
           className
         )}
         {...props}

@@ -878,10 +878,7 @@ export function ProposalStudio({
             </p>
           </div>
 
-          <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.04] px-4 py-3 text-sm leading-6 text-white/60">
-            Use <span className="font-semibold text-white/80">Stay</span> for hotels, Airbnbs,
-            and apartments.
-          </div>
+          
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2.5">

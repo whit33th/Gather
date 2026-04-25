@@ -18,7 +18,6 @@ export const expenseCategories = [
   "flights",
   "stay",
   "food",
-  "drinks",
   "entertainment",
 ] as const;
 
@@ -52,7 +51,7 @@ export const budgetBuckets = [
   },
   {
     id: "food",
-    label: "Food",
+    label: "Food & Drinks",
     icon: UtensilsCrossed,
     keywords: [
       "food",
@@ -63,14 +62,15 @@ export const budgetBuckets = [
       "cafe",
       "brunch",
       "meal",
+      "drink",
+      "bar",
+      "coffee",
+      "cocktail",
+      "juice",
+      "tea",
+      "wine",
+      "beer",
     ],
-    barClass: "bg-[linear-gradient(90deg,#c7b0ff,#9d84ec)]",
-  },
-  {
-    id: "drinks",
-    label: "Drinks",
-    icon: UtensilsCrossed,
-    keywords: ["drink", "bar", "coffee", "cocktail", "juice", "tea", "wine", "beer"],
     barClass: "bg-[linear-gradient(90deg,#8fc8ff,#6ea7ff)]",
   },
   {
@@ -88,7 +88,14 @@ export const budgetBuckets = [
   barClass: string;
 }>;
 
-export function getBudgetBucket(title: string, explicitCategory?: ExpenseCategory) {
+export function getBudgetBucket(
+  title: string,
+  explicitCategory?: ExpenseCategory | "drinks",
+) {
+  if (explicitCategory === "drinks") {
+    return "food";
+  }
+
   if (explicitCategory && expenseCategories.includes(explicitCategory)) {
     return explicitCategory;
   }

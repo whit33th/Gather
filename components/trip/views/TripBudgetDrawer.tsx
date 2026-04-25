@@ -15,6 +15,7 @@ import {
   Drawer,
   DrawerContent,
   DrawerDescription,
+  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
@@ -88,7 +89,7 @@ export default function TripBudgetDrawer({
       <DrawerContent className="max-h-[90vh] rounded-t-[2rem] border-white/16 bg-[rgba(8,10,12,0.58)] text-white">
         <DrawerHeader className="pb-2">
           <DrawerTitle className="text-[1.35rem] leading-tight text-white">
-            {editingExpenseId ? "Edit expense" : "Add expense"}
+            Manage expenses
           </DrawerTitle>
           <DrawerDescription>
             Log hotel, transport, food, and other shared costs so everyone can see the running
@@ -96,8 +97,9 @@ export default function TripBudgetDrawer({
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="overflow-y-auto px-5 pb-6 sm:px-6">
+        <div className="overflow-y-auto px-5 sm:px-6">
           <form
+            id="expense-drawer-form"
             onSubmit={handleSubmit}
             className="rounded-[1.6rem] border border-white/14 bg-black/16 px-4 py-4 backdrop-blur-xl"
           >
@@ -109,7 +111,7 @@ export default function TripBudgetDrawer({
                 <button
                   type="button"
                   onClick={resetComposer}
-                    className="trip-glass-icon-button h-10 w-10 bg-transparent text-white/76 hover:bg-white/8 hover:text-white"
+                  className="trip-glass-icon-button h-10 w-10 bg-transparent text-white/76 hover:bg-white/8 hover:text-white"
                   aria-label="Cancel editing expense"
                 >
                   <X className="h-4 w-4" />
@@ -162,16 +164,9 @@ export default function TripBudgetDrawer({
               />
             </div>
 
-              <button
-                type="submit"
-                className="editorial-button-primary mt-4 w-full justify-center px-4 py-3.5 text-[0.62rem]"
-              >
-                <Plus className="h-4 w-4" />
-                {editingExpenseId ? "Save expense" : "Add expense"}
-              </button>
-            </form>
+          </form>
 
-          <div className="mt-4 space-y-3 pb-2">
+          <div className="mt-4 space-y-3 pb-6">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/56">Records</p>
               <p className="text-xs uppercase tracking-[0.14em] text-white/56">
@@ -201,7 +196,7 @@ export default function TripBudgetDrawer({
                         {expense.payerName}
                       </p>
                       <span className="truncate rounded-full border border-white/18 px-2 py-0.5 text-[0.58rem] font-semibold uppercase tracking-[0.14em] text-white/70">
-                        {budgetBuckets.find((bucket) => bucket.id === (expense.category ?? getBudgetBucket(expense.title)))?.label ??
+                        {budgetBuckets.find((bucket) => bucket.id === getBudgetBucket(expense.title, expense.category))?.label ??
                           "Entertainment"}
                       </span>
                     </div>
@@ -214,7 +209,7 @@ export default function TripBudgetDrawer({
                         setEditingExpenseId(expense._id as Id<"expenses">);
                         setTitle(expense.title);
                         setAmount(String(expense.amount));
-                        setCategory(expense.category ?? getBudgetBucket(expense.title));
+                        setCategory(getBudgetBucket(expense.title, expense.category));
                       }}
                       className="trip-glass-icon-button h-10 w-10 bg-transparent text-white/76 hover:bg-white/8 hover:text-white"
                       aria-label={`Edit ${expense.title}`}
@@ -238,6 +233,16 @@ export default function TripBudgetDrawer({
             )}
           </div>
         </div>
+        <DrawerFooter className="border-t border-white/10 bg-[rgba(8,10,12,0.72)] pb-6 pt-4 backdrop-blur-2xl">
+          <button
+            type="submit"
+            form="expense-drawer-form"
+            className="editorial-button-primary w-full justify-center px-4 py-3.5 text-[0.62rem]"
+          >
+            <Plus className="h-4 w-4" />
+            {editingExpenseId ? "Save" : "Add"}
+          </button>
+        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

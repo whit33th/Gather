@@ -149,15 +149,7 @@ export default function CreateTripModalNew({
 
             <form onSubmit={handleSubmit} className="mt-7 flex min-h-0 flex-1 flex-col">
               <div className="space-y-5 overflow-y-auto pr-1">
-                <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.04] px-4 py-3.5">
-                  <p className="text-[0.62rem] font-bold uppercase tracking-[0.18em] text-white/48">
-                    Required now
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-white/74">
-                    Title, destination, and dates. You can add stays, expenses, and invites right
-                    after the trip is created. Cover photo is optional.
-                  </p>
-                </div>
+              
 
                 <div className="flex flex-col gap-2">
                   <label className="inline-flex items-center gap-1.5 text-[0.62rem] font-bold uppercase tracking-widest text-white/50">
@@ -286,10 +278,7 @@ export default function CreateTripModalNew({
               </div>
 
               <div className="mt-5 border-t border-white/10 pt-4">
-                <div className="mb-4 flex items-center justify-between gap-3 text-xs uppercase tracking-[0.16em] text-white/38">
-                  <span>Cover can wait</span>
-                  <span>Next: stays, budget, invites</span>
-                </div>
+                
                 <button
                   type="submit"
                   disabled={isSubmitting}

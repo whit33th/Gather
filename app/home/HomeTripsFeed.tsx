@@ -25,7 +25,8 @@ export function HomeTripsFeed({
           </div>
           <h2 className="mt-5 text-2xl font-semibold tracking-[-0.04em] text-white">No trips yet</h2>
           <p className="mt-2 max-w-sm text-sm leading-6 text-white/45">
-            Create your first trip and start planning your next adventure with friends.
+            Create the trip first, then add your stay, log expenses, and invite the rest of the
+            group once the notebook is open.
           </p>
           <button
             type="button"

@@ -14,6 +14,7 @@ import UserAvatar from "@/components/UserAvatar";
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
@@ -89,6 +90,10 @@ export default function TripBudgetDrawer({
           <DrawerTitle className="text-[1.35rem] leading-tight text-white">
             {editingExpenseId ? "Edit expense" : "Add expense"}
           </DrawerTitle>
+          <DrawerDescription>
+            Log hotel, transport, food, and other shared costs so everyone can see the running
+            total.
+          </DrawerDescription>
         </DrawerHeader>
 
         <div className="overflow-y-auto px-5 pb-6 sm:px-6">
@@ -136,11 +141,16 @@ export default function TripBudgetDrawer({
               })}
             </div>
 
+            <p className="mt-3 text-xs leading-5 text-white/46">
+              Use <span className="font-semibold text-white/70">Stay</span> for hotel, Airbnb, or
+              apartment costs.
+            </p>
+
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder="Dinner reservation"
+                placeholder="Hotel split"
                 className="w-full rounded-2xl border border-white/18 bg-transparent px-4 py-3.5 text-white placeholder:text-white/45 transition-[border-color,background-color] focus:border-white/30 focus:bg-white/6 focus:outline-none"
               />
               <input
@@ -152,14 +162,14 @@ export default function TripBudgetDrawer({
               />
             </div>
 
-            <button
-              type="submit"
-              className="editorial-button-primary mt-4 w-full justify-center px-4 py-3.5 text-[0.62rem]"
-            >
-              <Plus className="h-4 w-4" />
-              {editingExpenseId ? "Save" : "Add"}
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="editorial-button-primary mt-4 w-full justify-center px-4 py-3.5 text-[0.62rem]"
+              >
+                <Plus className="h-4 w-4" />
+                {editingExpenseId ? "Save expense" : "Add expense"}
+              </button>
+            </form>
 
           <div className="mt-4 space-y-3 pb-2">
             <div className="flex items-center justify-between">
@@ -170,7 +180,7 @@ export default function TripBudgetDrawer({
             </div>
             {expenses.length === 0 ? (
               <div className="rounded-[1.6rem] border border-dashed border-white/22 bg-black/16 px-4 py-6 text-sm text-white/62 backdrop-blur-xl">
-                No expenses yet.
+                No expenses yet. Start with your stay, transport, or first shared meal.
               </div>
             ) : (
               expenses.map((expense) => (

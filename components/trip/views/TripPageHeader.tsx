@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, Home, Settings2 } from "lucide-react";
+import { CalendarDays, LayoutGrid, Settings2, Users } from "lucide-react";
 
 import UserAvatar from "@/components/UserAvatar";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -9,6 +9,29 @@ import type { AvailabilityMember } from "../types";
 import type { TripView } from "../view";
 import { getTripViewHref } from "../view";
 import TripShareButton from "./TripShareButton";
+
+const navItems = [
+  {
+    view: "board" as const,
+    label: "Board",
+    icon: LayoutGrid,
+  },
+  {
+    view: "people" as const,
+    label: "People",
+    icon: Users,
+  },
+  {
+    view: "calendar" as const,
+    label: "Calendar",
+    icon: CalendarDays,
+  },
+  {
+    view: "settings" as const,
+    label: "Settings",
+    icon: Settings2,
+  },
+];
 
 export default function TripPageHeader({
   currentView,
@@ -23,72 +46,61 @@ export default function TripPageHeader({
   const hiddenTravelerCount = Math.max(travelers.length - headerTravelers.length, 0);
 
   return (
-    <header className="sticky top-4 z-30 flex flex-wrap items-center justify-between gap-4">
-      <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-        <Link
-          href={getTripViewHref(tripId, "board")}
-          className={cn(
-            "trip-glass-button trip-control-surface flex h-12 w-12 items-center justify-center px-0 text-sm",
-            currentView === "board" &&
-            "trip-header-button-active border-white/24 bg-white/[0.14] text-white",
-          )}
-          aria-label="Open trip dashboard"
-        >
-          <Home className="h-4 w-4" />
-        </Link>
-      </div>
+    <header className="sticky top-4 z-30">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+        <nav aria-label="Trip sections" className="flex flex-wrap gap-2">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = currentView === item.view;
 
-      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-        <Link
-          href={getTripViewHref(tripId, "people")}
-          className={cn(
-            "trip-glass-button trip-control-surface h-11 p-2 text-sm",
-            currentView === "people" &&
-            "trip-header-button-active border-white/24 bg-white/[0.14] text-white",
-          )}
-        >
-          <div className="flex items-center">
-            {headerTravelers.map((traveler, index) => (
-              <span key={traveler.memberId} className={index === 0 ? "" : "-ml-2"}>
-                <UserAvatar
-                  name={traveler.name}
-                  image={traveler.image}
-                  seed={traveler.userId}
-                  size={32}
-                />
-              </span>
-            ))}
+            return (
+              <Link
+                key={item.view}
+                href={getTripViewHref(tripId, item.view)}
+                className={cn(
+                  "inline-flex min-h-11 trip-glass-button items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition",
+                  active
+                    ? "border-white/28 bg-white/[0.14] text-white"
+                    : "border-white/10 bg-white/[0.04] text-white/68 hover:border-white/18 hover:bg-white/[0.08] hover:text-white",
+                )}
+                aria-current={active ? "page" : undefined}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex min-h-11 items-center gap-3 trip-glass-button rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white/72">
+            <div className="flex items-center">
+              {headerTravelers.map((traveler, index) => (
+                <span
+                  key={traveler.memberId}
+                  className={index === 0 ? "" : "-ml-2"}
+                >
+                  <UserAvatar
+                    name={traveler.name}
+                    image={traveler.image}
+                    seed={traveler.userId}
+                    size={30}
+                  />
+                </span>
+              ))}
+            </div>
+            <span>
+              {travelers.length} traveler{travelers.length === 1 ? "" : "s"}
+              {hiddenTravelerCount > 0 ? ` (+${hiddenTravelerCount})` : ""}
+            </span>
           </div>
-          {hiddenTravelerCount > 0 ? (
-            <span className="text-sm text-white/68">+{hiddenTravelerCount}</span>
-          ) : null}
-        </Link>
 
-        <Link
-          href={getTripViewHref(tripId, "calendar")}
-          className={cn(
-            "trip-glass-icon-button trip-control-surface",
-            currentView === "calendar" &&
-            "trip-header-button-active border-white/24 bg-white/[0.14] text-white",
-          )}
-          aria-label="Open calendar"
-        >
-          <CalendarDays className="h-4 w-4" />
-        </Link>
-
-        <Link
-          href={getTripViewHref(tripId, "settings")}
-          className={cn(
-            "trip-glass-icon-button trip-control-surface",
-            currentView === "settings" &&
-            "trip-header-button-active border-white/24 bg-white/[0.14] text-white",
-          )}
-          aria-label="Open trip settings"
-        >
-          <Settings2 className="h-4 w-4" />
-        </Link>
-
-        <TripShareButton tripId={tripId} />
+          <TripShareButton
+            tripId={tripId}
+            label="Invite friends"
+            copiedLabel="Invite link copied"
+          />
+        </div>
       </div>
     </header>
   );

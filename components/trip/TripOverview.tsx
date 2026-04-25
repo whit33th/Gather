@@ -613,11 +613,13 @@ export function ProposalStudio({
   tripId,
   proposals,
   canManageSelections,
+  sectionId,
 }: {
   trip: Doc<"trips">;
   tripId: Id<"trips">;
   proposals: ProposalCard[] | undefined;
   canManageSelections?: boolean;
+  sectionId?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -863,9 +865,26 @@ export function ProposalStudio({
 
   return (
     <RevealSection className="rounded-4xl border border-[#23362d] bg-[linear-gradient(180deg,#10211b,#0b1713)] p-5 sm:p-6">
-   
+      <div id={sectionId} className="scroll-mt-28">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <p className="section-kicker">Places to decide</p>
+            <h2 className="mt-3 text-[1.85rem] font-semibold tracking-[-0.05em] text-white">
+              Stays, food, and plans in one list
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#9fb0a3]">
+              Paste a Booking or Airbnb link, save restaurants or activities, and pin the current
+              frontrunner once the group has a favorite.
+            </p>
+          </div>
 
-      <div className=" flex flex-wrap gap-2.5">
+          <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.04] px-4 py-3 text-sm leading-6 text-white/60">
+            Use <span className="font-semibold text-white/80">Stay</span> for hotels, Airbnbs,
+            and apartments.
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-2.5">
         {proposalFilterMeta.map((item) => {
           const active = selectedCategory === item.id;
           return (
@@ -884,10 +903,10 @@ export function ProposalStudio({
             </button>
           );
         })}
-      </div>
+        </div>
 
-      {activeChosenProposal ? (
-        <div className="mt-5 overflow-hidden rounded-[1.6rem] border border-[#4b5740] bg-[#17251d]">
+        {activeChosenProposal ? (
+          <div className="mt-5 overflow-hidden rounded-[1.6rem] border border-[#4b5740] bg-[#17251d]">
           <div className="grid gap-0 sm:grid-cols-[5.5rem_minmax(0,1fr)]">
             <div className="relative min-h-[5.5rem] bg-[#13231d]">
               {activeChosenProposal.imageUrl ? (
@@ -925,24 +944,26 @@ export function ProposalStudio({
               </div>
             </div>
           </div>
-        </div>
-      ) : null}
+          </div>
+        ) : null}
 
-      {proposals === undefined ? (
-        <div className="mt-6">
-          <Loader />
-        </div>
-      ) : (
-        <div className="mt-8 space-y-3">
-          <AddTile
-            title="Add proposal"
-            onClick={() => {
-              setEditingProposalId(null);
-              setOpen(true);
-            }}
-            className="min-h-[9.75rem]"
-          />
-          {visibleProposals.map((proposal) => {
+        {proposals === undefined ? (
+          <div className="mt-6">
+            <Loader />
+          </div>
+        ) : (
+          <div className="mt-8 space-y-3">
+            <AddTile
+              title={proposals.length > 0 ? "Add another place" : "Add your first place"}
+              description="Hotels, Airbnbs, restaurants, and activities all live here."
+              onClick={() => {
+                setEditingProposalId(null);
+                setCategory(selectedCategory === "all" ? "accommodation" : selectedCategory);
+                setOpen(true);
+              }}
+              className="min-h-[9.75rem]"
+            />
+            {visibleProposals.map((proposal) => {
             const meta = getCategoryMeta(proposal.category);
             const rank = filteredProposals.findIndex((item) => item._id === proposal._id) + 1;
             const rankClasses = getProposalRankClasses(rank);
@@ -1090,32 +1111,33 @@ export function ProposalStudio({
                 </div>
               </article>
             );
-          })}
-        </div>
-      )}
-      {selectedCategory !== "all" && filteredProposals.length > 2 && activeChosenProposal ? (
-        <div className="mt-4 flex justify-center">
-          <button
-            type="button"
-            onClick={() =>
-              setExpandedCategories((current) => ({
-                ...current,
-                [selectedCategory]: !current[selectedCategory],
-              }))
-            }
-            className="editorial-button-secondary px-4 py-3 text-[0.62rem]"
-          >
-            {expandedCategories[selectedCategory] ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-            {expandedCategories[selectedCategory]
-              ? `Show fewer ${getCategoryMeta(selectedCategory).label.toLowerCase()} picks`
-              : `Show all ${filteredProposals.length} ${getCategoryMeta(selectedCategory).label.toLowerCase()} picks`}
-          </button>
-        </div>
-      ) : null}
+            })}
+          </div>
+        )}
+        {selectedCategory !== "all" && filteredProposals.length > 2 && activeChosenProposal ? (
+          <div className="mt-4 flex justify-center">
+            <button
+              type="button"
+              onClick={() =>
+                setExpandedCategories((current) => ({
+                  ...current,
+                  [selectedCategory]: !current[selectedCategory],
+                }))
+              }
+              className="editorial-button-secondary px-4 py-3 text-[0.62rem]"
+            >
+              {expandedCategories[selectedCategory] ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+              {expandedCategories[selectedCategory]
+                ? `Show fewer ${getCategoryMeta(selectedCategory).label.toLowerCase()} picks`
+                : `Show all ${filteredProposals.length} ${getCategoryMeta(selectedCategory).label.toLowerCase()} picks`}
+            </button>
+          </div>
+        ) : null}
+      </div>
 
       <EditorDrawer
         open={open}
@@ -1126,7 +1148,7 @@ export function ProposalStudio({
           }
           setOpen(nextOpen);
         }}
-        title={editingProposalId ? "Edit proposal" : "Add proposal"}
+        title={editingProposalId ? "Edit place" : "Add place"}
         footer={
           <div className="flex w-full items-center justify-between gap-3">
             {editingProposalId ? (

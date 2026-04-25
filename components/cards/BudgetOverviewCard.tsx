@@ -5,7 +5,6 @@ import {
   cardSurface,
   currencyFormatter,
   getBudgetBucket,
-  SummaryActionButton,
 } from "./shared";
 
 export function BudgetOverviewCard({
@@ -21,7 +20,9 @@ export function BudgetOverviewCard({
   budgetTarget: number;
   onOpen: () => void;
 }) {
-  const totals = new Map<string, number>(budgetBuckets.map((bucket) => [bucket.id, 0]));
+  const totals = new Map<string, number>(
+    budgetBuckets.map((bucket) => [bucket.id, 0]),
+  );
 
   (expenses || []).forEach((expense) => {
     const bucketId = getBudgetBucket(expense.title, expense.category);
@@ -31,7 +32,8 @@ export function BudgetOverviewCard({
   const safeTotal = totalBudget || 1;
   const bucketSummary = budgetBuckets.map((bucket) => {
     const amount = totals.get(bucket.id) || 0;
-    const percent = totalBudget > 0 ? Math.round((amount / safeTotal) * 100) : 0;
+    const percent =
+      totalBudget > 0 ? Math.round((amount / safeTotal) * 100) : 0;
 
     return {
       ...bucket,
@@ -41,20 +43,24 @@ export function BudgetOverviewCard({
   });
 
   return (
-    <section className={cardSurface("grid grid-cols-2 gap-3 p-4 xl:grid-cols-[11rem_minmax(0,1fr)]")}>
+    <section
+      className={cardSurface(
+        "grid grid-cols-2 gap-3 p-4 xl:grid-cols-[11rem_minmax(0,1fr)]",
+      )}
+    >
       <div className="trip-theme-subsurface flex flex-col items-center justify-center rounded-3xl px-4 py-5 text-center">
+        <p className="section-kicker text-[0.56rem]">Expenses</p>
         <p className="mt-3 text-[2.35rem] font-semibold tracking-[-0.08em] text-white">
           {currencyFormatter.format(totalBudget)}
         </p>
-        <p className="mt-2 text-sm text-[color:var(--trip-card-muted-text)]">Total</p>
 
-        <div className="mt-6">
-          <SummaryActionButton
-            label="Open budget drawer"
-            onClick={onOpen}
-            variant="plus"
-          />
-        </div>
+        <button
+          type="button"
+          onClick={onOpen}
+          className="editorial-button-secondary mt-6 justify-center px-4 py-3 text-[0.62rem]"
+        >
+          Add or edit costs
+        </button>
       </div>
 
       <div className="trip-theme-subsurface rounded-3xl px-4 py-4">
@@ -62,7 +68,9 @@ export function BudgetOverviewCard({
           {bucketSummary.map((bucket) => {
             const Icon = bucket.icon;
             const width =
-              totalBudget > 0 ? Math.max(bucket.percent, bucket.amount > 0 ? 10 : 0) : 0;
+              totalBudget > 0
+                ? Math.max(bucket.percent, bucket.amount > 0 ? 10 : 0)
+                : 0;
 
             return (
               <div key={bucket.id}>
@@ -71,7 +79,9 @@ export function BudgetOverviewCard({
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[color:var(--trip-card-muted-text)]">
                       <Icon className="h-3.5 w-3.5" />
                     </span>
-                    <span className="truncate text-[#e9eee5]">{bucket.label}</span>
+                    <span className="truncate text-[#e9eee5]">
+                      {bucket.label}
+                    </span>
                   </div>
                   <div className="shrink-0 text-right">
                     <span className="font-medium text-white">
@@ -94,7 +104,9 @@ export function BudgetOverviewCard({
         </div>
 
         <div className="trip-theme-divider mt-4 flex items-center justify-between border-t pt-3 text-sm">
-          <span className="text-[color:var(--trip-card-muted-text)]">Target</span>
+          <span className="text-[color:var(--trip-card-muted-text)]">
+            Target
+          </span>
           <div className="text-right">
             <span className="font-medium text-white">
               {currencyFormatter.format(budgetTarget)}

@@ -13,6 +13,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import type { TripPagePreloadedData } from "../preloaded";
 import type { TripMemberRosterItem } from "../types";
 import { getTripPersonHref } from "../view";
+import TripShareButton from "./TripShareButton";
 
 function getSortedRoster(roster: TripMemberRosterItem[]) {
   const collator = new Intl.Collator("en", { sensitivity: "base" });
@@ -89,6 +90,27 @@ export default function TripPeopleView({
 
   return (
     <section className="w-full px-0 py-2">
+      <div className="mb-5 flex flex-col gap-4 rounded-[1.5rem] border border-white/10 bg-white/[0.04] px-5 py-5 backdrop-blur-2xl md:flex-row md:items-center md:justify-between">
+        <div className="max-w-2xl">
+          <p className="section-kicker">Travelers</p>
+          <h2 className="mt-3 text-[1.65rem] font-semibold tracking-[-0.05em] text-white">
+            Bring the whole group into the notebook
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-white/60">
+            Send the invite link so friends can vote on stays, mark availability, and log their
+            own costs.
+          </p>
+        </div>
+
+        <TripShareButton
+          tripId={tripId}
+          variant="secondary"
+          label="Copy invite link"
+          copiedLabel="Invite link copied"
+          className="w-full md:w-auto"
+        />
+      </div>
+
       <label className="mb-5 flex items-center gap-3 rounded-[1.15rem] border border-white/10 bg-white/[0.04] px-4 py-3.5 backdrop-blur-xl">
         <Search className="h-4 w-4 text-white/32" />
         <input
